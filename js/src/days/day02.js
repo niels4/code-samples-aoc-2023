@@ -1,4 +1,4 @@
-import * as lib from "../lib/runner.js"
+import * as runner from "../lib/runner.js"
 import {sum} from '../lib/iterators.js'
 
 console.log("Solving AoC 2021 day 02")
@@ -51,18 +51,31 @@ const part1 = (input) => {
   return sum(scores)
 }
 
-// const part2 = (input) => {
-//   return 0
-// }
+const part2 = (input) => {
+  const games = parseInput(input)
+  const powers = games.map((game) => {
+    let minRed = 0
+    let minGreen = 0
+    let minBlue = 0
+    for (const grab of game) {
+      const {red, blue, green} = grab
+      if (red > minRed) { minRed = red }
+      if (green > minGreen) { minGreen = green }
+      if (blue > minBlue) { minBlue = blue }
+    }
+    return minRed * minGreen * minBlue
+  })
+  return sum(powers)
+}
 
-await lib.testOutput('day02/example', '1', part1)
+await runner.testOutput('day02/example', '1', part1)
 // await lib.printOutput('day02/test', part1)
 // await lib.copyOutput('day02/test', part1)
 // await lib.writeOutput('day02/test', '1', part1)
-await lib.testOutput('day02/test', '1', part1)
+await runner.testOutput('day02/test', '1', part1)
 
-// await lib.testOutput('day02/example', '2', part2)
+await runner.testOutput('day02/example', '2', part2)
 // await lib.printOutput('day02/test', part2)
 // await lib.copyOutput('day02/test', part2)
 // await lib.writeOutput('day02/test', '2', part2)
-// await lib.testOutput('day02/test', '2', part2)
+await runner.testOutput('day02/test', '2', part2)
