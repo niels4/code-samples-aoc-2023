@@ -1,5 +1,5 @@
 import * as runner from "../lib/runner.js"
-import {windows, sum} from '../lib/iterators.js'
+import {sum} from '../lib/iterators.js'
 
 console.log("Solving AoC 2023 day 1")
 
