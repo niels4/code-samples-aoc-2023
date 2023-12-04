@@ -30,14 +30,26 @@ const parseInput = (input) => {
 
     const handleNonDigit = (i) => {
       if (numberStart != null) {
-        numbers.push({
+        const number = {
           start: numberStart,
           end: i,
           number: Number(numberChars),
           nearSymbol: false
-        })
+        }
+
+        numbers.push(number)
         numberStart = null
         numberChars = ""
+
+        const markIfNear = ({col}) => {
+          if (col >= number.start - 1 && col <= number.end + 1) {
+            number.nearSymbol = true
+          }
+        }
+        symbols.forEach(markIfNear)
+        if (rowIndex > 0) {
+          rows[rowIndex - 1].symbols.forEach(markIfNear)
+        }
       }
     }
 
@@ -46,7 +58,7 @@ const parseInput = (input) => {
 
       const markIfNear = (number) => {
         const {start, end} = number
-        if (col >= start && col <= end) {
+        if (col >= start - 1 && col <= end + 1) {
           number.nearSymbol = true
         }
       }
