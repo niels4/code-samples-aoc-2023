@@ -1,6 +1,11 @@
 import path from "node:path"
 import { readFile, writeFile } from "node:fs/promises"
 import { spawn } from 'node:child_process'
+import { inspect } from "node:util"
+
+global.inspect = (obj) => {
+  console.log(inspect(obj, {depth: null, colors: true}))
+}
 
 const COPY_BIN = "pbcopy"
 const DATA_DIR = "data"

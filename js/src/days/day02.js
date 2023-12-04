@@ -17,14 +17,14 @@ const parseInput = (input) => {
     const grabs = line.split(';').map((section) => {
       const colorsGrabbed = {}
 
-      const hasred = redMatch.exec(section)
-      if (hasred) {
-        colorsGrabbed.red = Number(hasred[1])
+      const hasRed = redMatch.exec(section)
+      if (hasRed) {
+        colorsGrabbed.red = Number(hasRed[1])
       }
 
-      const hasgreen = greenMatch.exec(section)
-      if (hasgreen) {
-        colorsGrabbed.green = Number(hasgreen[1])
+      const hasGreen = greenMatch.exec(section)
+      if (hasGreen) {
+        colorsGrabbed.green = Number(hasGreen[1])
       }
 
       const hasBlue = blueMatch.exec(section)
