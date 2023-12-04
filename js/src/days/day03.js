@@ -1,4 +1,5 @@
 import * as runner from "../lib/runner.js"
+import {sum} from "../lib/iterators.js"
 
 console.log("Solving AoC 2023 day 03")
 
@@ -32,7 +33,7 @@ const parseInput = (input) => {
       if (numberStart != null) {
         const number = {
           start: numberStart,
-          end: i,
+          end: i - 1,
           number: Number(numberChars),
           nearSymbol: false
         }
@@ -80,6 +81,7 @@ const parseInput = (input) => {
         handleNonDigit(i)
       }
     } 
+    handleNonDigit(line.length) // treat end of line as a non digit
     rows.push({numbers, symbols})
   })
 
@@ -88,9 +90,15 @@ const parseInput = (input) => {
 
 const part1 = (input) => {
   const rows = parseInput(input)
-  console.log("got rows")
-  global.inspect(rows)
-  return 0
+  const markedNumbers = []
+  rows.forEach(({numbers}) => {
+    numbers.forEach(({number, nearSymbol}) => {
+      if (nearSymbol) {
+        markedNumbers.push(number)
+      }
+    })
+  })
+  return sum(markedNumbers)
 }
 
 // const part2 = (input) => {
@@ -101,7 +109,7 @@ await runner.testOutput('day03/example', '1', part1)
 // await runner.printOutput('day03/test', part1)
 // await runner.copyOutput('day03/test', part1)
 // await runner.writeOutput('day03/test', '1', part1)
-// await runner.testOutput('day03/test', '1', part1)
+await runner.testOutput('day03/test', '1', part1)
 
 // await runner.testOutput('day03/example', '2', part2)
 // await runner.printOutput('day03/test', part2)
