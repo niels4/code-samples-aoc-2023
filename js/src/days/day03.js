@@ -42,7 +42,8 @@ const parseInput = (input) => {
         numberStart = null
         numberChars = ""
 
-        const markIfNear = ({col}) => {
+        const markIfNear = (symbol) => {
+          const {col} = symbol
           if (col >= number.start - 1 && col <= number.end + 1) {
             number.nearSymbol = true
           }
@@ -55,7 +56,8 @@ const parseInput = (input) => {
     }
 
     const handleSymbol = (char, col) => {
-      symbols.push({ col, char })
+      const symbol = {col, char}
+      symbols.push(symbol)
 
       const markIfNear = (number) => {
         const {start, end} = number
@@ -101,9 +103,36 @@ const part1 = (input) => {
   return sum(markedNumbers)
 }
 
-// const part2 = (input) => {
-//   return 0
-// }
+const getAdjacentNumbers = (rows, rowIndex, colIndex) => {
+  const adjacent = []
+  const startRow = Math.max(0, rowIndex - 1)
+  const endRow = Math.min(rows.length - 1, rowIndex + 1)
+  for (let i = startRow; i <= endRow; i++) {
+    rows[i].numbers.forEach((number) => {
+      if (colIndex >= number.start - 1 && colIndex <= number.end + 1) {
+        adjacent.push(number.number)
+      }
+    })
+  }
+  return adjacent
+}
+
+const part2 = (input) => {
+  const rows = parseInput(input)
+  const gearRatios = []
+  rows.forEach(({symbols}, rowIndex) => {
+    symbols.forEach(({char, col}) => {
+      if (char === "*") {
+        const adjacentNumbers = getAdjacentNumbers(rows, rowIndex, col)
+        if (adjacentNumbers.length === 2) {
+          const [n1, n2] = adjacentNumbers
+          gearRatios.push(n1 * n2)
+        }
+      }
+    })
+  })
+  return sum(gearRatios)
+}
 
 await runner.testOutput('day03/example', '1', part1)
 // await runner.printOutput('day03/test', part1)
@@ -111,8 +140,8 @@ await runner.testOutput('day03/example', '1', part1)
 // await runner.writeOutput('day03/test', '1', part1)
 await runner.testOutput('day03/test', '1', part1)
 
-// await runner.testOutput('day03/example', '2', part2)
+await runner.testOutput('day03/example', '2', part2)
 // await runner.printOutput('day03/test', part2)
 // await runner.copyOutput('day03/test', part2)
 // await runner.writeOutput('day03/test', '2', part2)
-// await runner.testOutput('day03/test', '2', part2)
+await runner.testOutput('day03/test', '2', part2)
