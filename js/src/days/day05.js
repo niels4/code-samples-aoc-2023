@@ -118,7 +118,6 @@ const mapRangeToRange = (range, rangeMapping) => {
 
   // case 2, range entirely overlaps mapped src
   if (start < mappedSrcStart && end > mappedSrcEnd) {
-    console.log("CASE 2:")
     const additionalRanges = []
 
     const beforeStart = start
@@ -133,8 +132,6 @@ const mapRangeToRange = (range, rangeMapping) => {
 
     const mappedStart = mappedSrcStart + mappedOffset
     const mappedEnd = mappedSrcEnd + mappedOffset
-    console.log(start, end, mappedSrcStart, mappedSrcEnd, mappedStart, mappedEnd)
-    inspect(additionalRanges)
     return {
       matched: true,
       additionalRanges,
@@ -148,7 +145,6 @@ const mapRangeToRange = (range, rangeMapping) => {
 
   // case 3, range overlaps start of mapped src
   if (start < mappedSrcStart && end >= mappedSrcStart && end <= mappedSrcEnd) {
-    console.log("CASE 3:")
     const additionalRanges = []
     const beforeStart = start
     const beforeEnd = mappedSrcStart - 1
@@ -158,8 +154,6 @@ const mapRangeToRange = (range, rangeMapping) => {
     const mappedStart = mappedSrcStart + mappedOffset
     const mappedEnd = end + mappedOffset
     const newMappedSize = mappedEnd - mappedStart + 1
-    console.log(start, end, mappedSrcStart, mappedSrcEnd, mappedStart, mappedEnd)
-    inspect(additionalRanges)
     return {
       matched: true,
       additionalRanges,
@@ -173,7 +167,6 @@ const mapRangeToRange = (range, rangeMapping) => {
 
   // case 4, range overlaps end of mapped src
   if (start >= mappedSrcStart && start <= mappedSrcEnd && end > mappedSrcEnd) {
-    console.log("CASE 4:")
     const additionalRanges = []
     const afterStart = mappedSrcEnd + 1
     const afterEnd = end
@@ -183,8 +176,6 @@ const mapRangeToRange = (range, rangeMapping) => {
     const mappedStart = start + mappedOffset
     const mappedEnd = mappedSrcEnd + mappedOffset
     const newMappedSize = mappedEnd - mappedStart + 1
-    console.log(start, end, mappedSrcStart, mappedSrcEnd, mappedStart, mappedEnd)
-    inspect(additionalRanges)
     return {
       matched: true,
       additionalRanges,
@@ -229,7 +220,6 @@ const part2 = (input) => {
     mappedRanges.set(to, nextRanges)
   }
 
-  inspect(mappedRanges)
   return Math.min.apply(null, mappedRanges.get('location').map(r => r.start))
 }
 
@@ -243,4 +233,4 @@ await runner.testOutput('day05/example', '2', part2)
 // await runner.printOutput('day05/test', part2)
 // await runner.copyOutput('day05/test', part2)
 // await runner.writeOutput('day05/test', '2', part2)
-// await runner.testOutput('day05/test', '2', part2)
+await runner.testOutput('day05/test', '2', part2)
