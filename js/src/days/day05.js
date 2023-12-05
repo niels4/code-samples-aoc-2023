@@ -11,7 +11,7 @@ const readSeedValues = (linesIterator) => {
   const seedValues = firstLine.substring(firstLine.indexOf(":") + 2, firstLine.length)
   return {
     to: "seed",
-    mappedValues: readNumberList(seedValues)
+    values: readNumberList(seedValues)
   } 
 }
 
@@ -52,115 +52,57 @@ const parseInput = (input) => {
   return mappings
 }
 
+function* iterateMappings (mappings) {
+  let nextMapping = mappings.get('seed')
+  while (nextMapping) {
+    yield nextMapping
+    nextMapping = mappings.get(nextMapping.to)
+  }
+}
+
 const part1 = (input) => {
   const mappings = parseInput(input)
-  let currentItem = mappings.get("initial-seeds")
-  let currentMapping = mappings.get(currentItem.to)
-  while (currentMapping) {
-    const {to, ranges} = currentMapping
-    const nextItemValues = []
-    currentItem.mappedValues.forEach((val) => {
-      for (const [dstStart, srcStart, rangeLength] of ranges) {
-        const srcDiff = val - srcStart
-        if (srcDiff >= 0 && srcDiff < rangeLength) {
-          nextItemValues.push(dstStart + srcDiff)
+  const mappedValues = new Map()
+  mappedValues.set("seed", mappings.get('initial-seeds').values)
+
+  for (const {from, to, ranges} of iterateMappings(mappings)) {
+    const valuesToMap = mappedValues.get(from)
+    const nextValues = []
+    valuesToMap.forEach((value) => {
+      for (const [dstStart, srcStart, mappedSize] of ranges) {
+        const offset = dstStart - srcStart
+        const srcEnd = srcStart + mappedSize - 1
+        if (value >= srcStart && value <= srcEnd) {
+          nextValues.push(value + offset)
           return
         }
       }
-      nextItemValues.push(val) // not found in any range
+      // value doesn't fall into any mapping ranges
+      nextValues.push(value)
     })
-
-    currentMapping.mappedValues = nextItemValues
-    currentItem = currentMapping
-    currentMapping = mappings.get(to)
+    mappedValues.set(to, nextValues)
   }
 
-  return Math.min.apply(null, currentItem.mappedValues)
+  return Math.min.apply(null, mappedValues.get('location'))
 }
 
-const initRangesToMap = (mappedValues) => {
-  const rangesToMap = []
+const mappedValuesToMappedRanges = (mappedValues) => {
+  const mappedRanges = []
   for (let i = 0; i < mappedValues.length; i += 2) {
-    rangesToMap.push([mappedValues[i], mappedValues[i + 1]])
+    const start = mappedValues[i]
+    const size = mappedValues[i + 1]
+    const end = start + size - 1 // we include each end point in the size value. A range of 1 would start and end on the same value
+    mappedRanges.push({start, end, size})
   }
-  return rangesToMap
+  return mappedRanges
 }
 
-let sawLoop = false
 const part2 = (input) => {
   const mappings = parseInput(input)
   inspect(mappings)
+  const mappedRanges = mappedValuesToMappedRanges(mappings.get('initial-seeds').values)
+  inspect(mappedRanges)
 
-  let currentItem = mappings.get("initial-seeds")
-  let currentMapping = mappings.get(currentItem.to)
-  while (currentMapping) {
-    const {to, ranges} = currentMapping
-    const nextMappedValues = []
-    const rangesToMap = initRangesToMap(currentItem.mappedValues)
-    let nextRangeToMap = rangesToMap.pop()
-    let foundRange = false
-    while (nextRangeToMap) {
-      const [srcStart, srcRange] = nextRangeToMap
-      const srcEnd = srcStart + srcRange
-      for (const [mappedDstStart, mappedSrcStart, mappedRange] of ranges) {
-        const mappedOffset = mappedSrcStart - mappedDstStart
-        const mappedSrcEnd = mappedSrcStart + mappedRange
-        // case 1, src fits entirely within dst
-        console.log("checking", srcStart, srcEnd, mappedSrcStart, mappedSrcEnd, mappedDstStart)
-        if (srcStart >= mappedSrcStart && srcEnd <= mappedSrcEnd) {
-          console.log("case 1")
-          nextMappedValues.push(srcStart + mappedOffset, srcRange)
-          foundRange = true
-          break
-        }
-        // case 2, src overlaps start of dst range
-        if (srcStart < mappedDstStart && srcEnd >= mappedDstStart && srcEnd <= mappedSrcEnd) {
-          console.log("case 2")
-          const remainingLength = mappedDstStart - srcStart - 1
-          rangesToMap.push([srcStart, remainingLength])
-
-          const mappedLength = srcEnd - mappedDstStart
-          nextMappedValues.push(mappedDstStart, mappedLength)
-          foundRange = true
-          break
-        }
-        // // case 3, src overlaps end of dst range
-        if (srcStart >= mappedDstStart && srcStart <= mappedSrcEnd && srcEnd > mappedSrcEnd) {
-          console.log("case 3")
-          const remainingLength = srcEnd - mappedSrcEnd - 1
-          rangesToMap.push([mappedSrcEnd + 1, remainingLength])
-          const mappedLength = mappedSrcEnd - srcStart
-          nextMappedValues.push(srcStart + mappedOffset, mappedLength)
-          foundRange = true
-          break
-        }
-        // case 4, dst fits entirely within src
-        if (mappedSrcStart >= srcStart && mappedSrcEnd <= srcEnd) {
-          console.log("case 4")
-          const remainingLength1 = mappedDstStart - srcStart - 1
-          rangesToMap.push([srcStart, remainingLength1])
-
-          const remainingLength2 = srcEnd - mappedSrcEnd - 1
-          rangesToMap.push([mappedSrcEnd + 1, remainingLength2])
-
-          nextMappedValues.push(mappedDstStart, mappedRange)
-          foundRange = true
-          break
-        }
-      }
-      // final case: no matches found for any dst range
-      if (!foundRange) {
-        console.log("final case")
-        nextMappedValues.push(srcStart, srcRange)
-      }
-      nextRangeToMap = rangesToMap.pop()
-    }
-
-    currentItem = currentMapping
-    currentItem.mappedValues = nextMappedValues
-    currentMapping = mappings.get(to)
-  }
-  inspect(mappings)
   return 0
 }
 
