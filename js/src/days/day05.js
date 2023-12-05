@@ -97,6 +97,15 @@ const mappedValuesToMappedRanges = (mappedValues) => {
   return mappedRanges
 }
 
+const mapRangeToRange = (range, rangeMapping) => {
+  const mappedRange = range
+  return {
+    matched: true,
+    mappedRange,
+    additionalRanges: []
+  }
+}
+
 const part2 = (input) => {
   const mappings = parseInput(input)
   const mappedRanges = new Map()
@@ -105,16 +114,20 @@ const part2 = (input) => {
     const rangesToMap = [...mappedRanges.get(from)]
     const nextRanges = []
     while (rangesToMap.length) {
-      const {start, end, size} = rangesToMap.pop()
+      const range = rangesToMap.pop()
       let matchedRange = false
 
-      for (const [dstStart, srcStart, mappedSize] of ranges) { // compare our value range against current mapping ranges
-        const offset = dstStart - srcStart
-        const srcEnd = srcStart + mappedSize - 1
-
+      for (const rangeMapping of ranges) { // compare our value range against current mapping ranges
+        const {matched, mappedRange, additionalRanges} = mapRangeToRange(range, rangeMapping)
+        if (matched) {
+          matchedRange = true
+          nextRanges.push(mappedRange)
+          rangesToMap.push.apply(rangesToMap, additionalRanges)
+          break
+        }
       }
       if (!matchedRange) {
-        nextRanges.push({start, end, size})
+        nextRanges.push(range)
       }
     }
     mappedRanges.set(to, nextRanges)
