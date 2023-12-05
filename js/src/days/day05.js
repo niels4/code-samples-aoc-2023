@@ -147,7 +147,7 @@ const mapRangeToRange = (range, rangeMapping) => {
   }
 
   // case 3, range overlaps start of mapped src
-  if (start < mappedSrcStart && end >= mappedSrcStart && end <=mappedSrcEnd) {
+  if (start < mappedSrcStart && end >= mappedSrcStart && end <= mappedSrcEnd) {
     console.log("CASE 3:")
     const additionalRanges = []
     const beforeStart = start
@@ -156,6 +156,31 @@ const mapRangeToRange = (range, rangeMapping) => {
     additionalRanges.push({start: beforeStart, end: beforeEnd, size: beforeSize})
 
     const mappedStart = mappedSrcStart + mappedOffset
+    const mappedEnd = end + mappedOffset
+    const newMappedSize = mappedEnd - mappedStart + 1
+    console.log(start, end, mappedSrcStart, mappedSrcEnd, mappedStart, mappedEnd)
+    inspect(additionalRanges)
+    return {
+      matched: true,
+      additionalRanges,
+      mappedRange: {
+        start: mappedStart,
+        end: mappedEnd,
+        size: newMappedSize
+      }
+    }
+  }
+
+  // case 4, range overlaps end of mapped src
+  if (start >= mappedSrcStart && start <= mappedSrcEnd && end > mappedSrcEnd) {
+    console.log("CASE 4:")
+    const additionalRanges = []
+    const afterStart = mappedSrcEnd + 1
+    const afterEnd = end
+    const afterSize = afterEnd - afterStart + 1
+    additionalRanges.push({start: afterStart, end: afterEnd, size: afterSize})
+
+    const mappedStart = start + mappedOffset
     const mappedEnd = mappedSrcEnd + mappedOffset
     const newMappedSize = mappedEnd - mappedStart + 1
     console.log(start, end, mappedSrcStart, mappedSrcEnd, mappedStart, mappedEnd)
