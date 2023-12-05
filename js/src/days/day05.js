@@ -99,10 +99,28 @@ const mappedValuesToMappedRanges = (mappedValues) => {
 
 const part2 = (input) => {
   const mappings = parseInput(input)
-  inspect(mappings)
-  const mappedRanges = mappedValuesToMappedRanges(mappings.get('initial-seeds').values)
-  inspect(mappedRanges)
+  const mappedRanges = new Map()
+  mappedRanges.set('seed', mappedValuesToMappedRanges(mappings.get('initial-seeds').values))
+  for (const {from, to, ranges} of iterateMappings(mappings)) {
+    const rangesToMap = [...mappedRanges.get(from)]
+    const nextRanges = []
+    while (rangesToMap.length) {
+      const {start, end, size} = rangesToMap.pop()
+      let matchedRange = false
 
+      for (const [dstStart, srcStart, mappedSize] of ranges) { // compare our value range against current mapping ranges
+        const offset = dstStart - srcStart
+        const srcEnd = srcStart + mappedSize - 1
+
+      }
+      if (!matchedRange) {
+        nextRanges.push({start, end, size})
+      }
+    }
+    mappedRanges.set(to, nextRanges)
+  }
+
+  inspect(mappedRanges)
   return 0
 }
 
