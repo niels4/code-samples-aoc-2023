@@ -1,6 +1,6 @@
-import { sum } from "../lib/iterators.js"
+import { sum, reverseArray, skip } from "../lib/iterators.js"
 import * as runner from "../lib/runner.js"
-import {intersection} from '../lib/set.js'
+import { intersection } from '../lib/set.js'
 
 console.log("Solving AoC 2023 day 04")
 
@@ -33,17 +33,33 @@ const parseInput = (input) => {
   return cards
 }
 
+const getCardScore = ({matchedNumbers}) => {
+  return matchedNumbers.size == 0 ? 0 : 2**(matchedNumbers.size - 1)
+}
+
 const part1 = (input) => {
   const cards = parseInput(input)
-  const scores = cards.map(({matchedNumbers}) => {
-    return matchedNumbers.size == 0 ? 0 : 2**(matchedNumbers.size - 1)
-  })
+  const scores = cards.map(getCardScore)
   return sum(scores)
 }
 
-// const part2 = (input) => {
-//   return 0
-// }
+const part2 = (input) => {
+  const cards = parseInput(input)
+  const allCardsWon = [1]
+
+  let curIndex = 1
+  for (const card of skip(1, reverseArray(cards))) {
+    let currentCardsWon = 1
+    const numMatched = card.matchedNumbers.size
+    for (let i = 1; i <= numMatched; i++) {
+      currentCardsWon += allCardsWon[curIndex - i]
+    }
+    allCardsWon.push(currentCardsWon)
+    curIndex++
+  }
+
+  return sum(allCardsWon)
+}
 
 await runner.testOutput('day04/example', '1', part1)
 // await runner.printOutput('day04/test', part1)
@@ -51,8 +67,8 @@ await runner.testOutput('day04/example', '1', part1)
 // await runner.writeOutput('day04/test', '1', part1)
 await runner.testOutput('day04/test', '1', part1)
 
-// await runner.testOutput('day04/example', '2', part2)
+await runner.testOutput('day04/example', '2', part2)
 // await runner.printOutput('day04/test', part2)
 // await runner.copyOutput('day04/test', part2)
 // await runner.writeOutput('day04/test', '2', part2)
-// await runner.testOutput('day04/test', '2', part2)
+await runner.testOutput('day04/test', '2', part2)
