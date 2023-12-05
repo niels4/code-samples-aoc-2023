@@ -95,7 +95,6 @@ const part2 = (input) => {
   let currentMapping = mappings.get(currentItem.to)
   while (currentMapping) {
     const {to, ranges} = currentMapping
-    console.log("rangestomap")
     const nextMappedValues = []
     const rangesToMap = initRangesToMap(currentItem.mappedValues)
     let nextRangeToMap = rangesToMap.pop()
@@ -104,18 +103,22 @@ const part2 = (input) => {
       const [srcStart, srcRange] = nextRangeToMap
       const srcEnd = srcStart + srcRange
       for (const [mappedDstStart, mappedSrcStart, mappedRange] of ranges) {
+        const mappedOffset = mappedSrcStart - mappedDstStart
         const mappedSrcEnd = mappedSrcStart + mappedRange
         // case 1, src fits entirely within dst
+        console.log("checking", srcStart, srcEnd, mappedSrcStart, mappedSrcEnd, mappedDstStart)
         if (srcStart >= mappedSrcStart && srcEnd <= mappedSrcEnd) {
-          const offset = srcStart - mappedSrcStart
-          nextMappedValues.push(mappedDstStart + offset, srcRange)
+          console.log("case 1")
+          nextMappedValues.push(srcStart + mappedOffset, srcRange)
           foundRange = true
           break
         }
         // case 2, src overlaps start of dst range
         if (srcStart < mappedDstStart && srcEnd >= mappedDstStart && srcEnd <= mappedSrcEnd) {
+          console.log("case 2")
           const remainingLength = mappedDstStart - srcStart - 1
           rangesToMap.push([srcStart, remainingLength])
+
           const mappedLength = srcEnd - mappedDstStart
           nextMappedValues.push(mappedDstStart, mappedLength)
           foundRange = true
@@ -123,19 +126,31 @@ const part2 = (input) => {
         }
         // // case 3, src overlaps end of dst range
         if (srcStart >= mappedDstStart && srcStart <= mappedSrcEnd && srcEnd > mappedSrcEnd) {
+          console.log("case 3")
           const remainingLength = srcEnd - mappedSrcEnd - 1
           rangesToMap.push([mappedSrcEnd + 1, remainingLength])
           const mappedLength = mappedSrcEnd - srcStart
-          nextMappedValues.push(srcStart, mappedLength)
+          nextMappedValues.push(srcStart + mappedOffset, mappedLength)
           foundRange = true
           break
         }
-        // case 1, src fits entirely within dst
-        if (srcStart >= mappedSrcStart && srcEnd <= mappedSrcEnd) {
+        // case 4, dst fits entirely within src
+        if (mappedSrcStart >= srcStart && mappedSrcEnd <= srcEnd) {
+          console.log("case 4")
+          const remainingLength1 = mappedDstStart - srcStart - 1
+          rangesToMap.push([srcStart, remainingLength1])
+
+          const remainingLength2 = srcEnd - mappedSrcEnd - 1
+          rangesToMap.push([mappedSrcEnd + 1, remainingLength2])
+
+          nextMappedValues.push(mappedDstStart, mappedRange)
+          foundRange = true
+          break
         }
       }
       // final case: no matches found for any dst range
       if (!foundRange) {
+        console.log("final case")
         nextMappedValues.push(srcStart, srcRange)
       }
       nextRangeToMap = rangesToMap.pop()
