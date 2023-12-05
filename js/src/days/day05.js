@@ -98,11 +98,26 @@ const mappedValuesToMappedRanges = (mappedValues) => {
 }
 
 const mapRangeToRange = (range, rangeMapping) => {
-  const mappedRange = range
+  const {start, end, size} = range
+  const [mappedDstStart, mappedSrcStart, mappedSize] = rangeMapping
+  const mappedSrcEnd = mappedSrcStart + mappedSize - 1
+  const mappedOffset = mappedDstStart - mappedSrcStart
+
+  // case 1, range is entirely inside mapped src
+  if (start >= mappedSrcStart && end <= mappedSrcEnd) {
+    return {
+      matched: true,
+      mappedRange: {
+        start: start + mappedOffset,
+        end: end + mappedOffset,
+        size
+      },
+      additionalRanges: []
+    }
+  }
+
   return {
-    matched: true,
-    mappedRange,
-    additionalRanges: []
+    matched: false
   }
 }
 
@@ -115,18 +130,19 @@ const part2 = (input) => {
     const nextRanges = []
     while (rangesToMap.length) {
       const range = rangesToMap.pop()
-      let matchedRange = false
+      let foundMatchingRange = false
 
       for (const rangeMapping of ranges) { // compare our value range against current mapping ranges
         const {matched, mappedRange, additionalRanges} = mapRangeToRange(range, rangeMapping)
         if (matched) {
-          matchedRange = true
+          console.log("FOUND MATCH", mappedRange)
+          foundMatchingRange = true
           nextRanges.push(mappedRange)
           rangesToMap.push.apply(rangesToMap, additionalRanges)
           break
         }
       }
-      if (!matchedRange) {
+      if (!foundMatchingRange) {
         nextRanges.push(range)
       }
     }
@@ -134,7 +150,7 @@ const part2 = (input) => {
   }
 
   inspect(mappedRanges)
-  return 0
+  return Math.min.apply(null, mappedRanges.get('location').map(r => r.start))
 }
 
 await runner.testOutput('day05/example', '1', part1)
