@@ -11,7 +11,10 @@ const parseInput = (input) => {
   return {times, distances}
 }
 
-const part1 = (input) => {
+// distance = push * (time - push)
+// push = (time / 2) +- sqrt((time / 2)**2 - distance) // solve quadratic equation for push
+
+const solveProblem = (input) => {
   const {times, distances} = parseInput(input)
   const numWaysToWinList = times.map((time, i) => {
     const targetDistance = distances[i]
@@ -27,11 +30,17 @@ const part1 = (input) => {
     return numWays
   })
   return mult(numWaysToWinList)
+ 
 }
 
-// const part2 = (input) => {
-//   return 0
-// }
+const part1 = (input) => {
+  return solveProblem(input)
+}
+
+const part2 = (input) => {
+  const fixedInput = input.replaceAll(" ", "")
+  return solveProblem(fixedInput)
+}
 
 await runner.testOutput('day06/example', '1', part1)
 // await runner.printOutput('day06/test', part1)
@@ -39,8 +48,8 @@ await runner.testOutput('day06/example', '1', part1)
 // await runner.writeOutput('day06/test', '1', part1)
 await runner.testOutput('day06/test', '1', part1)
 
-// await runner.testOutput('day06/example', '2', part2)
+await runner.testOutput('day06/example', '2', part2)
 // await runner.printOutput('day06/test', part2)
 // await runner.copyOutput('day06/test', part2)
 // await runner.writeOutput('day06/test', '2', part2)
-// await runner.testOutput('day06/test', '2', part2)
+await runner.testOutput('day06/test', '2', part2)
