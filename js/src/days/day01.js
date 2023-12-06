@@ -23,9 +23,6 @@ const part1 = (input) => {
   return sum(numbers)
 }
 
-const firstDigitMatch2 = /(\d|one|two|three|four|five|six|seven|eight|nine)/
-const lastDigitMatch2 = /(\d|one|two|three|four|five|six|seven|eight|nine).*(\d|one|two|three|four|five|six|seven|eight|nine)/
-
 const wordMap = {
   "one": 1,
   "two": 2,
@@ -37,6 +34,10 @@ const wordMap = {
   "eight": 8,
   "nine": 9,
 }
+
+const digitCapture = `(\\d|${Object.keys(wordMap).join("|")})`
+const firstDigitMatch2 = new RegExp(digitCapture)
+const lastDigitMatch2 = new RegExp(digitCapture + ".*" + digitCapture)
 
 const part2 = (input) => {
   const lines = parseInput(input)
