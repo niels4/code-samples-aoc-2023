@@ -9,13 +9,17 @@ private let dayKey = "day" + args[1]
 
 print("Running aoc 2023 solver for", dayKey)
 
-private let daysMap: [String: () -> Void] = [
+private let daysMap: [String: () throws -> Void] = [
     "day01": day01,
     "day02": day02,
 ]
 
 if let runner = daysMap[dayKey] {
-    runner()
+    do {
+        try runner()
+    } catch {
+        print("An error occurred while calling runner: \(error)")
+    }
 } else {
     print("Not a valid day to run.", dayKey)
 }
