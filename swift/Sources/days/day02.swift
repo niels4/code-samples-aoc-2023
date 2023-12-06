@@ -73,23 +73,10 @@ private func part2(_ input: String) -> String {
     return String(result)
 }
 
-func day02() throws {
-    let input = try readFile("data/day02/test.input")
-    let expectedOutput = try readFile("data/day02/test_1.output").trimmingCharacters(in: .whitespacesAndNewlines)
-    let result = part1(input)
+func day02(dayKey: String) throws {
+    try testAocOutput(dayKey: dayKey, inputName: "example", partKey: "1", partSolver: part1)
+    try testAocOutput(dayKey: dayKey, inputName: "test", partKey: "1", partSolver: part1)
 
-    if result == expectedOutput {
-        print("SUCCESS: part 1 Result matches expected output!")
-    } else {
-        print("FAIL: part 1 Expected \(expectedOutput) but got \(result)")
-    }
-
-    let expectedOutput2 = try readFile("data/day02/test_2.output")
-    let result2 = part2(input)
-
-    if result2 == expectedOutput2 {
-        print("SUCCESS: part 2 Result matches expected output!")
-    } else {
-        print("FAIL: part 2 Expected \(expectedOutput2) but got \(result2)")
-    }
+    try testAocOutput(dayKey: dayKey, inputName: "example", partKey: "2", partSolver: part2)
+    try testAocOutput(dayKey: dayKey, inputName: "test", partKey: "2", partSolver: part2)
 }
