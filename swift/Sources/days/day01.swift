@@ -1,22 +1,6 @@
 import Foundation
 
-enum FileReadError: Error {
-    case unableToRead
-}
-
-func readFile(_ relativePath: String) throws -> String {
-    let fileManager = FileManager.default
-    let currentDirectoryPath = fileManager.currentDirectoryPath
-    let fileURL = URL(fileURLWithPath: currentDirectoryPath).appendingPathComponent(relativePath)
-
-    do {
-        return try String(contentsOf: fileURL, encoding: .utf8)
-    } catch {
-        throw FileReadError.unableToRead
-    }
-}
-
-func findFirstAndLastDigit(in string: String) -> Int {
+private func findFirstAndLastDigit(in string: String) -> Int {
     let digits = string.filter { $0.isNumber }
 
     guard let firstDigit = digits.first,
@@ -40,15 +24,56 @@ private func part1(_ input: String) -> String {
     return String(result)
 }
 
+private func part2(_ input: String) -> String {
+    let firstDigitRegex = try! NSRegularExpression(pattern: "(\\d|one|two|three|four|five|six|seven|eight|nine)")
+    let lastDigitRegex = try! NSRegularExpression(pattern: "(\\d|one|two|three|four|five|six|seven|eight|nine).*(\\d|one|two|three|four|five|six|seven|eight|nine)")
+
+    let wordMap: [String: String] = [
+        "one": "1", "two": "2", "three": "3", "four": "4", "five": "5",
+        "six": "6", "seven": "7", "eight": "8", "nine": "9"
+    ]
+
+    let lines = input.split(separator: "\n")
+    let numbers = lines.map { line -> Int in
+        let lineString = String(line)
+        
+        guard let firstMatch = firstDigitRegex.firstMatch(in: lineString, range: NSRange(lineString.startIndex..., in: lineString)),
+              let range1 = Range(firstMatch.range(at: 1), in: lineString) else {
+            return 0
+        }
+
+        let firstDigit = String(lineString[range1])
+        let mappedFirstDigit = wordMap[firstDigit] ?? firstDigit
+
+        var mappedLastDigit = mappedFirstDigit
+        if let lastMatch = lastDigitRegex.firstMatch(in: lineString, range: NSRange(lineString.startIndex..., in: lineString)),
+           let range2 = Range(lastMatch.range(at: 2), in: lineString) {
+            let lastDigit = String(lineString[range2])
+            mappedLastDigit = wordMap[lastDigit] ?? lastDigit
+        }
+
+        return Int(mappedFirstDigit + mappedLastDigit)!
+    }
+    return String(numbers.reduce(0, +))
+}
+
 func day01() throws {
-    let input = try readFile("data/day01/example.input")
-    let expectedOutput = try readFile("data/day01/example_1.output")
+    let input = try readFile("data/day01/test.input")
+    let expectedOutput = try readFile("data/day01/test_1.output")
     let result = part1(input)
 
-    print("got input", input)
     if result == expectedOutput {
-        print("SUCCESS: Result matches expected output!")
+        print("SUCCESS: part 1 Result matches expected output!")
     } else {
-        print("FAIL: Expected \(expectedOutput) but got \(result)")
+        print("FAIL: part 1 Expected \(expectedOutput) but got \(result)")
+    }
+
+    let expectedOutput2 = try readFile("data/day01/test_2.output")
+    let result2 = part2(input)
+
+    if result2 == expectedOutput2 {
+        print("SUCCESS: part 2 Result matches expected output!")
+    } else {
+        print("FAIL: part 2 Expected \(expectedOutput2) but got \(result2)")
     }
 }
