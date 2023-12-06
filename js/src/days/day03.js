@@ -1,15 +1,8 @@
 import * as runner from "../lib/runner.js"
 import {sum} from "../lib/iterators.js"
+import { isDigit } from "../lib/parsing.js"
 
 console.log("Solving AoC 2023 day 03")
-
-const zeroCode = ("0").codePointAt(0)
-const nineCode = ("9").codePointAt(0)
-
-const isDigit = (char) => {
-  const code = char.codePointAt(0)
-  return code >= zeroCode && code <= nineCode
-}
 
 const isSymbol = (char) => {
   return char !== "." && !isDigit(char)
