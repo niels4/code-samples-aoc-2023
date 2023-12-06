@@ -21,41 +21,42 @@ private func part1(_ input: String) -> String {
     }
 
     let result: Int = values.reduce(0, +)
-
     return String(result)
 }
 
-
 // can use regex builder to remove repeated code
-let firstDigitRegex2 = /(\d|one|two|three|four|five|six|seven|eight|nine)/
-let lastDigitRegex2 = /(\d|one|two|three|four|five|six|seven|eight|nine).*(\d|one|two|three|four|five|six|seven|eight|nine)/
+private let firstDigitRegex2 = /(\d|one|two|three|four|five|six|seven|eight|nine)/
+private let lastDigitRegex2 = /.*(\d|one|two|three|four|five|six|seven|eight|nine)/
+
+private let wordMap: [String: String] = [
+    "one": "1", "two": "2", "three": "3", "four": "4", "five": "5",
+    "six": "6", "seven": "7", "eight": "8", "nine": "9"
+]
+
+private func findFirstAndLastDigitWithWords(in string: String) -> Int {
+    guard let firstMatch = try? firstDigitRegex2.firstMatch(in: string),
+          let lastMatch = try? lastDigitRegex2.firstMatch(in: string) else {
+        return 0
+    }
+
+    let firstDigit = String(firstMatch.1)
+    let mappedFirstDigit = wordMap[firstDigit] ?? firstDigit
+
+    let lastDigit = String(lastMatch.1)
+    let mappedLastDigit = wordMap[lastDigit] ?? lastDigit
+
+    return Int(mappedFirstDigit + mappedLastDigit)!
+}
 
 private func part2(_ input: String) -> String {
-    let wordMap: [String: String] = [
-        "one": "1", "two": "2", "three": "3", "four": "4", "five": "5",
-        "six": "6", "seven": "7", "eight": "8", "nine": "9"
-    ]
-
     let lines = input.split(separator: "\n")
-    let numbers = lines.map { line -> Int in
-        let lineString = String(line)
-        
-        guard let firstMatch = try? firstDigitRegex2.firstMatch(in: lineString) else {
-            return 0
-        }
 
-        let firstDigit = String(firstMatch.1)
-        let mappedFirstDigit = wordMap[firstDigit] ?? firstDigit
-
-        var mappedLastDigit = mappedFirstDigit
-        if let lastMatch = try? lastDigitRegex2.firstMatch(in: lineString) {
-            let lastDigit = String(lastMatch.2)
-            mappedLastDigit = wordMap[lastDigit] ?? lastDigit
-        }
-
-        return Int(mappedFirstDigit + mappedLastDigit)!
+    let values = lines.map { line -> Int in
+        return findFirstAndLastDigitWithWords(in: String(line))
     }
-    return String(numbers.reduce(0, +))
+
+    let result: Int = values.reduce(0, +)
+    return String(result)
 }
 
 func day01() throws {

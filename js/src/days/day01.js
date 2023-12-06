@@ -37,7 +37,7 @@ const wordMap = {
 
 const digitCapture = `(\\d|${Object.keys(wordMap).join("|")})`
 const firstDigitMatch2 = new RegExp(digitCapture)
-const lastDigitMatch2 = new RegExp(digitCapture + ".*" + digitCapture)
+const lastDigitMatch2 = new RegExp(".*" + digitCapture)
 
 const part2 = (input) => {
   const lines = parseInput(input)
@@ -48,7 +48,7 @@ const part2 = (input) => {
     if (!match2) { match2 = {} }
     let d1 = match1[1]
     d1 = wordMap[d1] || d1
-    let d2 = match2[2]
+    let d2 = match2[1]
     d2 = wordMap[d2] || d2
     if (d2 == null) { d2 = d1 }
     return Number(String(d1) + String(d2))
