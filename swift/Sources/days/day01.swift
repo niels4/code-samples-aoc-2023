@@ -16,8 +16,28 @@ func readFile(_ relativePath: String) throws -> String {
     }
 }
 
+func findFirstAndLastDigit(in string: String) -> Int {
+    let digits = string.filter { $0.isNumber }
+
+    guard let firstDigit = digits.first,
+          let lastDigit = digits.count > 1 ? digits.last : firstDigit,
+          let number = Int(String(firstDigit) + String(lastDigit)) else {
+        return 0  // Return 0 if no digits or conversion fails
+    }
+
+    return number
+}
+
 private func part1(_ input: String) -> String {
-    return "209"
+    let lines = input.split(separator: "\n")
+
+    let values: [Int] = lines.map { line in
+        return findFirstAndLastDigit(in: String(line))
+    }
+
+    let result: Int = values.reduce(0, +)
+
+    return String(result)
 }
 
 func day01() throws {
