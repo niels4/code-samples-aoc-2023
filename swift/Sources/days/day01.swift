@@ -1,14 +1,15 @@
 import Foundation
 
+private let firstDigitRegex1 = /(\d)/
+private let lastDigitRegex1 = /(\d)[^\d]*$/
+
 private func findFirstAndLastDigit(in string: String) -> Int {
-    let digits = string.filter { $0.isNumber }
-
-    guard let firstDigit = digits.first,
-          let lastDigit = digits.count > 1 ? digits.last : firstDigit,
-          let number = Int(String(firstDigit) + String(lastDigit)) else {
-        return 0  // Return 0 if no digits or conversion fails
+    guard let firstMatch = try? firstDigitRegex1.firstMatch(in: string),
+          let lastMatch = try? lastDigitRegex1.firstMatch(in: string),
+          let number = Int(firstMatch.1 + lastMatch.1)
+        else {
+        return 0
     }
-
     return number
 }
 
@@ -24,10 +25,12 @@ private func part1(_ input: String) -> String {
     return String(result)
 }
 
-private func part2(_ input: String) -> String {
-    let firstDigitRegex = try! NSRegularExpression(pattern: "(\\d|one|two|three|four|five|six|seven|eight|nine)")
-    let lastDigitRegex = try! NSRegularExpression(pattern: "(\\d|one|two|three|four|five|six|seven|eight|nine).*(\\d|one|two|three|four|five|six|seven|eight|nine)")
 
+// can use regex builder to remove repeated code
+let firstDigitRegex2 = /(\d|one|two|three|four|five|six|seven|eight|nine)/
+let lastDigitRegex2 = /(\d|one|two|three|four|five|six|seven|eight|nine).*(\d|one|two|three|four|five|six|seven|eight|nine)/
+
+private func part2(_ input: String) -> String {
     let wordMap: [String: String] = [
         "one": "1", "two": "2", "three": "3", "four": "4", "five": "5",
         "six": "6", "seven": "7", "eight": "8", "nine": "9"
@@ -37,18 +40,16 @@ private func part2(_ input: String) -> String {
     let numbers = lines.map { line -> Int in
         let lineString = String(line)
         
-        guard let firstMatch = firstDigitRegex.firstMatch(in: lineString, range: NSRange(lineString.startIndex..., in: lineString)),
-              let range1 = Range(firstMatch.range(at: 1), in: lineString) else {
+        guard let firstMatch = try? firstDigitRegex2.firstMatch(in: lineString) else {
             return 0
         }
 
-        let firstDigit = String(lineString[range1])
+        let firstDigit = String(firstMatch.1)
         let mappedFirstDigit = wordMap[firstDigit] ?? firstDigit
 
         var mappedLastDigit = mappedFirstDigit
-        if let lastMatch = lastDigitRegex.firstMatch(in: lineString, range: NSRange(lineString.startIndex..., in: lineString)),
-           let range2 = Range(lastMatch.range(at: 2), in: lineString) {
-            let lastDigit = String(lineString[range2])
+        if let lastMatch = try? lastDigitRegex2.firstMatch(in: lineString) {
+            let lastDigit = String(lastMatch.2)
             mappedLastDigit = wordMap[lastDigit] ?? lastDigit
         }
 
