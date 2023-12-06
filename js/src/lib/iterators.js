@@ -23,6 +23,14 @@ export function sum (iterable) {
   return total 
 }
 
+export function mult (iterable) {
+  let total = 1
+  for (const value of iterable) {
+    total *= value
+  }
+  return total 
+}
+
 export function* skip (numSkips, iterable) {
   let nextItem
 
