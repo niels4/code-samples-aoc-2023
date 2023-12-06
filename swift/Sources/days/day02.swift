@@ -16,8 +16,8 @@ private typealias Game = [Grab]
 
 private func parseColorCount(in string: Substring, using regex: Regex<(Substring, Substring)>) -> Int {
     var colorCount = 0
-    if let redMatch = try? regex.firstMatch(in: string),
-        let parsedCount = Int(redMatch.1) {
+    if let colorMatch = try? regex.firstMatch(in: string),
+        let parsedCount = Int(colorMatch.1) {
         colorCount = parsedCount
     }
     return colorCount
@@ -38,14 +38,21 @@ private func parseInput(_ input: String) -> [Game] {
 
 private func part1(_ input: String) -> String {
     let games = parseInput(input)
-    print("Got some games")
-    print("\(games)")
-    return "0"
+    let scores = games.enumerated().map { gameIndex, game in
+        for grab in game {
+            if grab.red > maxRed || grab.green > maxGreen || grab.blue > maxBlue {
+                return 0
+            }
+        }
+        return gameIndex + 1
+    }
+    let result = scores.reduce(0, +)
+    return String(result)
 }
 
 func day02() throws {
-    let input = try readFile("data/day02/example.input")
-    let expectedOutput = try readFile("data/day02/example_1.output")
+    let input = try readFile("data/day02/test.input")
+    let expectedOutput = try readFile("data/day02/test_1.output").trimmingCharacters(in: .whitespacesAndNewlines)
     let result = part1(input)
 
     if result == expectedOutput {
