@@ -101,14 +101,22 @@ private func parseInput(_ input: String) -> [Row] {
 
 private func part1(input: String) throws -> String {
     let rows = parseInput(input)
-    let result = rows.count
+    var markedValues: [Int] = []
+    rows.forEach { row in
+        row.numbers.forEach { number in
+            if number.nearSymbol {
+                markedValues.append(number.value)
+            }
+        }
+    }
+    let result = markedValues.reduce(0, +)
     return String(result)
 }
 
 
 func day03(dayKey: String) throws {
     try testAocOutput(dayKey: dayKey, inputName: "example", partKey: "1", partSolver: part1)
-    // try testAocOutput(dayKey: dayKey, inputName: "test", partKey: "1", partSolver: part1)
+    try testAocOutput(dayKey: dayKey, inputName: "test", partKey: "1", partSolver: part1)
 
     // try testAocOutput(dayKey: dayKey, inputName: "example", partKey: "2", partSolver: part2)
     // try testAocOutput(dayKey: dayKey, inputName: "test", partKey: "2", partSolver: part2)
