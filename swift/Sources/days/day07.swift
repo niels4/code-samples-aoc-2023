@@ -30,7 +30,7 @@ private enum HandType: Comparable {
             return .FullHouse
         case (3, _):
             return .ThreeOfAKind
-        case (2, 2):
+        case (2, 3):
             return .TwoPair
         case (2, _):
             return .OnePair
@@ -41,7 +41,7 @@ private enum HandType: Comparable {
 }
 
 private struct Hand {
-    let cardChars: String
+    let cardChars: [Character]
     let bid: Int
     let cardCounts: CardCounts
     let type: HandType
@@ -63,20 +63,47 @@ private func parseIntput(_ input: String) throws -> [Hand] {
         let cardChars = String(handData[0])
         let cardCounts = CardCounts(cardChars: cardChars)
         let handType = HandType.from(cardCounts: cardCounts)
-        return Hand(cardChars: cardChars, bid: bid, cardCounts: cardCounts, type: handType)
+        return Hand(cardChars: Array(cardChars), bid: bid, cardCounts: cardCounts, type: handType)
     }
+}
+
+private typealias CardStrengths = [Character: Int]
+
+private let cardOrderPart1: [Character] = ["2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"]
+private let cardStrengthsPart1: CardStrengths = Dictionary(uniqueKeysWithValues: zip(cardOrderPart1, 0..<cardOrderPart1.count))
+
+private func compareHandStrengths(hand1: Hand, hand2: Hand) -> Bool {
+    if hand1.type != hand2.type {
+        return hand1.type < hand2.type
+    }
+    for cardIndex in 0..<hand1.cardChars.count {
+        if let card1Strength = cardStrengthsPart1[hand1.cardChars[cardIndex]],
+           let card2Strength = cardStrengthsPart1[hand2.cardChars[cardIndex]] {
+            if card1Strength != card2Strength {
+                return card1Strength < card2Strength
+            }
+        }
+    }
+    return true
 }
 
 private func part1(input: String) throws -> String {
     let hands = try parseIntput(input)
-    print(hands)
-    let result = hands.count
+    let sortedHands = hands.sorted(by: compareHandStrengths)
+    var totalSoFar = 0
+    let winnings = sortedHands.enumerated().map { rankIndex, hand in
+        let rank = rankIndex + 1
+        let winning = rank * hand.bid
+        totalSoFar += winning
+        return winning
+    }
+    let result = winnings.reduce(0, +)
     return String(result)
 }
 
 func day07(dayKey: String) throws {
         try testAocOutput(dayKey: dayKey, inputName: "example", partKey: "1", partSolver: part1)
-        // try testAocOutput(dayKey: dayKey, inputName: "test", partKey: "1", partSolver: part1)
+        try testAocOutput(dayKey: dayKey, inputName: "test", partKey: "1", partSolver: part1)
 
         // try testAocOutput(dayKey: dayKey, inputName: "example", partKey: "2", partSolver: part2)
         // try testAocOutput(dayKey: dayKey, inputName: "test", partKey: "2", partSolver: part2)
