@@ -1,5 +1,12 @@
 import Foundation
 
+private let red = "\u{001B}[31m"
+private let green = "\u{001B}[32m"
+private let bold = "\u{001B}[1m"
+private let reset = "\u{001B}[0m"
+private let checkmark = "✓"
+private let cross = "✗"
+
 private enum FileReadError: Error {
     case unableToRead
 }
@@ -30,8 +37,8 @@ func testAocOutput(dayKey: String, inputName: String, partKey: String, partSolve
     let result = try partSolver(input)
 
     if result == expectedOutput {
-        print("SUCCESS: Day \(dayKey) part \(partKey) \(inputName). Result matches expected output! (\(result))")
+        print("\(bold)\(green)\(checkmark) SUCCESS: Day \(dayKey) part \(partKey) \(inputName). Result matches expected output! (\(result))\(reset)")
     } else {
-        print("FAIL: Day \(dayKey) part \(partKey) \(inputName). Expected \(expectedOutput) but got \(result)")
+        print("\(bold)\(red)\(cross) FAIL: Day \(dayKey) part \(partKey) \(inputName). Expected \(expectedOutput) but got \(result)\(reset)")
     }
 }
