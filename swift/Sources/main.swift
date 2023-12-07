@@ -1,6 +1,7 @@
 private let daysMap: [String: AocDayRunner] = [
     "01": day01,
     "02": day02,
+    "03": day03,
 ]
 
 private let args = CommandLine.arguments
