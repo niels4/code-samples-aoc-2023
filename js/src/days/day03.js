@@ -23,28 +23,27 @@ const parseInput = (input) => {
     }
 
     const handleNonDigit = (i) => {
-      if (numberStart != null) {
-        const number = {
-          start: numberStart,
-          end: i - 1,
-          number: Number(numberChars),
-          nearSymbol: false
-        }
+      if (numberStart == null) { return }
+      const number = {
+        start: numberStart,
+        end: i - 1,
+        number: Number(numberChars),
+        nearSymbol: false
+      }
 
-        numbers.push(number)
-        numberStart = null
-        numberChars = ""
+      numbers.push(number)
+      numberStart = null
+      numberChars = ""
 
-        const markIfNear = (symbol) => {
-          const {col} = symbol
-          if (col >= number.start - 1 && col <= number.end + 1) {
-            number.nearSymbol = true
-          }
+      const markIfNear = (symbol) => {
+        const {col} = symbol
+        if (col >= number.start - 1 && col <= number.end + 1) {
+          number.nearSymbol = true
         }
-        symbols.forEach(markIfNear)
-        if (rowIndex > 0) {
-          rows[rowIndex - 1].symbols.forEach(markIfNear)
-        }
+      }
+      symbols.forEach(markIfNear)
+      if (rowIndex > 0) {
+        rows[rowIndex - 1].symbols.forEach(markIfNear)
       }
     }
 
@@ -69,11 +68,12 @@ const parseInput = (input) => {
 
       if (isDigit(char)) {
         handleDigit(char, i)
-      } else if (isSymbol(char)) {
-        handleNonDigit(i)
-        handleSymbol(char, i)
+        continue
       } else {
         handleNonDigit(i)
+      }
+      if (isSymbol(char)) {
+        handleSymbol(char, i)
       }
     } 
     handleNonDigit(line.length) // treat end of line as a non digit
