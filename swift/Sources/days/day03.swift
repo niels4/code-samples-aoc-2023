@@ -51,6 +51,17 @@ private func parseInput(_ input: String) -> [Row] {
             numbers.append(newNumber)
             numberStart = -1
             numberChars = ""
+
+            func markIfNear(symbol: Symbol) {
+                if (symbol.column >= newNumber.start - 1) && (symbol.column <= newNumber.end + 1) {
+                    newNumber.nearSymbol = true
+                }
+            }
+            symbols.forEach(markIfNear)
+            if rowIndex > 0 {
+                let previousRow: Row = rows[rowIndex - 1]
+                previousRow.symbols.forEach(markIfNear)
+            }
         }
 
         func handleSymbol(char: Character, column: Int) {
