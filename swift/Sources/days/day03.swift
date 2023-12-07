@@ -113,11 +113,42 @@ private func part1(input: String) throws -> String {
     return String(result)
 }
 
+private func getAdjacentNumberValues(rows: [Row], rowIndex: Int, colIndex: Int) -> [Int] {
+    var adjacent: [Int] = []
+    let startRow = max(0, rowIndex - 1)
+    let endRow = min(rows.count - 1, rowIndex + 1)
+    for i in startRow...endRow {
+        rows[i].numbers.forEach { number in
+            if (colIndex >= number.start - 1 && colIndex <= number.end + 1) {
+                adjacent.append(number.value)
+            }
+        }
+    }
+    return adjacent
+}
+
+private func part2(input: String) throws -> String {
+    let rows = parseInput(input)
+    var gearRatios: [Int] = []
+    rows.enumerated().forEach { rowIndex, row in
+        row.symbols.forEach { symbol in
+            if symbol.value == "*" {
+                let adjacentValues = getAdjacentNumberValues(rows: rows, rowIndex: rowIndex, colIndex: symbol.column)
+                if adjacentValues.count == 2 {
+                    gearRatios.append(adjacentValues[0] * adjacentValues[1])
+                }
+            }
+        }
+    }
+    let result = gearRatios.reduce(0, +)
+    return String(result)
+}
+
 
 func day03(dayKey: String) throws {
     try testAocOutput(dayKey: dayKey, inputName: "example", partKey: "1", partSolver: part1)
     try testAocOutput(dayKey: dayKey, inputName: "test", partKey: "1", partSolver: part1)
 
-    // try testAocOutput(dayKey: dayKey, inputName: "example", partKey: "2", partSolver: part2)
-    // try testAocOutput(dayKey: dayKey, inputName: "test", partKey: "2", partSolver: part2)
+    try testAocOutput(dayKey: dayKey, inputName: "example", partKey: "2", partSolver: part2)
+    try testAocOutput(dayKey: dayKey, inputName: "test", partKey: "2", partSolver: part2)
 }
