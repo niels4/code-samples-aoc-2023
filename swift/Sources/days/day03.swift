@@ -28,51 +28,64 @@ private func isSymbol(char: Character) -> Bool {
 
 private func parseInput(_ input: String) -> [Row] {
     let lines = input.split(separator: "\n")
-    return lines.map { line in
+    var rows: [Row] = []
+    lines.enumerated().forEach { rowIndex, line in
         var numbers: [PartNumber] = []
         var symbols: [Symbol] = []
         var numberStart = -1
         var numberChars = ""
 
-        func handleDigit(char: Character, index: Int) {
+        func handleDigit(char: Character, column: Int) {
             if numberStart < 0 {
-                numberStart = index
+                numberStart = column
             }
             numberChars.append(char)
         }
 
-        func handleNonDigit(index: Int) {
+        func handleNonDigit(column: Int) {
             if numberStart < 0 {
                 return
             }
             let numberValue = Int(numberChars)!
-            let newNumber = PartNumber(value: numberValue, start: numberStart, end: index - 1, nearSymbol: false)
+            let newNumber = PartNumber(value: numberValue, start: numberStart, end: column - 1, nearSymbol: false)
             numbers.append(newNumber)
             numberStart = -1
             numberChars = ""
         }
 
-        func handleSymbol(char: Character, index: Int) {
-            let newSymbol = Symbol(value: char, column: index)
+        func handleSymbol(char: Character, column: Int) {
+            let newSymbol = Symbol(value: char, column: column)
             symbols.append(newSymbol)
+
+            func markIfNear(number: PartNumber) {
+                if (column >= number.start - 1) && (column <= number.end + 1) {
+                    number.nearSymbol = true
+                }
+            }
+            numbers.forEach(markIfNear)
+            if rowIndex > 0 {
+                let previousRow: Row = rows[rowIndex - 1]
+                previousRow.numbers.forEach(markIfNear)
+            }
         }
 
-        line.enumerated().forEach { i, char in
+        line.enumerated().forEach { column, char in
             if char.isNumber {
-                handleDigit(char: char, index: i)
+                handleDigit(char: char, column: column)
                 return
             } else {
-                handleNonDigit(index: i)
+                handleNonDigit(column: column)
             }
             if isSymbol(char: char) {
-                handleSymbol(char: char, index: i)
+                handleSymbol(char: char, column: column)
             }
         }
 
-        handleNonDigit(index: line.count) // treat end of line as a non digit
+        handleNonDigit(column: line.count) // treat end of line as a non digit
 
-        return Row(numbers: numbers, symbols: symbols)
+        rows.append(Row(numbers: numbers, symbols: symbols))
     }
+    return rows
 }
 
 private func part1(input: String) throws -> String {
