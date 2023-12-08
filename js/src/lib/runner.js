@@ -31,7 +31,7 @@ export const testOutput = async (inputFile, part, solveFunc) => {
   const result = String(solveFunc(input)).trim()
 
   if (result === expected) {
-    console.log(`${green}${bold}${checkmark} Actual output matches expected output for data '${inputFile}' part ${part}${reset}`)
+    console.log(`${green}${bold}${checkmark} Actual output matches expected output for data '${inputFile}' part ${part}${reset}. (${result})`)
   } else {
     console.error(`${red}${bold}${cross} Actual output did not match expected output for data '${inputFile}' part ${part}${reset}`)
     console.log("Expected:")
