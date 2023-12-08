@@ -10,10 +10,12 @@ const nodeRegex = /[A-Z0-9]{3}/g
 const parseInput = (input) => {
   const [directions, , ...nodeLines] = input.split('\n')
   const nodes = new Map()
+
   nodeLines.forEach((line) => {
     const [[key], [L], [R]] = [...line.matchAll(nodeRegex)]
     nodes.set(key, {key, L, R})
   })
+
   return {directions, nodes}
 }
 
@@ -37,6 +39,7 @@ const part1 = (input) => {
 // for each node, map to the node that you end up at after following 1 loop of directions
 const createFullLoopMapping = (directions, nodes) => {
   const mapping = new Map()
+
   for (const node of nodes.values()) {
     let currentNode = node
     for (const direction of directions) {
@@ -44,33 +47,37 @@ const createFullLoopMapping = (directions, nodes) => {
     }
     mapping.set(node, currentNode)
   }
+
   return mapping
 }
 
 // find which nodes can lead to the end node if we are on them at the start of the direction loop
-const findPotentialStartingLoopTargets = (directions, nodes) => {
-  const potentialStartingLoopPoints = new Map()
+const findPotentialStartingLoopTargets = (isEndKey) => (directions, nodes) => {
+  const potentialStartingLoopTargets = new Map()
+
   ;[...nodes.values()].forEach((node) => {
-    if (node.key === endNodeKey) { return }
     let numSteps = 1
     let currentNode = node
     for (const direction of directions) {
       currentNode = nodes.get(currentNode[direction])
-      if (currentNode.key === endNodeKey) {
-        potentialStartingLoopPoints.set(node, numSteps)
+      if (isEndKey(currentNode.key)) {
+        potentialStartingLoopTargets.set(node, numSteps)
         return
       }
       numSteps++
     }
   })
-  return potentialStartingLoopPoints
+
+  return potentialStartingLoopTargets
 }
+const isEndKeyPart1 = key => key === "ZZZ"
+const findPotentialStartingLoopTargetsPart1 = findPotentialStartingLoopTargets(isEndKeyPart1)
 
 // improve performance of part 1 to get an intuition for how to solve part 2
 const part1_perf = (input) => {
   const {directions, nodes} = parseInput(input)
   const fullLoopMapping = createFullLoopMapping(directions, nodes)
-  const potentialStartingLoopTargets = findPotentialStartingLoopTargets(directions, nodes)
+  const potentialStartingLoopTargets = findPotentialStartingLoopTargetsPart1(directions, nodes)
   let currentNode = nodes.get(startNodeKey)
   let numLoops = 0
   while (!potentialStartingLoopTargets.has(currentNode)) {
@@ -83,36 +90,45 @@ const part1_perf = (input) => {
   return stepsSoFar + stepsToTheEnd
 }
 
-// const getAllStartNodes = (nodes) => {
-//   const startNodes = []
-//   for (const [nodeKey, node] of nodes) {
-//     if (nodeKey.endsWith("A")) {
-//       startNodes.push(node)
-//     }
-//   }
-//   return startNodes
-// }
+const getAllStartNodes = (nodes) => {
+  const startNodes = []
+  for (const [nodeKey, node] of nodes) {
+    if (nodeKey.endsWith("A")) {
+      startNodes.push(node)
+    }
+  }
+  return startNodes
+}
 
-// const allNodesEnded = (nodes) => nodes.every(n => n.key.endsWith("Z"))
-//
-// const applyStep = (nodes, direction) => (node) => {
-//   const nextKey = node[direction]
-//   return nodes.get(nextKey)
-// }
+const foundAllStartingLoopTargets = (potentialStartingLoopTargets, nodes) => nodes.every(node => potentialStartingLoopTargets.has(node))
 
-// const part2 = (input) => {
-//   const {directions, nodes} = parseInput(input)
-//
-//   let numSteps = 0
-//   let currentNodes = getAllStartNodes(nodes)
-//   console.log(directions.length, nodes.size)
-//   while (!allNodesEnded(currentNodes)) {
-//     const nextDirection = directions[numSteps % directions.length]
-//     currentNodes = currentNodes.map(applyStep(nodes, nextDirection))
-//     numSteps++
-//   }
-//   return numSteps
-// }
+const isEndKeyPart2 = key => key.endsWith("Z")
+const findPotentialStartingLoopTargetsPart2 = findPotentialStartingLoopTargets(isEndKeyPart2)
+
+const part2 = (input) => {
+  const {directions, nodes} = parseInput(input)
+  const fullLoopMapping = createFullLoopMapping(directions, nodes)
+  const potentialStartingLoopTargets = findPotentialStartingLoopTargetsPart2(directions, nodes)
+
+  console.log("PART 2")
+  inspect(fullLoopMapping)
+  inspect(potentialStartingLoopTargets)
+
+  let currentNodes = getAllStartNodes(nodes)
+  console.log("init loop")
+  inspect(currentNodes)
+  let numLoops = 1
+  while (!foundAllStartingLoopTargets(potentialStartingLoopTargets, currentNodes)) {
+    currentNodes = currentNodes.map(node => fullLoopMapping.get(node))
+    numLoops++
+  }
+  const stepsSoFar = numLoops * directions.length
+  const stepsToTheEnd = potentialStartingLoopTargets.get(currentNodes[0])
+  console.log("ENDED LOOP", numLoops, stepsSoFar, stepsToTheEnd)
+  inspect(currentNodes)
+
+  return stepsSoFar + stepsToTheEnd
+}
 
 await runner.testOutput('day08/example', '1', part1)
 await runner.testOutput('day08/example', '1', part1_perf)
@@ -124,8 +140,8 @@ await runner.testOutput('day08/example_b', '1', part1_perf)
 await runner.testOutput('day08/test', '1', part1)
 await runner.testOutput('day08/test', '1', part1_perf)
 
-// await runner.testOutput('day08/example_c', '2', part2)
-// await runner.printOutput('day08/test', part2)
+await runner.testOutput('day08/example_c', '2', part2)
+await runner.printOutput('day08/test', part2)
 // await runner.copyOutput('day08/test', part2)
 // await runner.writeOutput('day08/test', '2', part2)
 // await runner.testOutput('day08/test', '2', part2)
