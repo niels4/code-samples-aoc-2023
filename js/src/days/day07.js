@@ -6,29 +6,17 @@ console.log("Solving AoC 2023 day 07")
 const evaluateHandType = (cardCounts) => {
   const maxCount = Math.max.apply(null, [...cardCounts.values()])
   // 5 of a kind
-  if (maxCount === 5) {
-    return 6
-  }
+  if (maxCount === 5) { return 6 }
   // 4 of a kind
-  if (maxCount === 4) {
-    return 5
-  }
+  if (maxCount === 4) { return 5 }
   // full house
-  if (maxCount === 3 && cardCounts.size === 2) {
-    return 4
-  }
+  if (maxCount === 3 && cardCounts.size === 2) { return 4 }
   // 3 of a kind
-  if (maxCount === 3 && cardCounts.size > 2) {
-    return 3
-  }
+  if (maxCount === 3 && cardCounts.size > 2) { return 3 }
   // two pair
-  if (maxCount === 2 && cardCounts.size === 3) {
-    return 2
-  }
+  if (maxCount === 2 && cardCounts.size === 3) { return 2 }
   // one pair
-  if (maxCount === 2 && cardCounts.size > 3) {
-    return 1
-  }
+  if (maxCount === 2 && cardCounts.size > 3) { return 1 }
   // high card
   return 0
 }
@@ -94,7 +82,7 @@ const applyWildCards = (hand) => {
 
   const newCounts = new Map()
   let maxCardCount = 0
-  let maxCardChar = ""
+  let maxCardChar = "A" // in the event of 5 jokers, we'll end up with a hand of 5 aces
   for (const [cardChar, cardCount] of hand.cardCounts) {
     if (cardChar === "J") { continue }
     newCounts.set(cardChar, cardCount)
