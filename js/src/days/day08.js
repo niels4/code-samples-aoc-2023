@@ -35,32 +35,28 @@ const part1 = (input) => {
 
 const findPotentialStartingLoopPoints = (directions, nodes) => {
   const potentialStartingLoopPoints = []
-
-  ;[...directions].forEach((lastDirection, lastIndex) => {
-    let potentialFromNodes = [...nodes.values()].filter(n => n[lastDirection] === endNodeKey && n.key !== endNodeKey)
-    let currentIndex = lastIndex - 1
-    while (potentialFromNodes.length !== 0 && currentIndex >= 0) {
-      const prevDirection = directions[currentIndex]
-      let nextPotentialNodes = []
-      potentialFromNodes.forEach((currentFromNode) => {
-        let filteredFromNodes = [...nodes.values()].filter(n => n[prevDirection] === currentFromNode.key && n.key !== endNodeKey)
-        nextPotentialNodes.push.apply(nextPotentialNodes, filteredFromNodes)
-      })
-      potentialFromNodes = nextPotentialNodes
-      currentIndex--
+  ;[...nodes.values()].forEach((node) => {
+    if (node.key === endNodeKey) { return }
+    let numSteps = 1
+    let currentNode = node
+    for (const direction of directions) {
+      currentNode = nodes.get(currentNode[direction])
+      if (currentNode.key === endNodeKey) {
+        potentialStartingLoopPoints.push({node, numSteps})
+        return
+      }
+      numSteps++
     }
-    potentialFromNodes = potentialFromNodes.map((node) => ({node, lastIndex}))
-    potentialStartingLoopPoints.push.apply(potentialStartingLoopPoints, potentialFromNodes)
   })
-
   return potentialStartingLoopPoints
 }
 
 const part1_optimized = (input) => {
   const {directions, nodes} = parseInput(input)
   const potentialStartingLoopPoints = findPotentialStartingLoopPoints(directions, nodes)
-  console.log('POTENTIAL STARTING LOOP POINTS:')
+  console.log('POTENTIAL STARTING LOOP POINTS1:')
   inspect(potentialStartingLoopPoints)
+
   return 0
 }
 
