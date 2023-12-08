@@ -90,12 +90,57 @@ private func compareHandStrengths(hand1: Hand, hand2: Hand) -> Bool {
 private func part1(input: String) throws -> String {
     let hands = try parseIntput(input)
     let sortedHands = hands.sorted(by: compareHandStrengths)
-    var totalSoFar = 0
     let winnings = sortedHands.enumerated().map { rankIndex, hand in
         let rank = rankIndex + 1
-        let winning = rank * hand.bid
-        totalSoFar += winning
-        return winning
+        return rank * hand.bid
+    }
+    let result = winnings.reduce(0, +)
+    return String(result)
+}
+
+private func applyWildCards(to hand: Hand) -> Hand {
+    guard let jokerCount = hand.cardCounts["J"],
+        jokerCount != 0 else {
+        return hand
+    }
+
+    var newCounts = hand.cardCounts
+    newCounts["J"] = nil
+    if let maxElement = newCounts.max(by: { $0.value < $1.value }) {
+        newCounts[maxElement.key] = maxElement.value + jokerCount
+    } else {
+        newCounts["A"] = 5 // in the event all 5 cards were jokers, we'll replace the hand with all aces
+    }
+    let newHandType = HandType.from(cardCounts: newCounts)
+
+    return Hand(cardChars: hand.cardChars, bid: hand.bid, cardCounts: newCounts, type: newHandType)
+}
+
+private let cardOrderPart2: [Character] = ["J", "2", "3", "4", "5", "6", "7", "8", "9", "T", "Q", "K", "A"]
+private let cardStrengthsPart2: CardStrengths = Dictionary(uniqueKeysWithValues: zip(cardOrderPart2, 0..<cardOrderPart2.count))
+
+private func compareHandStrengthsPart2(hand1: Hand, hand2: Hand) -> Bool {
+    if hand1.type != hand2.type {
+        return hand1.type < hand2.type
+    }
+    for cardIndex in 0..<hand1.cardChars.count {
+        if let card1Strength = cardStrengthsPart2[hand1.cardChars[cardIndex]],
+           let card2Strength = cardStrengthsPart2[hand2.cardChars[cardIndex]] {
+            if card1Strength != card2Strength {
+                return card1Strength < card2Strength
+            }
+        }
+    }
+    return true
+}
+
+private func part2(input: String) throws -> String {
+    let hands = try parseIntput(input)
+    let wildCardsApplied = hands.map(applyWildCards)
+    let sortedHands = wildCardsApplied.sorted(by: compareHandStrengthsPart2)
+    let winnings = sortedHands.enumerated().map { rankIndex, hand in
+        let rank = rankIndex + 1
+        return rank * hand.bid
     }
     let result = winnings.reduce(0, +)
     return String(result)
@@ -105,6 +150,6 @@ func day07(dayKey: String) throws {
         try testAocOutput(dayKey: dayKey, inputName: "example", partKey: "1", partSolver: part1)
         try testAocOutput(dayKey: dayKey, inputName: "test", partKey: "1", partSolver: part1)
 
-        // try testAocOutput(dayKey: dayKey, inputName: "example", partKey: "2", partSolver: part2)
-        // try testAocOutput(dayKey: dayKey, inputName: "test", partKey: "2", partSolver: part2)
+        try testAocOutput(dayKey: dayKey, inputName: "example", partKey: "2", partSolver: part2)
+        try testAocOutput(dayKey: dayKey, inputName: "test", partKey: "2", partSolver: part2)
 }
