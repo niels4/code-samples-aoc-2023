@@ -33,6 +33,37 @@ const part1 = (input) => {
   return numSteps
 }
 
+const findPotentialStartingLoopPoints = (directions, nodes) => {
+  const potentialStartingLoopPoints = []
+
+  ;[...directions].forEach((lastDirection, lastIndex) => {
+    let potentialFromNodes = [...nodes.values()].filter(n => n[lastDirection] === endNodeKey && n.key !== endNodeKey)
+    let currentIndex = lastIndex - 1
+    while (potentialFromNodes.length !== 0 && currentIndex >= 0) {
+      const prevDirection = directions[currentIndex]
+      let nextPotentialNodes = []
+      potentialFromNodes.forEach((currentFromNode) => {
+        let filteredFromNodes = [...nodes.values()].filter(n => n[prevDirection] === currentFromNode.key && n.key !== endNodeKey)
+        nextPotentialNodes.push.apply(nextPotentialNodes, filteredFromNodes)
+      })
+      potentialFromNodes = nextPotentialNodes
+      currentIndex--
+    }
+    potentialFromNodes = potentialFromNodes.map((node) => ({node, lastIndex}))
+    potentialStartingLoopPoints.push.apply(potentialStartingLoopPoints, potentialFromNodes)
+  })
+
+  return potentialStartingLoopPoints
+}
+
+const part1_optimized = (input) => {
+  const {directions, nodes} = parseInput(input)
+  const potentialStartingLoopPoints = findPotentialStartingLoopPoints(directions, nodes)
+  console.log('POTENTIAL STARTING LOOP POINTS:')
+  inspect(potentialStartingLoopPoints)
+  return 0
+}
+
 // const getAllStartNodes = (nodes) => {
 //   const startNodes = []
 //   for (const [nodeKey, node] of nodes) {
@@ -64,12 +95,12 @@ const part1 = (input) => {
 //   return numSteps
 // }
 
-await runner.testOutput('day08/example', '1', part1)
-await runner.testOutput('day08/example_b', '1', part1)
+await runner.testOutput('day08/test', '1', part1_optimized)
+// await runner.testOutput('day08/example_b', '1', part1)
 // await runner.printOutput('day08/test', part1)
 // await runner.copyOutput('day08/test', part1)
 // await runner.writeOutput('day08/test', '1', part1)
-await runner.testOutput('day08/test', '1', part1)
+// await runner.testOutput('day08/test', '1', part1)
 
 // await runner.testOutput('day08/example_c', '2', part2)
 // await runner.printOutput('day08/test', part2)
