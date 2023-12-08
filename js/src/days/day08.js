@@ -17,6 +17,7 @@ const parseInput = (input) => {
   return {directions, nodes}
 }
 
+// solve part 1 the simple way
 const part1 = (input) => {
   const {directions, nodes} = parseInput(input)
 
@@ -33,8 +34,22 @@ const part1 = (input) => {
   return numSteps
 }
 
-const findPotentialStartingLoopPoints = (directions, nodes) => {
-  const potentialStartingLoopPoints = []
+// for each node, map to the node that you end up at after following 1 loop of directions
+const createFullLoopMapping = (directions, nodes) => {
+  const mapping = new Map()
+  for (const node of nodes.values()) {
+    let currentNode = node
+    for (const direction of directions) {
+      currentNode = nodes.get(currentNode[direction])
+    }
+    mapping.set(node, currentNode)
+  }
+  return mapping
+}
+
+// find which nodes can lead to the end node if we are on them at the start of the direction loop
+const findPotentialStartingLoopTargets = (directions, nodes) => {
+  const potentialStartingLoopPoints = new Map()
   ;[...nodes.values()].forEach((node) => {
     if (node.key === endNodeKey) { return }
     let numSteps = 1
@@ -42,7 +57,7 @@ const findPotentialStartingLoopPoints = (directions, nodes) => {
     for (const direction of directions) {
       currentNode = nodes.get(currentNode[direction])
       if (currentNode.key === endNodeKey) {
-        potentialStartingLoopPoints.push({node, numSteps})
+        potentialStartingLoopPoints.set(node, numSteps)
         return
       }
       numSteps++
@@ -51,13 +66,21 @@ const findPotentialStartingLoopPoints = (directions, nodes) => {
   return potentialStartingLoopPoints
 }
 
-const part1_optimized = (input) => {
+// improve performance of part 1 to get an intuition for how to solve part 2
+const part1_perf = (input) => {
   const {directions, nodes} = parseInput(input)
-  const potentialStartingLoopPoints = findPotentialStartingLoopPoints(directions, nodes)
-  console.log('POTENTIAL STARTING LOOP POINTS1:')
-  inspect(potentialStartingLoopPoints)
+  const fullLoopMapping = createFullLoopMapping(directions, nodes)
+  const potentialStartingLoopTargets = findPotentialStartingLoopTargets(directions, nodes)
+  let currentNode = nodes.get(startNodeKey)
+  let numLoops = 0
+  while (!potentialStartingLoopTargets.has(currentNode)) {
+    currentNode = fullLoopMapping.get(currentNode)
+    numLoops++
+  }
+  const stepsSoFar = numLoops * directions.length
+  const stepsToTheEnd = potentialStartingLoopTargets.get(currentNode)
 
-  return 0
+  return stepsSoFar + stepsToTheEnd
 }
 
 // const getAllStartNodes = (nodes) => {
@@ -91,12 +114,15 @@ const part1_optimized = (input) => {
 //   return numSteps
 // }
 
-await runner.testOutput('day08/test', '1', part1_optimized)
-// await runner.testOutput('day08/example_b', '1', part1)
+await runner.testOutput('day08/example', '1', part1)
+await runner.testOutput('day08/example', '1', part1_perf)
+await runner.testOutput('day08/example_b', '1', part1)
+await runner.testOutput('day08/example_b', '1', part1_perf)
 // await runner.printOutput('day08/test', part1)
 // await runner.copyOutput('day08/test', part1)
 // await runner.writeOutput('day08/test', '1', part1)
-// await runner.testOutput('day08/test', '1', part1)
+await runner.testOutput('day08/test', '1', part1)
+await runner.testOutput('day08/test', '1', part1_perf)
 
 // await runner.testOutput('day08/example_c', '2', part2)
 // await runner.printOutput('day08/test', part2)
