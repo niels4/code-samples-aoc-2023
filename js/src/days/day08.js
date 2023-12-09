@@ -1,3 +1,5 @@
+import { mult } from "../lib/iterators.js"
+import { findGCD } from "../lib/math.js"
 import * as runner from "../lib/runner.js"
 
 console.log("Solving AoC 2023 day 08")
@@ -107,27 +109,50 @@ const findPotentialStartingLoopTargetsPart2 = findPotentialStartingLoopTargets(i
 
 const part2 = (input) => {
   const {directions, nodes} = parseInput(input)
-  const fullLoopMapping = createFullLoopMapping(directions, nodes)
-  const potentialStartingLoopTargets = findPotentialStartingLoopTargetsPart2(directions, nodes)
 
   console.log("PART 2")
-  inspect(fullLoopMapping)
-  inspect(potentialStartingLoopTargets)
+  // inspect(fullLoopMapping)
+  // inspect(potentialStartingLoopTargets)
 
-  let currentNodes = getAllStartNodes(nodes)
-  console.log("init loop")
-  inspect(currentNodes)
-  let numLoops = 1
-  while (!foundAllStartingLoopTargets(potentialStartingLoopTargets, currentNodes)) {
-    currentNodes = currentNodes.map(node => fullLoopMapping.get(node))
-    numLoops++
-  }
-  const stepsSoFar = numLoops * directions.length
-  const stepsToTheEnd = potentialStartingLoopTargets.get(currentNodes[0])
-  console.log("ENDED LOOP", numLoops, stepsSoFar, stepsToTheEnd)
-  inspect(currentNodes)
+  const startNodes = getAllStartNodes(nodes)
+  const cycleLengths = startNodes.map((node) => {
+    let numSteps = 0
+    let currentNode = node
+    while (!isEndKeyPart2(currentNode.key)) {
+      const nextDirection = directions[numSteps % directions.length]
+      const nextNodeKey = currentNode[nextDirection]
+      currentNode = nodes.get(nextNodeKey)
+      numSteps++
+    }
+    return numSteps
+  })
 
-  return stepsSoFar + stepsToTheEnd
+  cycleLengths.forEach((len) => {
+    console.log("got cycleLength", len, len / directions.length)
+  })
+
+  const cycledGCD = findGCD(cycleLengths)
+  const result = cycleLengths.reduce((acc, len) => {
+    return acc * Math.ceil(len / cycledGCD)
+  }, 1)
+
+  return result * cycledGCD
+
+  // let currentNodes = getAllStartNodes(nodes)
+  // console.log("init loop")
+  // inspect(currentNodes)
+
+  // let numLoops = 1
+  // while (!foundAllStartingLoopTargets(potentialStartingLoopTargets, currentNodes)) {
+  //   currentNodes = currentNodes.map(node => fullLoopMapping.get(node))
+  //   numLoops++
+  // }
+  // const stepsSoFar = numLoops * directions.length
+  // const stepsToTheEnd = potentialStartingLoopTargets.get(currentNodes[0])
+  // console.log("ENDED LOOP", numLoops, stepsSoFar, stepsToTheEnd)
+  // inspect(currentNodes)
+  //
+  // return stepsSoFar + stepsToTheEnd
 }
 
 await runner.testOutput('day08/example', '1', part1)
@@ -141,7 +166,7 @@ await runner.testOutput('day08/test', '1', part1)
 await runner.testOutput('day08/test', '1', part1_perf)
 
 await runner.testOutput('day08/example_c', '2', part2)
-await runner.printOutput('day08/test', part2)
+// await runner.printOutput('day08/test', part2)
 // await runner.copyOutput('day08/test', part2)
 // await runner.writeOutput('day08/test', '2', part2)
-// await runner.testOutput('day08/test', '2', part2)
+await runner.testOutput('day08/test', '2', part2)
