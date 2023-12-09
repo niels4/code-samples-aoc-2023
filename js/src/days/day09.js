@@ -47,9 +47,25 @@ const part1 = (input) => {
   return sum(nextSequenceValues)
 }
 
-// const part2 = (input) => {
-//   return 0
-// }
+const getPreviousSequenceValueFromAllDiffs = (allDiffs) => {
+  if (allDiffs.length < 2) { return 0 }
+  let lastDiffValue = 0
+  for (let diffIndex = allDiffs.length - 2; diffIndex >= 0; diffIndex--) {
+    lastDiffValue = allDiffs[diffIndex].at(0) - lastDiffValue
+  }
+  return lastDiffValue
+}
+
+const part2 = (input) => {
+  const histories = parseInput(input)
+
+  const prevSequenceValues = histories.map((historyRow) => {
+    const allDiffs = getRowDiffsUntilAllZeros(historyRow)
+    return getPreviousSequenceValueFromAllDiffs(allDiffs)
+  })
+
+  return sum(prevSequenceValues)
+}
 
 await runner.testOutput('day09/example', '1', part1)
 // await runner.printOutput('day09/test', part1)
@@ -57,8 +73,8 @@ await runner.testOutput('day09/example', '1', part1)
 // await runner.writeOutput('day09/test', '1', part1)
 await runner.testOutput('day09/test', '1', part1)
 
-// await runner.testOutput('day09/example', '2', part2)
+await runner.testOutput('day09/example', '2', part2)
 // await runner.printOutput('day09/test', part2)
 // await runner.copyOutput('day09/test', part2)
 // await runner.writeOutput('day09/test', '2', part2)
-// await runner.testOutput('day09/test', '2', part2)
+await runner.testOutput('day09/test', '2', part2)
