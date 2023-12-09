@@ -4,6 +4,12 @@ import * as runner from "../lib/runner.js"
 
 console.log("Solving AoC 2023 day 09")
 
+// enum for possible sequence directions
+const SequenceDirections = {
+  "forward": "forward",
+  "backward": "backward",
+}
+
 const parseInput = (input) => input.split('\n').map(readNumberList)
 
 const getRowDiffs = (row) => {
@@ -27,11 +33,15 @@ const getRowDiffsUntilAllZeros = (row) => {
   return allDiffs
 }
 
-const getNextSequenceValueFromAllDiffs = (allDiffs) => {
+const getNextSequenceValueFromAllDiffs = (allDiffs, direction = SequenceDirections.forward) => {
   if (allDiffs.length < 2) { return 0 }
   let lastDiffValue = 0
   for (let diffIndex = allDiffs.length - 2; diffIndex >= 0; diffIndex--) {
-    lastDiffValue = allDiffs[diffIndex].at(-1) + lastDiffValue
+    if (direction === SequenceDirections.forward) {
+      lastDiffValue = allDiffs[diffIndex].at(-1) + lastDiffValue
+    } else {
+      lastDiffValue = allDiffs[diffIndex].at(0) - lastDiffValue
+    }
   }
   return lastDiffValue
 }
@@ -47,21 +57,12 @@ const part1 = (input) => {
   return sum(nextSequenceValues)
 }
 
-const getPreviousSequenceValueFromAllDiffs = (allDiffs) => {
-  if (allDiffs.length < 2) { return 0 }
-  let lastDiffValue = 0
-  for (let diffIndex = allDiffs.length - 2; diffIndex >= 0; diffIndex--) {
-    lastDiffValue = allDiffs[diffIndex].at(0) - lastDiffValue
-  }
-  return lastDiffValue
-}
-
 const part2 = (input) => {
   const histories = parseInput(input)
 
   const prevSequenceValues = histories.map((historyRow) => {
     const allDiffs = getRowDiffsUntilAllZeros(historyRow)
-    return getPreviousSequenceValueFromAllDiffs(allDiffs)
+    return getNextSequenceValueFromAllDiffs(allDiffs, SequenceDirections.backward)
   })
 
   return sum(prevSequenceValues)
