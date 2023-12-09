@@ -1,5 +1,7 @@
 export const isDigit = c => c >= "0" && c <= "9"
 
+export const isDigitChar = c => (c === "-") || (c >= "0" && c <= "9")
+
 export const readNumberList = (str) => {
   const numberList = []
   let currentNum = ""
@@ -12,7 +14,7 @@ export const readNumberList = (str) => {
   }
 
   for (const char of str) {
-    if (isDigit(char)) {
+    if (isDigitChar(char)) {
       currentNum += char
     } else {
       parseCurrentNum()
