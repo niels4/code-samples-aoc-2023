@@ -37,8 +37,10 @@ func testAocOutput(dayKey: String, inputName: String, partKey: String, partSolve
     let result = try partSolver(input)
 
     if result == expectedOutput {
-        print("\(bold)\(green)\(checkmark) SUCCESS: Day \(dayKey) part \(partKey) \(inputName). Result matches expected output! (\(result))\(reset)")
+        print("\(bold)\(green)\(checkmark) SUCCESS: Day \(dayKey) part \(partKey) \(inputName)." +
+            "Result matches expected output! (\(result))\(reset)")
     } else {
-        print("\(bold)\(red)\(cross) FAIL: Day \(dayKey) part \(partKey) \(inputName). Expected \(expectedOutput) but got \(result)\(reset)")
+        print("\(bold)\(red)\(cross) FAIL: Day \(dayKey) part \(partKey) \(inputName)." +
+            "Expected \(expectedOutput) but got \(result)\(reset)")
     }
 }

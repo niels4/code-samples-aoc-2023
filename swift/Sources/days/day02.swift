@@ -17,7 +17,7 @@ private typealias Game = [Grab]
 private func parseColorCount(in string: Substring, using regex: Regex<(Substring, Substring)>) -> Int {
     var colorCount = 0
     if let colorMatch = try? regex.firstMatch(in: string),
-        let parsedCount = Int(colorMatch.1) {
+       let parsedCount = Int(colorMatch.1) {
         colorCount = parsedCount
     }
     return colorCount

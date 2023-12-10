@@ -11,32 +11,32 @@ private extension Dictionary where Key == Character, Value == Int {
 }
 
 private enum HandType: Comparable {
-    case HighCard
-    case OnePair
-    case TwoPair
-    case ThreeOfAKind
-    case FullHouse
-    case FourOfAKind
-    case FiveOfAKind
+    case highCard
+    case onePair
+    case twoPair
+    case threeOfAKind
+    case fullHouse
+    case fourOfAKind
+    case fiveOfAKind
 
     static func from(cardCounts: CardCounts) -> HandType {
         let maxCount = cardCounts.values.max() ?? 0
 
         switch (maxCount, cardCounts.count) {
         case (5, _):
-            return .FiveOfAKind
+            return .fiveOfAKind
         case (4, _):
-            return .FourOfAKind
+            return .fourOfAKind
         case (3, 2):
-            return .FullHouse
+            return .fullHouse
         case (3, _):
-            return .ThreeOfAKind
+            return .threeOfAKind
         case (2, 3):
-            return .TwoPair
+            return .twoPair
         case (2, _):
-            return .OnePair
+            return .onePair
         default:
-            return .HighCard
+            return .highCard
         }
     }
 }
@@ -57,8 +57,8 @@ private func parseIntput(_ input: String) throws -> [Hand] {
     return try lines.map { line in
         let handData = line.split(separator: " ")
         guard handData.count == 2,
-            handData[0].count == 5,
-            let bid = Int(handData[1]) else {
+              handData[0].count == 5,
+              let bid = Int(handData[1]) else {
             throw ParseInputError.unableToParseInput
         }
         let cardChars = String(handData[0])
@@ -76,9 +76,9 @@ private func compareHandStrengths0(cardStrengths: CardStrengths) -> HandComparat
         if hand1.type != hand2.type {
             return hand1.type < hand2.type
         }
-        for cardIndex in 0..<hand1.cardChars.count {
+        for cardIndex in 0 ..< hand1.cardChars.count {
             if let card1Strength = cardStrengths[hand1.cardChars[cardIndex]],
-                let card2Strength = cardStrengths[hand2.cardChars[cardIndex]] {
+               let card2Strength = cardStrengths[hand2.cardChars[cardIndex]] {
                 if card1Strength != card2Strength {
                     return card1Strength < card2Strength
                 }
@@ -89,7 +89,7 @@ private func compareHandStrengths0(cardStrengths: CardStrengths) -> HandComparat
 }
 
 private let cardOrderPart1: [Character] = ["2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"]
-private let cardStrengthsPart1: CardStrengths = Dictionary(uniqueKeysWithValues: zip(cardOrderPart1, 0..<cardOrderPart1.count))
+private let cardStrengthsPart1: CardStrengths = Dictionary(uniqueKeysWithValues: zip(cardOrderPart1, 0 ..< cardOrderPart1.count))
 private let compareHandStrengthsPart1 = compareHandStrengths0(cardStrengths: cardStrengthsPart1)
 
 private func part1(input: String) throws -> String {
@@ -105,7 +105,7 @@ private func part1(input: String) throws -> String {
 
 private func applyWildCards(to hand: Hand) -> Hand {
     guard let jokerCount = hand.cardCounts["J"],
-        jokerCount != 0 else {
+          jokerCount != 0 else {
         return hand
     }
 
@@ -122,7 +122,7 @@ private func applyWildCards(to hand: Hand) -> Hand {
 }
 
 private let cardOrderPart2: [Character] = ["J", "2", "3", "4", "5", "6", "7", "8", "9", "T", "Q", "K", "A"]
-private let cardStrengthsPart2: CardStrengths = Dictionary(uniqueKeysWithValues: zip(cardOrderPart2, 0..<cardOrderPart2.count))
+private let cardStrengthsPart2: CardStrengths = Dictionary(uniqueKeysWithValues: zip(cardOrderPart2, 0 ..< cardOrderPart2.count))
 private let compareHandStrengthsPart2 = compareHandStrengths0(cardStrengths: cardStrengthsPart2)
 
 private func part2(input: String) throws -> String {

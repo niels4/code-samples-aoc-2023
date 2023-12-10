@@ -26,51 +26,20 @@ private func isSymbol(char: Character) -> Bool {
     return char != "." && !char.isNumber
 }
 
-private class RowParser {
+private func parseRow(rows: [Row], rowIndex: Int, line: String.SubSequence) -> Row {
     var numbers: [PartNumber] = []
     var symbols: [Symbol] = []
     var numberStart = -1
     var numberChars = ""
-    var rows: [Row] = []
-    var rowIndex = 0
 
-    func parseRow(rows: [Row], rowIndex: Int, line: String.SubSequence) -> Row {
-        resetState(rows: rows, rowIndex: rowIndex)
-
-        line.enumerated().forEach { column, char in
-            if char.isNumber {
-                handleDigit(char: char, column: column)
-                return
-            } else {
-                handleNonDigit(column: column)
-            }
-            if isSymbol(char: char) {
-                handleSymbol(char: char, column: column)
-            }
-        }
-
-        handleNonDigit(column: line.count) // treat end of line as a non digit
-
-        return Row(numbers: numbers, symbols: symbols)
-    }
-
-    private func resetState(rows rowsIn: [Row], rowIndex rowIndexIn: Int) {
-        numbers = []
-        symbols = []
-        numberStart = -1
-        numberChars = ""
-        rows = rowsIn
-        rowIndex = rowIndexIn
-    }
-
-    private func handleDigit(char: Character, column: Int) {
+    func handleDigit(char: Character, column: Int) {
         if numberStart < 0 {
             numberStart = column
         }
         numberChars.append(char)
     }
 
-    private func handleNonDigit(column: Int) {
+    func handleNonDigit(column: Int) {
         if numberStart < 0 {
             return
         }
@@ -92,7 +61,7 @@ private class RowParser {
         }
     }
 
-    private func handleSymbol(char: Character, column: Int) {
+    func handleSymbol(char: Character, column: Int) {
         let newSymbol = Symbol(value: char, column: column)
         symbols.append(newSymbol)
 
@@ -107,14 +76,29 @@ private class RowParser {
             previousRow.numbers.forEach(markIfNear)
         }
     }
+
+    line.enumerated().forEach { column, char in
+        if char.isNumber {
+            handleDigit(char: char, column: column)
+            return
+        } else {
+            handleNonDigit(column: column)
+        }
+        if isSymbol(char: char) {
+            handleSymbol(char: char, column: column)
+        }
+    }
+
+    handleNonDigit(column: line.count) // treat end of line as a non digit
+
+    return Row(numbers: numbers, symbols: symbols)
 }
 
 private func parseInput(_ input: String) -> [Row] {
     let lines = input.split(separator: "\n")
-    let rowParser = RowParser()
     var rows: [Row] = []
     lines.enumerated().forEach { rowIndex, line in
-        rows.append(rowParser.parseRow(rows: rows, rowIndex: rowIndex, line: line))
+        rows.append(parseRow(rows: rows, rowIndex: rowIndex, line: line))
     }
     return rows
 }

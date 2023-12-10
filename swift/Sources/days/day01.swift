@@ -7,7 +7,7 @@ private func findFirstAndLastDigit(in string: String) -> Int {
     guard let firstMatch = try? firstDigitRegex1.firstMatch(in: string),
           let lastMatch = try? lastDigitRegex1.firstMatch(in: string),
           let number = Int(firstMatch.1 + lastMatch.1)
-        else {
+    else {
         return 0
     }
     return number
@@ -17,7 +17,7 @@ private func part1(_ input: String) -> String {
     let lines = input.split(separator: "\n")
 
     let values: [Int] = lines.map { line in
-        return findFirstAndLastDigit(in: String(line))
+        findFirstAndLastDigit(in: String(line))
     }
 
     let result: Int = values.reduce(0, +)
@@ -30,12 +30,13 @@ private let lastDigitRegex2 = /.*(\d|one|two|three|four|five|six|seven|eight|nin
 
 private let wordMap: [String: String] = [
     "one": "1", "two": "2", "three": "3", "four": "4", "five": "5",
-    "six": "6", "seven": "7", "eight": "8", "nine": "9"
+    "six": "6", "seven": "7", "eight": "8", "nine": "9",
 ]
 
 private func findFirstAndLastDigitWithWords(in string: String) -> Int {
     guard let firstMatch = try? firstDigitRegex2.firstMatch(in: string),
-          let lastMatch = try? lastDigitRegex2.firstMatch(in: string) else {
+          let lastMatch = try? lastDigitRegex2.firstMatch(in: string)
+    else {
         return 0
     }
 
@@ -52,7 +53,7 @@ private func part2(_ input: String) -> String {
     let lines = input.split(separator: "\n")
 
     let values = lines.map { line -> Int in
-        return findFirstAndLastDigitWithWords(in: String(line))
+        findFirstAndLastDigitWithWords(in: String(line))
     }
 
     let result: Int = values.reduce(0, +)
