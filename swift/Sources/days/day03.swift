@@ -26,59 +26,16 @@ private func isSymbol(char: Character) -> Bool {
     return char != "." && !char.isNumber
 }
 
-private func parseInput(_ input: String) -> [Row] {
-    let lines = input.split(separator: "\n")
+private class RowParser {
+    var numbers: [PartNumber] = []
+    var symbols: [Symbol] = []
+    var numberStart = -1
+    var numberChars = ""
     var rows: [Row] = []
-    lines.enumerated().forEach { rowIndex, line in
-        var numbers: [PartNumber] = []
-        var symbols: [Symbol] = []
-        var numberStart = -1
-        var numberChars = ""
+    var rowIndex = 0
 
-        func handleDigit(char: Character, column: Int) {
-            if numberStart < 0 {
-                numberStart = column
-            }
-            numberChars.append(char)
-        }
-
-        func handleNonDigit(column: Int) {
-            if numberStart < 0 {
-                return
-            }
-            let numberValue = Int(numberChars)!
-            let newNumber = PartNumber(value: numberValue, start: numberStart, end: column - 1, nearSymbol: false)
-            numbers.append(newNumber)
-            numberStart = -1
-            numberChars = ""
-
-            func markIfNear(symbol: Symbol) {
-                if (symbol.column >= newNumber.start - 1) && (symbol.column <= newNumber.end + 1) {
-                    newNumber.nearSymbol = true
-                }
-            }
-            symbols.forEach(markIfNear)
-            if rowIndex > 0 {
-                let previousRow: Row = rows[rowIndex - 1]
-                previousRow.symbols.forEach(markIfNear)
-            }
-        }
-
-        func handleSymbol(char: Character, column: Int) {
-            let newSymbol = Symbol(value: char, column: column)
-            symbols.append(newSymbol)
-
-            func markIfNear(number: PartNumber) {
-                if (column >= number.start - 1) && (column <= number.end + 1) {
-                    number.nearSymbol = true
-                }
-            }
-            numbers.forEach(markIfNear)
-            if rowIndex > 0 {
-                let previousRow: Row = rows[rowIndex - 1]
-                previousRow.numbers.forEach(markIfNear)
-            }
-        }
+    func parseRow(rows: [Row], rowIndex: Int, line: String.SubSequence) -> Row {
+        resetState(rows: rows, rowIndex: rowIndex)
 
         line.enumerated().forEach { column, char in
             if char.isNumber {
@@ -94,7 +51,70 @@ private func parseInput(_ input: String) -> [Row] {
 
         handleNonDigit(column: line.count) // treat end of line as a non digit
 
-        rows.append(Row(numbers: numbers, symbols: symbols))
+        return Row(numbers: numbers, symbols: symbols)
+    }
+
+    private func resetState(rows rowsIn: [Row], rowIndex rowIndexIn: Int) {
+        numbers = []
+        symbols = []
+        numberStart = -1
+        numberChars = ""
+        rows = rowsIn
+        rowIndex = rowIndexIn
+    }
+
+    private func handleDigit(char: Character, column: Int) {
+        if numberStart < 0 {
+            numberStart = column
+        }
+        numberChars.append(char)
+    }
+
+    private func handleNonDigit(column: Int) {
+        if numberStart < 0 {
+            return
+        }
+        let numberValue = Int(numberChars)!
+        let newNumber = PartNumber(value: numberValue, start: numberStart, end: column - 1, nearSymbol: false)
+        numbers.append(newNumber)
+        numberStart = -1
+        numberChars = ""
+
+        func markIfNear(symbol: Symbol) {
+            if symbol.column >= newNumber.start - 1, symbol.column <= newNumber.end + 1 {
+                newNumber.nearSymbol = true
+            }
+        }
+        symbols.forEach(markIfNear)
+        if rowIndex > 0 {
+            let previousRow: Row = rows[rowIndex - 1]
+            previousRow.symbols.forEach(markIfNear)
+        }
+    }
+
+    private func handleSymbol(char: Character, column: Int) {
+        let newSymbol = Symbol(value: char, column: column)
+        symbols.append(newSymbol)
+
+        func markIfNear(number: PartNumber) {
+            if column >= number.start - 1, column <= number.end + 1 {
+                number.nearSymbol = true
+            }
+        }
+        numbers.forEach(markIfNear)
+        if rowIndex > 0 {
+            let previousRow: Row = rows[rowIndex - 1]
+            previousRow.numbers.forEach(markIfNear)
+        }
+    }
+}
+
+private func parseInput(_ input: String) -> [Row] {
+    let lines = input.split(separator: "\n")
+    let rowParser = RowParser()
+    var rows: [Row] = []
+    lines.enumerated().forEach { rowIndex, line in
+        rows.append(rowParser.parseRow(rows: rows, rowIndex: rowIndex, line: line))
     }
     return rows
 }
@@ -117,9 +137,9 @@ private func getAdjacentNumberValues(rows: [Row], rowIndex: Int, colIndex: Int) 
     var adjacent: [Int] = []
     let startRow = max(0, rowIndex - 1)
     let endRow = min(rows.count - 1, rowIndex + 1)
-    for i in startRow...endRow {
+    for i in startRow ... endRow {
         rows[i].numbers.forEach { number in
-            if (colIndex >= number.start - 1 && colIndex <= number.end + 1) {
+            if colIndex >= number.start - 1, colIndex <= number.end + 1 {
                 adjacent.append(number.value)
             }
         }
@@ -143,7 +163,6 @@ private func part2(input: String) throws -> String {
     let result = gearRatios.reduce(0, +)
     return String(result)
 }
-
 
 func day03(dayKey: String) throws {
     try testAocOutput(dayKey: dayKey, inputName: "example", partKey: "1", partSolver: part1)
