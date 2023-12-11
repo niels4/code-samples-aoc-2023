@@ -202,11 +202,11 @@ const handleHorizontalMovement = (filteredMap, prevLoopPoint, nextLoopPoint, ins
     const nextDirection = directions[nextDirKey]
     if (nextDirection[1] === insidePoint.rowIndex - nextLoopPoint.rowIndex) {
       nextInsidePoint = insidePoint
-    } else if (insidePoint.colIndex <= nextLoopPoint.colIndex) {
+    } else if (insidePoint.colIndex * colDiff <= nextLoopPoint.colIndex * colDiff) {
       nextInsidePoint = {colIndex: insidePoint.colIndex + colDiff, rowIndex: insidePoint.rowIndex}
       loopPoint = prevLoopPoint
     } else {
-      if (insidePoint.rowIndex >= loopPoint.rowIndex) {
+      if (insidePoint.rowIndex * nextDirection[1] <= loopPoint.rowIndex * nextDirection[1]) {
         loopPoint = prevLoopPoint
       }
       nextInsidePoint = {colIndex: insidePoint.colIndex, rowIndex: insidePoint.rowIndex + nextDirection[1]}
@@ -254,7 +254,6 @@ const moveDirection = (filteredMap, loopPoint, insidePoint, directionKey) => {
   if (isHorizontal(direction)) {
     return handleHorizontalMovement(filteredMap, loopPoint, nextLoopPoint, insidePoint, direction, directionKey, prevLoopSymbol, nextLoopSymbol)
   }
-  console.log("vert direction?", direction, directionKey)
   return handleVerticalMovement(filteredMap, loopPoint, nextLoopPoint, insidePoint, direction, directionKey, prevLoopSymbol, nextLoopSymbol)
 }
 
@@ -300,7 +299,7 @@ const part2 = (input) => {
     const debugPoints = {p: loopPoint, i: insidePoint}
     printMap(filteredMap, debugPoints)
     numSteps++
-    if (numSteps > 35) {
+    if (numSteps > 41) {
       process.exit(98)
     }
     const toDir = [...pipeTransforms[currChar]].filter(dir => dir !== fromDir)[0]
