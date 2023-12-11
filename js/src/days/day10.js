@@ -188,8 +188,9 @@ const fillInternalArea = (filteredMap, internalPoint) => {
   return pointsFilled
 }
 
-const handleHorizontalMovement = (filteredMap, nextLoopPoint, insidePoint, [colDiff], directionKey, prevLoopSymbol, nextLoopSymbol) => {
+const handleHorizontalMovement = (filteredMap, prevLoopPoint, nextLoopPoint, insidePoint, [colDiff], directionKey, prevLoopSymbol, nextLoopSymbol) => {
   let nextInsidePoint
+  let loopPoint = nextLoopPoint
   if (nextLoopSymbol === "-") {
     if (prevLoopSymbol === "-") {
       nextInsidePoint = {colIndex: insidePoint.colIndex + colDiff, rowIndex: insidePoint.rowIndex}
@@ -201,14 +202,17 @@ const handleHorizontalMovement = (filteredMap, nextLoopPoint, insidePoint, [colD
     const nextDirection = directions[nextDirKey]
     if (nextDirection[1] === insidePoint.rowIndex - nextLoopPoint.rowIndex) {
       nextInsidePoint = insidePoint
+    } else if (insidePoint.colIndex <= nextLoopPoint.colIndex) {
+      nextInsidePoint = {colIndex: insidePoint.colIndex + colDiff, rowIndex: insidePoint.rowIndex}
+      loopPoint = prevLoopPoint
     } else {
-      throw new Error("Can't handle outside turn while moving horizontally: " + nextLoopSymbol + ", " + nextLoopPoint.rowIndex)
+      nextInsidePoint = {colIndex: insidePoint.colIndex, rowIndex: insidePoint.rowIndex + nextDirection[1]}
     }
   }
-  return {loopPoint: nextLoopPoint, insidePoint: nextInsidePoint}
+  return {loopPoint, insidePoint: nextInsidePoint}
 }
 
-const handleVerticalMovement = (filteredMap, nextLoopPoint, insidePoint, [,rowDiff], directionKey, prevLoopSymbol, nextLoopSymbol) => {
+const handleVerticalMovement = (filteredMap, prevLoopPoint, nextLoopPoint, insidePoint, [,rowDiff], directionKey, prevLoopSymbol, nextLoopSymbol) => {
   let nextInsidePoint
   console.log("next vert symbol", nextLoopSymbol, rowDiff)
   if (nextLoopSymbol === "|") {
@@ -237,10 +241,10 @@ const moveDirection = (filteredMap, loopPoint, insidePoint, directionKey) => {
   const prevLoopSymbol = filteredMap[loopPoint.rowIndex][loopPoint.colIndex]
   const nextLoopSymbol = filteredMap[nextLoopPoint.rowIndex][nextLoopPoint.colIndex]
   if (isHorizontal(direction)) {
-    return handleHorizontalMovement(filteredMap, nextLoopPoint, insidePoint, direction, directionKey, prevLoopSymbol, nextLoopSymbol)
+    return handleHorizontalMovement(filteredMap, loopPoint, nextLoopPoint, insidePoint, direction, directionKey, prevLoopSymbol, nextLoopSymbol)
   }
   console.log("vert direction?", direction, directionKey)
-  return handleVerticalMovement(filteredMap, nextLoopPoint, insidePoint, direction, directionKey, prevLoopSymbol, nextLoopSymbol)
+  return handleVerticalMovement(filteredMap, loopPoint, nextLoopPoint, insidePoint, direction, directionKey, prevLoopSymbol, nextLoopSymbol)
 }
 
 const part2 = (input) => {
@@ -285,7 +289,7 @@ const part2 = (input) => {
     const debugPoints = {p: loopPoint, i: insidePoint}
     printMap(filteredMap, debugPoints)
     numSteps++
-    if (numSteps > 10) {
+    if (numSteps > 22) {
       process.exit(98)
     }
     const toDir = [...pipeTransforms[currChar]].filter(dir => dir !== fromDir)[0]
