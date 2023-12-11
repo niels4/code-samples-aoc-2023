@@ -31,11 +31,6 @@ const defineOpposite = (dirKey, oppositeDirKey) => {
 defineOpposite("n", "s")
 defineOpposite("e", "w")
 
-const applyPipeTransform = (pipeChar, col, row) => {
-  const [colDiff, rowDiff] = pipeTransforms[pipeChar]
-  return [col + colDiff, row + rowDiff]
-}
-  
 const parseInput = (input) => {
   const startIndex = input.indexOf(startChar)
   const lines = input.split('\n')
@@ -65,8 +60,9 @@ const doFirstStep = (lines, startCol, startRow) => {
 
 const part1 = (input) => {
   const {lines, startCol, startRow} = parseInput(input)
-  let loopSize = 1
+
   let {currChar, currCol, currRow, fromDir} = doFirstStep(lines, startCol, startRow)
+  let loopSize = 1
 
   while (currChar != startChar) {
     const toDir = pipeTransforms[currChar].filter(dir => dir !== fromDir)[0]
@@ -77,12 +73,13 @@ const part1 = (input) => {
     currChar = lines[currRow][currCol]
     loopSize++
   }
+
   return Math.floor(loopSize / 2)
 }
 
-// const part2 = (input) => {
-//   return 0
-// }
+const part2 = (input) => {
+  return 0
+}
 
 await runner.testOutput('day10/example', '1', part1)
 await runner.testOutput('day10/example_b', '1', part1)
@@ -91,7 +88,8 @@ await runner.testOutput('day10/example_b', '1', part1)
 // await runner.writeOutput('day10/test', '1', part1)
 await runner.testOutput('day10/test', '1', part1)
 
-// await runner.testOutput('day10/example', '2', part2)
+await runner.testOutput('day10/example_c', '2', part2)
+await runner.testOutput('day10/example_d', '2', part2)
 // await runner.printOutput('day10/test', part2)
 // await runner.copyOutput('day10/test', part2)
 // await runner.writeOutput('day10/test', '2', part2)
