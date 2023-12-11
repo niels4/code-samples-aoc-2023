@@ -88,6 +88,7 @@ const printMap = (map) => {
 }
 
 const emptyPointChar = "."
+const internalPointChar = "I"
 
 const getStartCharReplacement = (filteredMap, startCol, startRow) => {
   let currCol = startCol
@@ -147,6 +148,34 @@ const findLoopFromOutside = (filteredMap) => {
   throw new Error("Could not find any pipe elements")
 }
 
+const getSurroundingPoints = (colIndex, rowIndex) => {
+  return Object.values(directions).map(([colDiff, rowDiff]) => {
+    return {colIndex: colIndex + colDiff, rowIndex: rowIndex + rowDiff}
+  })
+}
+
+const fillInternalArea = (filteredMap, internalPoint) => {
+  let {colIndex, rowIndex} = internalPoint
+  let currentSymbol = filteredMap[rowIndex][colIndex]
+  if (currentSymbol !== emptyPointChar) { return 0 }
+
+  let pointsFilled = 1
+  filteredMap[rowIndex][colIndex] = internalPointChar
+  const pointsToCheck = getSurroundingPoints(colIndex, rowIndex)
+
+  while (pointsToCheck.length > 0) {
+    const nextPoint = pointsToCheck.pop()
+    const nextSymbol = filteredMap[nextPoint.rowIndex][nextPoint.colIndex]
+    if (nextSymbol !== emptyPointChar) { continue }
+
+    pointsFilled++
+    filteredMap[nextPoint.rowIndex][nextPoint.colIndex] = internalPointChar
+    pointsToCheck.push.apply(pointsToCheck, getSurroundingPoints(nextPoint.colIndex, nextPoint.rowIndex))
+  }
+
+  return pointsFilled
+}
+
 const part2 = (input) => {
   const {lines, startCol, startRow} = parseInput(input)
   let filteredMap = lines.map(line => Array.from(line, () => emptyPointChar))
@@ -155,7 +184,6 @@ const part2 = (input) => {
   printMap(filteredMap)
 
   let {currChar, currCol, currRow, fromDir} = doFirstStep(lines, startCol, startRow)
-  let loopSize = 1
 
   while (currChar != startChar) {
     filteredMap[currRow][currCol] = currChar
@@ -165,17 +193,19 @@ const part2 = (input) => {
     currCol += colDiff
     currRow += rowDiff
     currChar = lines[currRow][currCol]
-    loopSize++
   }
 
   printMap(filteredMap)
   filteredMap[startRow][startCol] = getStartCharReplacement(filteredMap, startRow, startCol)
   printMap(filteredMap)
 
+  let internalPointsCount = 0
   const {loopPoint, insidePoint} = findLoopFromOutside(filteredMap)
   console.log("got start points", loopPoint, insidePoint)
+  internalPointsCount += fillInternalArea(filteredMap, insidePoint)
+  printMap(filteredMap)
 
-  return Math.floor(loopSize / 2)
+  return internalPointsCount
 }
 
 await runner.testOutput('day10/example', '1', part1)
