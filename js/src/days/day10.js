@@ -231,11 +231,11 @@ const handleVerticalMovement = (filteredMap, prevLoopPoint, nextLoopPoint, insid
     console.log('turn dirs', nextLoopSymbol, nextDirection[0], insidePoint.colIndex - nextLoopPoint.colIndex)
     if (nextDirection[0] === insidePoint.colIndex - nextLoopPoint.colIndex) {
       nextInsidePoint = insidePoint
-    } else if (insidePoint.rowIndex >= nextLoopPoint.rowIndex) {
+    } else if (insidePoint.rowIndex * rowDiff <= nextLoopPoint.rowIndex * rowDiff) {
       nextInsidePoint = {colIndex: insidePoint.colIndex, rowIndex: insidePoint.rowIndex + rowDiff}
       loopPoint = prevLoopPoint
     } else {
-      if (insidePoint.colIndex >= loopPoint.colIndex) {
+      if (insidePoint.colIndex * nextDirection[0] <= loopPoint.colIndex * nextDirection[0]) {
         loopPoint = prevLoopPoint
       }
       nextInsidePoint = {colIndex: insidePoint.colIndex + nextDirection[0], rowIndex: insidePoint.rowIndex}
@@ -299,7 +299,7 @@ const part2 = (input) => {
     const debugPoints = {p: loopPoint, i: insidePoint}
     printMap(filteredMap, debugPoints)
     numSteps++
-    if (numSteps > 41) {
+    if (numSteps > 59) {
       process.exit(98)
     }
     const toDir = [...pipeTransforms[currChar]].filter(dir => dir !== fromDir)[0]
