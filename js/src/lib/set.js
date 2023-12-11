@@ -44,3 +44,19 @@ export function difference(setA, setB) {
   }
   return _difference
 }
+
+export const mapSet = (set, func) => {
+  const mapped = new Set()
+  for (const val of set) {
+    mapped.add(func(val))
+  }
+  return mapped
+}
+
+export const setsAreEqual = (setA, setB) => {
+  if (setA.size !== setB.size) { return  false }
+  for (const val of setA) {
+    if (!setB.has(val)) { return false }
+  }
+  return true
+}
