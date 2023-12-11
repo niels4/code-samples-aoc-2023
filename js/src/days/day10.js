@@ -109,6 +109,44 @@ const getStartCharReplacement = (filteredMap, startCol, startRow) => {
   return replacementSymbol
 }
 
+const fromLeftInsidePoints = {
+  "|": [1, 0],
+  "F": [1, 1],
+  "L": [1, -1]
+}
+
+// we iterate right to left and top to bottom. The only possible type of pipe we can run into from the top along the 
+// far left column is the F shape
+const fromTopInsidePoints = {
+  "F": [1, 1]
+}
+
+const findFirstInsidePoint = (symbol, colIndex, rowIndex) => {
+  const insidePointMapping = colIndex === 0 ? fromTopInsidePoints : fromLeftInsidePoints
+  const [colDiff, rowDiff] = insidePointMapping[symbol]
+  return {colIndex: colIndex + colDiff, rowIndex: rowIndex + rowDiff}
+}
+
+// start at the outside and find a boundary of the loop so we can orient ourselves which side is the outside and which is the inside
+const findLoopFromOutside = (filteredMap) => {
+  let colIndex
+  let rowIndex = 0
+  for (const row of filteredMap) {
+    colIndex = 0
+    for (const symbol of row) {
+      if (symbol !== emptyPointChar) {
+        console.log("found first point", symbol)
+        const loopPoint = {colIndex, rowIndex}
+        const insidePoint = findFirstInsidePoint(symbol, colIndex, rowIndex)
+        return {loopPoint, insidePoint}
+      }
+      colIndex++
+    }
+    rowIndex++
+  }
+  throw new Error("Could not find any pipe elements")
+}
+
 const part2 = (input) => {
   const {lines, startCol, startRow} = parseInput(input)
   let filteredMap = lines.map(line => Array.from(line, () => emptyPointChar))
@@ -134,6 +172,9 @@ const part2 = (input) => {
   filteredMap[startRow][startCol] = getStartCharReplacement(filteredMap, startRow, startCol)
   printMap(filteredMap)
 
+  const {loopPoint, insidePoint} = findLoopFromOutside(filteredMap)
+  console.log("got start points", loopPoint, insidePoint)
+
   return Math.floor(loopSize / 2)
 }
 
@@ -144,8 +185,9 @@ await runner.testOutput('day10/example_b', '1', part1)
 // await runner.writeOutput('day10/test', '1', part1)
 await runner.testOutput('day10/test', '1', part1)
 
-await runner.testOutput('day10/example_c', '2', part2)
-await runner.testOutput('day10/example_d', '2', part2)
+// await runner.testOutput('day10/example_c', '2', part2)
+// await runner.testOutput('day10/example_d', '2', part2)
+await runner.testOutput('day10/example_e', '2', part2)
 // await runner.printOutput('day10/test', part2)
 // await runner.copyOutput('day10/test', part2)
 // await runner.writeOutput('day10/test', '2', part2)
