@@ -97,7 +97,8 @@ const getStartCharReplacement = (filteredMap, startCol, startRow) => {
     const nextCol = currCol + colDiff
     const nextRow = currRow + rowDiff
     const nextChar = filteredMap[nextRow][nextCol]
-    if (nextChar !== emptyPointChar) {
+    const nextCharExits = pipeTransforms[nextChar]
+    if (nextCharExits && nextCharExits.has(opposites[dirKey])) {
       exits.add(dirKey)
     }
   }
