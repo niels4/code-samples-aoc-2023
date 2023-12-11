@@ -179,13 +179,12 @@ const fillInternalArea = (filteredMap, internalPoint) => {
   return pointsFilled
 }
 
-const handleHorizontalMovement = (filteredMap, nextLoopPoint, insidePoint, [colDiff, rowDiff], directionKey) => {
+const handleHorizontalMovement = (filteredMap, nextLoopPoint, insidePoint, [colDiff], directionKey) => {
   const nextLoopSymbol = filteredMap[nextLoopPoint.rowIndex][nextLoopPoint.colIndex]
   let nextInsidePoint
   if (nextLoopSymbol === "-") {
     nextInsidePoint = {colIndex: insidePoint.colIndex + colDiff, rowIndex: insidePoint.rowIndex}
   } else {
-    console.log("rowDiff:", rowDiff, insidePoint.rowIndex - nextLoopPoint.rowIndex)
     const nextDirKey = [...pipeTransforms[nextLoopSymbol]].filter(dir => dir !== opposites[directionKey])[0]
     const nextDirection = directions[nextDirKey]
     if (nextDirection[1] === insidePoint.rowIndex - nextLoopPoint.rowIndex) {
@@ -197,13 +196,27 @@ const handleHorizontalMovement = (filteredMap, nextLoopPoint, insidePoint, [colD
   return {loopPoint: nextLoopPoint, insidePoint: nextInsidePoint}
 }
 
+const handleVerticalMovement = (filteredMap, nextLoopPoint, insidePoint, [rowDiff], directionKey) => {
+  const nextLoopSymbol = filteredMap[nextLoopPoint.rowIndex][nextLoopPoint.colIndex]
+  let nextInsidePoint
+  console.log("next vert symbol", nextLoopSymbol)
+  if (nextLoopSymbol === "|") {
+    nextInsidePoint = {colIndex: insidePoint.colIndex, rowIndex: insidePoint.rowIndex + rowDiff}
+  } else {
+    console.log("else?")
+    throw new Error("can't turn while moving vertically yet")
+  }
+
+  return {loopPoint: nextLoopPoint, insidePoint: nextInsidePoint}
+}
+
 const moveDirection = (filteredMap, loopPoint, insidePoint, directionKey) => {
   const direction = directions[directionKey]
   const nextLoopPoint = {colIndex: loopPoint.colIndex + direction[0], rowIndex: loopPoint.rowIndex + direction[1]}
   if (isHorizontal(direction)) {
     return handleHorizontalMovement(filteredMap, nextLoopPoint, insidePoint, direction, directionKey)
   }
-  throw new Error("can't move vertically")
+  return handleVerticalMovement(filteredMap, nextLoopPoint, insidePoint, direction, directionKey)
 }
 
 const part2 = (input) => {
@@ -243,7 +256,7 @@ const part2 = (input) => {
   currChar = filteredMap[loopPoint.rowIndex][loopPoint.colIndex]
   fromDir = opposites[firstDirectionKey]
   internalPointsCount += fillInternalArea(filteredMap, insidePoint)
-  while (!(loopPoint.colIndex !== startingInsidePoint.colIndex && loopPoint.rowIndex !== startingLoopPoint.rowIndex)) {
+  while (!(loopPoint.colIndex === startingLoopPoint.colIndex && loopPoint.rowIndex === startingLoopPoint.rowIndex)) {
     const toDir = [...pipeTransforms[currChar]].filter(dir => dir !== fromDir)[0]
     fromDir = opposites[toDir]
     const nextPoints = moveDirection(filteredMap, loopPoint, insidePoint, toDir)
@@ -255,6 +268,7 @@ const part2 = (input) => {
       printMap(filteredMap)
     }
     currChar = filteredMap[loopPoint.rowIndex][loopPoint.colIndex]
+    console.log("end of while loop", loopPoint.colIndex, startingLoopPoint.colIndex)
   }
 
   return internalPointsCount
