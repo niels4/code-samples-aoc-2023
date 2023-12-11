@@ -33,7 +33,6 @@ defineOpposite("n", "s")
 defineOpposite("e", "w")
 
 const isHorizontal = ([, rowDiff]) => rowDiff === 0
-const isVertical = ([colDiff]) => colDiff === 0
 
 const parseInput = (input) => {
   const startIndex = input.indexOf(startChar)
@@ -82,7 +81,17 @@ const part1 = (input) => {
   return Math.floor(loopSize / 2)
 }
 
-const printMap = (map) => {
+const applyDebugPoints = (map, debugPoints) => {
+  if (!debugPoints) { return map }
+  const newMap = map.map(row => [...row])
+  Object.entries(debugPoints).forEach(([char, point]) => {
+    newMap[point.rowIndex][point.colIndex] = char
+  })
+  return newMap
+}
+
+const printMap = (map, debugPoints) => {
+  map = applyDebugPoints(map, debugPoints)
   console.log()
   map.forEach((row) => {
     console.log(row.join(""))
@@ -115,14 +124,14 @@ const getStartCharReplacement = (filteredMap, startCol, startRow) => {
 
 const fromLeftInsidePoints = {
   "|": [1, 0],
-  "F": [0, 1],
-  "L": [0, -1]
+  "F": [1, 1],
+  "L": [1, -1]
 }
 
 // we iterate right to left and top to bottom. The only possible type of pipe we can run into from the top along the 
 // far left column is the F shape
 const fromTopInsidePoints = {
-  "F": [0, 1]
+  "F": [1, 1]
 }
 
 const findFirstInsidePoint = (symbol, colIndex, rowIndex) => {
@@ -252,7 +261,7 @@ const part2 = (input) => {
   const {loopPoint: startingLoopPoint, insidePoint: startingInsidePoint} = findLoopFromOutside(filteredMap)
   console.log("got start points", startingLoopPoint, startingInsidePoint)
   internalPointsCount += fillInternalArea(filteredMap, startingInsidePoint)
-  printMap(filteredMap)
+  printMap(filteredMap, {p: startingLoopPoint, i: startingInsidePoint})
 
   const startingLoopSymbol = filteredMap[startingLoopPoint.rowIndex][startingLoopPoint.colIndex]
   const firstDirectionKey = [...pipeTransforms[startingLoopSymbol]][0]
@@ -262,6 +271,7 @@ const part2 = (input) => {
   currChar = filteredMap[loopPoint.rowIndex][loopPoint.colIndex]
   fromDir = opposites[firstDirectionKey]
   internalPointsCount += fillInternalArea(filteredMap, insidePoint)
+  let numSteps = 0
   while (!(loopPoint.colIndex === startingLoopPoint.colIndex && loopPoint.rowIndex === startingLoopPoint.rowIndex)) {
     const toDir = [...pipeTransforms[currChar]].filter(dir => dir !== fromDir)[0]
     fromDir = opposites[toDir]
@@ -270,8 +280,11 @@ const part2 = (input) => {
     insidePoint = nextPoints.insidePoint
     const additionalFills = fillInternalArea(filteredMap, insidePoint)
     internalPointsCount += additionalFills
-    if (additionalFills) {
-      printMap(filteredMap)
+    const debugPoints = {p: loopPoint, i: insidePoint}
+    printMap(filteredMap, debugPoints)
+    numSteps++
+    if (numSteps > 1) {
+      process.exit(98)
     }
     currChar = filteredMap[loopPoint.rowIndex][loopPoint.colIndex]
     console.log("end of while loop", loopPoint.colIndex, startingLoopPoint.colIndex)
