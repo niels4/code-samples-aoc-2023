@@ -206,6 +206,9 @@ const handleHorizontalMovement = (filteredMap, prevLoopPoint, nextLoopPoint, ins
       nextInsidePoint = {colIndex: insidePoint.colIndex + colDiff, rowIndex: insidePoint.rowIndex}
       loopPoint = prevLoopPoint
     } else {
+      if (insidePoint.rowIndex >= loopPoint.rowIndex) {
+        loopPoint = prevLoopPoint
+      }
       nextInsidePoint = {colIndex: insidePoint.colIndex, rowIndex: insidePoint.rowIndex + nextDirection[1]}
     }
   }
@@ -289,7 +292,7 @@ const part2 = (input) => {
     const debugPoints = {p: loopPoint, i: insidePoint}
     printMap(filteredMap, debugPoints)
     numSteps++
-    if (numSteps > 22) {
+    if (numSteps > 26) {
       process.exit(98)
     }
     const toDir = [...pipeTransforms[currChar]].filter(dir => dir !== fromDir)[0]
