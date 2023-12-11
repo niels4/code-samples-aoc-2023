@@ -32,6 +32,9 @@ const defineOpposite = (dirKey, oppositeDirKey) => {
 defineOpposite("n", "s")
 defineOpposite("e", "w")
 
+const isHorizontal = ([, rowDiff]) => rowDiff === 0
+const isVertical = ([colDiff]) => colDiff === 0
+
 const parseInput = (input) => {
   const startIndex = input.indexOf(startChar)
   const lines = input.split('\n')
@@ -176,6 +179,26 @@ const fillInternalArea = (filteredMap, internalPoint) => {
   return pointsFilled
 }
 
+const handleHorizontalMovement = (filteredMap, nextLoopPoint, insidePoint, [colDiff, rowDiff]) => {
+  const nextLoopSymbol = filteredMap[nextLoopPoint.rowIndex][nextLoopPoint.colIndex]
+  let nextInsidePoint
+  if (nextLoopSymbol === "-") {
+    nextInsidePoint = {colIndex: insidePoint.colIndex + colDiff, rowIndex: insidePoint.rowIndex}
+  } else {
+    throw new Error("unhandled symbol: " + nextLoopSymbol)
+  }
+  return {loopPoint: nextLoopPoint, insidePoint: nextInsidePoint}
+}
+
+const moveDirection = (filteredMap, loopPoint, insidePoint, directionKey) => {
+  const direction = directions[directionKey]
+  const nextLoopPoint = {colIndex: loopPoint.colIndex + direction[0], rowIndex: loopPoint.rowIndex + direction[1]}
+  if (isHorizontal(direction)) {
+    return handleHorizontalMovement(filteredMap, nextLoopPoint, insidePoint, direction)
+  }
+  throw new Error("can't mvoe vertically")
+}
+
 const part2 = (input) => {
   const {lines, startCol, startRow} = parseInput(input)
   let filteredMap = lines.map(line => Array.from(line, () => emptyPointChar))
@@ -200,10 +223,28 @@ const part2 = (input) => {
   printMap(filteredMap)
 
   let internalPointsCount = 0
-  const {loopPoint, insidePoint} = findLoopFromOutside(filteredMap)
-  console.log("got start points", loopPoint, insidePoint)
-  internalPointsCount += fillInternalArea(filteredMap, insidePoint)
+  const {loopPoint: startingLoopPoint, insidePoint: startingInsidePoint} = findLoopFromOutside(filteredMap)
+  console.log("got start points", startingLoopPoint, startingInsidePoint)
+  internalPointsCount += fillInternalArea(filteredMap, startingInsidePoint)
   printMap(filteredMap)
+
+  const startingLoopSymbol = filteredMap[startingLoopPoint.rowIndex][startingLoopPoint.colIndex]
+  const firstDirectionKey = [...pipeTransforms[startingLoopSymbol]][0]
+  console.log("first direction", firstDirectionKey)
+  let {loopPoint, insidePoint} = moveDirection(filteredMap, startingLoopPoint, startingInsidePoint, firstDirectionKey)
+  console.log("got next point", loopPoint, insidePoint)
+  currChar = filteredMap[loopPoint.rowIndex][loopPoint.colIndex]
+  fromDir = opposites[firstDirectionKey]
+  internalPointsCount += fillInternalArea(filteredMap, insidePoint)
+  while (!(loopPoint.colIndex !== startingInsidePoint.colIndex && loopPoint.rowIndex !== startingLoopPoint.rowIndex)) {
+    const toDir = [...pipeTransforms[currChar]].filter(dir => dir !== fromDir)[0]
+    fromDir = opposites[toDir]
+    const nextPoints = moveDirection(filteredMap, loopPoint, insidePoint, toDir)
+    loopPoint = nextPoints.loopPoint
+    insidePoint = nextPoints.insidePoint
+    internalPointsCount += fillInternalArea(filteredMap, insidePoint)
+    currChar = filteredMap[loopPoint.rowIndex][loopPoint.colIndex]
+  }
 
   return internalPointsCount
 }
@@ -215,9 +256,9 @@ await runner.testOutput('day10/example_b', '1', part1)
 // await runner.writeOutput('day10/test', '1', part1)
 await runner.testOutput('day10/test', '1', part1)
 
-// await runner.testOutput('day10/example_c', '2', part2)
-// await runner.testOutput('day10/example_d', '2', part2)
-await runner.testOutput('day10/example_e', '2', part2)
+await runner.testOutput('day10/example_d', '2', part2)
+await runner.testOutput('day10/example_c', '2', part2)
+// await runner.testOutput('day10/example_e', '2', part2)
 // await runner.printOutput('day10/test', part2)
 // await runner.copyOutput('day10/test', part2)
 // await runner.writeOutput('day10/test', '2', part2)
