@@ -5,12 +5,12 @@ console.log("Solving AoC 2023 day 10")
 const startChar = "S"
 
 const pipeTransforms = {
-  "|": ["n", "s"],
-  "-": ["w", "e"],
-  "L": ["n", "e"],
-  "J": ["n", "w"],
-  "7": ["w", "s"],
-  "F": ["e", "s"],
+  "|": (["n", "s"]),
+  "-": (["w", "e"]),
+  "L": (["n", "e"]),
+  "J": (["n", "w"]),
+  "7": (["w", "s"]),
+  "F": (["e", "s"]),
 }
 
 const directions = {
@@ -77,8 +77,38 @@ const part1 = (input) => {
   return Math.floor(loopSize / 2)
 }
 
+const printMap = (map) => {
+  console.log()
+  map.forEach((row) => {
+    console.log(row.join(""))
+  })
+  console.log()
+}
+
 const part2 = (input) => {
-  return 0
+  const {lines, startCol, startRow} = parseInput(input)
+  let filteredMap = lines.map(line => Array.from(line, () => "."))
+
+  filteredMap[startRow][startCol] = startChar
+  printMap(filteredMap)
+
+  let {currChar, currCol, currRow, fromDir} = doFirstStep(lines, startCol, startRow)
+  let loopSize = 1
+
+  while (currChar != startChar) {
+    filteredMap[currRow][currCol] = currChar
+    const toDir = pipeTransforms[currChar].filter(dir => dir !== fromDir)[0]
+    fromDir = opposites[toDir]
+    const [colDiff, rowDiff] = directions[toDir]
+    currCol += colDiff
+    currRow += rowDiff
+    currChar = lines[currRow][currCol]
+    loopSize++
+  }
+
+  printMap(filteredMap)
+
+  return Math.floor(loopSize / 2)
 }
 
 await runner.testOutput('day10/example', '1', part1)
