@@ -1,16 +1,17 @@
 import * as runner from "../lib/runner.js"
+import { setsAreEqual } from "../lib/set.js"
 
 console.log("Solving AoC 2023 day 10")
 
 const startChar = "S"
 
 const pipeTransforms = {
-  "|": (["n", "s"]),
-  "-": (["w", "e"]),
-  "L": (["n", "e"]),
-  "J": (["n", "w"]),
-  "7": (["w", "s"]),
-  "F": (["e", "s"]),
+  "|": new Set(["n", "s"]),
+  "-": new Set(["w", "e"]),
+  "L": new Set(["n", "e"]),
+  "J": new Set(["n", "w"]),
+  "7": new Set(["w", "s"]),
+  "F": new Set(["e", "s"]),
 }
 
 const directions = {
@@ -64,8 +65,9 @@ const part1 = (input) => {
   let {currChar, currCol, currRow, fromDir} = doFirstStep(lines, startCol, startRow)
   let loopSize = 1
 
+  console.log("do start", currChar, currCol, currRow, fromDir)
   while (currChar != startChar) {
-    const toDir = pipeTransforms[currChar].filter(dir => dir !== fromDir)[0]
+    const toDir = [...pipeTransforms[currChar]].filter(dir => dir !== fromDir)[0]
     fromDir = opposites[toDir]
     const [colDiff, rowDiff] = directions[toDir]
     currCol += colDiff
@@ -85,9 +87,30 @@ const printMap = (map) => {
   console.log()
 }
 
+const emptyPointChar = "."
+
+const getStartCharReplacement = (filteredMap, startCol, startRow) => {
+  let currCol = startCol
+  let currRow = startRow
+  const exits = new Set()
+  for (const [dirKey, [colDiff, rowDiff]] of Object.entries(directions)) {
+    const nextCol = currCol + colDiff
+    const nextRow = currRow + rowDiff
+    const nextChar = filteredMap[nextRow][nextCol]
+    if (nextChar !== emptyPointChar) {
+      exits.add(dirKey)
+    }
+  }
+  const [replacementSymbol] = Object.entries(pipeTransforms).find(([, directions]) => {
+    return setsAreEqual(exits, directions)
+  })
+
+  return replacementSymbol
+}
+
 const part2 = (input) => {
   const {lines, startCol, startRow} = parseInput(input)
-  let filteredMap = lines.map(line => Array.from(line, () => "."))
+  let filteredMap = lines.map(line => Array.from(line, () => emptyPointChar))
 
   filteredMap[startRow][startCol] = startChar
   printMap(filteredMap)
@@ -97,7 +120,7 @@ const part2 = (input) => {
 
   while (currChar != startChar) {
     filteredMap[currRow][currCol] = currChar
-    const toDir = pipeTransforms[currChar].filter(dir => dir !== fromDir)[0]
+    const toDir = [...pipeTransforms[currChar]].filter(dir => dir !== fromDir)[0]
     fromDir = opposites[toDir]
     const [colDiff, rowDiff] = directions[toDir]
     currCol += colDiff
@@ -106,6 +129,8 @@ const part2 = (input) => {
     loopSize++
   }
 
+  printMap(filteredMap)
+  filteredMap[startRow][startCol] = getStartCharReplacement(filteredMap, startRow, startCol)
   printMap(filteredMap)
 
   return Math.floor(loopSize / 2)
