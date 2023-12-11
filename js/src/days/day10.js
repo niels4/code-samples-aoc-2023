@@ -115,14 +115,14 @@ const getStartCharReplacement = (filteredMap, startCol, startRow) => {
 
 const fromLeftInsidePoints = {
   "|": [1, 0],
-  "F": [1, 1],
-  "L": [1, -1]
+  "F": [0, 1],
+  "L": [0, -1]
 }
 
 // we iterate right to left and top to bottom. The only possible type of pipe we can run into from the top along the 
 // far left column is the F shape
 const fromTopInsidePoints = {
-  "F": [1, 1]
+  "F": [0, 1]
 }
 
 const findFirstInsidePoint = (symbol, colIndex, rowIndex) => {
@@ -190,7 +190,7 @@ const handleHorizontalMovement = (filteredMap, nextLoopPoint, insidePoint, [colD
     if (nextDirection[1] === insidePoint.rowIndex - nextLoopPoint.rowIndex) {
       nextInsidePoint = insidePoint
     } else {
-      throw new Error("Can't handle outside turn: " + nextLoopSymbol + ", " + nextLoopPoint.rowIndex)
+      throw new Error("Can't handle outside turn while moving horizontally: " + nextLoopSymbol + ", " + nextLoopPoint.rowIndex)
     }
   }
   return {loopPoint: nextLoopPoint, insidePoint: nextInsidePoint}
@@ -203,8 +203,14 @@ const handleVerticalMovement = (filteredMap, nextLoopPoint, insidePoint, [rowDif
   if (nextLoopSymbol === "|") {
     nextInsidePoint = {colIndex: insidePoint.colIndex, rowIndex: insidePoint.rowIndex + rowDiff}
   } else {
-    console.log("else?")
-    throw new Error("can't turn while moving vertically yet")
+    const nextDirKey = [...pipeTransforms[nextLoopSymbol]].filter(dir => dir !== opposites[directionKey])[0]
+    const nextDirection = directions[nextDirKey]
+    console.log('turn dirs', nextLoopSymbol, nextDirection[0], insidePoint.colIndex - nextLoopPoint.colIndex)
+    if (nextDirection[0] === insidePoint.colIndex - nextLoopPoint.colIndex) {
+      nextInsidePoint = insidePoint
+    } else {
+      throw new Error("Can't handle outside turn while moving vertically: " + nextLoopSymbol + ", " + nextLoopPoint.rowIndex)
+    }
   }
 
   return {loopPoint: nextLoopPoint, insidePoint: nextInsidePoint}
