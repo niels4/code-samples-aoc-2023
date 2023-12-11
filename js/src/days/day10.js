@@ -217,6 +217,7 @@ const handleHorizontalMovement = (filteredMap, prevLoopPoint, nextLoopPoint, ins
 
 const handleVerticalMovement = (filteredMap, prevLoopPoint, nextLoopPoint, insidePoint, [,rowDiff], directionKey, prevLoopSymbol, nextLoopSymbol) => {
   let nextInsidePoint
+  let loopPoint = nextLoopPoint
   console.log("next vert symbol", nextLoopSymbol, rowDiff)
   if (nextLoopSymbol === "|") {
     if (prevLoopSymbol === "|") {
@@ -230,12 +231,19 @@ const handleVerticalMovement = (filteredMap, prevLoopPoint, nextLoopPoint, insid
     console.log('turn dirs', nextLoopSymbol, nextDirection[0], insidePoint.colIndex - nextLoopPoint.colIndex)
     if (nextDirection[0] === insidePoint.colIndex - nextLoopPoint.colIndex) {
       nextInsidePoint = insidePoint
+    } else if (insidePoint.rowIndex >= nextLoopPoint.rowIndex) {
+      nextInsidePoint = {colIndex: insidePoint.colIndex, rowIndex: insidePoint.rowIndex + rowDiff}
+      loopPoint = prevLoopPoint
     } else {
-      throw new Error("Can't handle outside turn while moving vertically: " + nextLoopSymbol + ", " + nextLoopPoint.rowIndex)
+      if (insidePoint.colIndex >= loopPoint.colIndex) {
+        loopPoint = prevLoopPoint
+      }
+      nextInsidePoint = {colIndex: insidePoint.colIndex + nextDirection[0], rowIndex: insidePoint.rowIndex}
     }
+
   }
 
-  return {loopPoint: nextLoopPoint, insidePoint: nextInsidePoint}
+  return {loopPoint, insidePoint: nextInsidePoint}
 }
 
 const moveDirection = (filteredMap, loopPoint, insidePoint, directionKey) => {
@@ -292,7 +300,7 @@ const part2 = (input) => {
     const debugPoints = {p: loopPoint, i: insidePoint}
     printMap(filteredMap, debugPoints)
     numSteps++
-    if (numSteps > 26) {
+    if (numSteps > 35) {
       process.exit(98)
     }
     const toDir = [...pipeTransforms[currChar]].filter(dir => dir !== fromDir)[0]
