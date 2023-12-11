@@ -179,13 +179,20 @@ const fillInternalArea = (filteredMap, internalPoint) => {
   return pointsFilled
 }
 
-const handleHorizontalMovement = (filteredMap, nextLoopPoint, insidePoint, [colDiff, rowDiff]) => {
+const handleHorizontalMovement = (filteredMap, nextLoopPoint, insidePoint, [colDiff, rowDiff], directionKey) => {
   const nextLoopSymbol = filteredMap[nextLoopPoint.rowIndex][nextLoopPoint.colIndex]
   let nextInsidePoint
   if (nextLoopSymbol === "-") {
     nextInsidePoint = {colIndex: insidePoint.colIndex + colDiff, rowIndex: insidePoint.rowIndex}
   } else {
-    throw new Error("unhandled symbol: " + nextLoopSymbol)
+    console.log("rowDiff:", rowDiff, insidePoint.rowIndex - nextLoopPoint.rowIndex)
+    const nextDirKey = [...pipeTransforms[nextLoopSymbol]].filter(dir => dir !== opposites[directionKey])[0]
+    const nextDirection = directions[nextDirKey]
+    if (nextDirection[1] === insidePoint.rowIndex - nextLoopPoint.rowIndex) {
+      nextInsidePoint = insidePoint
+    } else {
+      throw new Error("Can't handle outside turn: " + nextLoopSymbol + ", " + nextLoopPoint.rowIndex)
+    }
   }
   return {loopPoint: nextLoopPoint, insidePoint: nextInsidePoint}
 }
@@ -194,9 +201,9 @@ const moveDirection = (filteredMap, loopPoint, insidePoint, directionKey) => {
   const direction = directions[directionKey]
   const nextLoopPoint = {colIndex: loopPoint.colIndex + direction[0], rowIndex: loopPoint.rowIndex + direction[1]}
   if (isHorizontal(direction)) {
-    return handleHorizontalMovement(filteredMap, nextLoopPoint, insidePoint, direction)
+    return handleHorizontalMovement(filteredMap, nextLoopPoint, insidePoint, direction, directionKey)
   }
-  throw new Error("can't mvoe vertically")
+  throw new Error("can't move vertically")
 }
 
 const part2 = (input) => {
@@ -242,7 +249,11 @@ const part2 = (input) => {
     const nextPoints = moveDirection(filteredMap, loopPoint, insidePoint, toDir)
     loopPoint = nextPoints.loopPoint
     insidePoint = nextPoints.insidePoint
-    internalPointsCount += fillInternalArea(filteredMap, insidePoint)
+    const additionalFills = fillInternalArea(filteredMap, insidePoint)
+    internalPointsCount += additionalFills
+    if (additionalFills) {
+      printMap(filteredMap)
+    }
     currChar = filteredMap[loopPoint.rowIndex][loopPoint.colIndex]
   }
 
