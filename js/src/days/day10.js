@@ -14,6 +14,41 @@ const pipeTransforms = {
   "F": new Set(["e", "s"]),
 }
 
+const eastWardInternalPoints = {
+  "-": [[0, 1]],
+  "J": [[0, 1], [1, 1], [1, 0]],
+  "7": [],
+}
+
+const westWardInternalPoints = {
+  "-": [[0, -1]],
+  "F": [[0, -1], [-1, -1], [-1, 0]],
+  "L": [],
+}
+
+const northWardInternalPoints = {
+  "|": [[1, 0]],
+  "7": [[1, 0], [1, -1], [0, -1]],
+  "F": [],
+}
+
+const southWardInternalPoints = {
+  "|": [[-1, 0]],
+  "L": [[-1, 0], [-1, 1], [0, 1]],
+  "J": [],
+}
+
+const internalPointOffsets = {
+  "n": northWardInternalPoints,
+  "e": eastWardInternalPoints,
+  "s": southWardInternalPoints,
+  "w": westWardInternalPoints
+}
+
+const getNearbyInternalPointOffsets = (direction, symbol) => {
+  return internalPointOffsets[direction][symbol]
+}
+
 const directions = {
   "n": [0, -1],
   "e": [1, 0]
@@ -93,7 +128,6 @@ const printMap = (map, debugPoints) => {
   map = applyDebugPoints(map, debugPoints)
   console.log()
   map.forEach((row, rowIndex) => {
-    if (rowIndex > 15) { return }
     console.log(row.join(""))
   })
   console.log()
@@ -270,7 +304,6 @@ const part2 = (input) => {
   const {loopPoint: startingLoopPoint, firstDirectionKey} = findLoopFromOutside(filteredMap)
   let debugPoints = {p: startingLoopPoint}
   console.log("start of map")
-  printMap(filteredMap, debugPoints)
 
   const startingLoopSymbol = filteredMap[startingLoopPoint.rowIndex][startingLoopPoint.colIndex]
   fromDir = opposites[firstDirectionKey]
@@ -284,14 +317,15 @@ const part2 = (input) => {
     numSteps++
 
     debugPoints = {p: loopPoint}
-    console.log("step:", numSteps)
-    printMap(filteredMap, debugPoints)
-    if (numSteps > 45) {
-      process.exit(99)
-    }
-    const toDir = [...pipeTransforms[currChar]].filter(dir => dir !== fromDir)[0]
-    fromDir = opposites[toDir]
-    const [colDiff, rowDiff] = directions[toDir]
+    const nearbyInteralOffsets = getNearbyInternalPointOffsets(opposites[fromDir], currChar)
+    nearbyInteralOffsets.forEach(([colDiff, rowDiff], i) => {
+      const nextInsidePoint = {colIndex: loopPoint.colIndex + colDiff, rowIndex: loopPoint.rowIndex + rowDiff}
+      internalPointsCount += fillInternalArea(filteredMap, nextInsidePoint)
+      debugPoints[i] = nextInsidePoint
+    })
+    const nextToDir = [...pipeTransforms[currChar]].filter(dir => dir !== fromDir)[0]
+    fromDir = opposites[nextToDir]
+    const [colDiff, rowDiff] = directions[nextToDir]
     loopPoint.colIndex += colDiff
     loopPoint.rowIndex += rowDiff
     currChar = filteredMap[loopPoint.rowIndex][loopPoint.colIndex]
@@ -310,11 +344,10 @@ await runner.testOutput('day10/example_b', '1', part1)
 // await runner.writeOutput('day10/test', '1', part1)
 await runner.testOutput('day10/test', '1', part1)
 
-// await runner.printOutput('day10/test', part2)
 await runner.testOutput('day10/example_c', '2', part2)
-// await runner.testOutput('day10/example_e', '2', part2)
-// await runner.testOutput('day10/example_d', '2', part2)
+await runner.testOutput('day10/example_e', '2', part2)
+await runner.testOutput('day10/example_d', '2', part2)
 // await runner.printOutput('day10/test', part2)
 // await runner.copyOutput('day10/test', part2)
 // await runner.writeOutput('day10/test', '2', part2)
-// await runner.testOutput('day10/test', '2', part2)
+await runner.testOutput('day10/test', '2', part2)
