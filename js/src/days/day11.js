@@ -48,10 +48,23 @@ const parseInput = (input) => {
   }
 }
 
+const getDistanceBetweenGalaxies = (galaxy1, galaxy2) => {
+  return Math.abs(galaxy2.row - galaxy1.row) + Math.abs(galaxy2.col - galaxy1.col)
+}
+
 const part1 = (input) => {
-  const parsed = parseInput(input)
-  inspect(parsed)
-  return 0
+  const {expandedGalaxies} = parseInput(input)
+
+  let result = 0
+  expandedGalaxies.forEach((galaxy1, galaxy1Index) => {
+    for (let galaxy2Index = galaxy1Index + 1; galaxy2Index < expandedGalaxies.length; galaxy2Index++) {
+      const galaxy2 = expandedGalaxies[galaxy2Index]
+      const distance = getDistanceBetweenGalaxies(galaxy1, galaxy2)
+      result += distance
+    }
+  })
+
+  return result
 }
 
 // const part2 = (input) => {
@@ -59,9 +72,9 @@ const part1 = (input) => {
 // }
 
 await runner.testOutput('day11/example', '1', part1)
-// await runner.printOutput('day11/test', part1)
-// await runner.copyOutput('day11/test', part1)
-// await runner.writeOutput('day11/test', '1', part1)
+await runner.printOutput('day11/test', part1)
+await runner.copyOutput('day11/test', part1)
+await runner.writeOutput('day11/test', '1', part1)
 // await runner.testOutput('day11/test', '1', part1)
 
 // await runner.testOutput('day11/example', '2', part2)
