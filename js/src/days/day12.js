@@ -7,76 +7,80 @@ const workingSpring = "."
 const damagedSpring = "#"
 const unknownSpring = "?"
 
+const parseInput = (input) => {
+  const lines = input.split('\n')
+  return lines.map((line) => {
+    const [conditions, groupsStr] = line.split(' ')
+    const groups = groupsStr.split(',').map(s => Number(s))
+    return {
+      conditions,
+      groups
+    }
+  })
+}
+
 const isValidConfiguration = (configuration, groups) => {
   let currentGroupSize = 0
   let currentGroupIndex = 0
+
+  const handleUndamagedSpring = () => {
+    // check and see if it is a seperator adjacent to a damaged spring group
+    if (currentGroupSize !== 0) {
+      // return false if the group size doesn't match expected group size
+      if (currentGroupSize !== groups[currentGroupIndex]) { return false }
+      currentGroupSize = 0
+      currentGroupIndex++
+    }
+    return true
+  }
+
   for (const spring of configuration) {
     if (spring === workingSpring) {
-      if (currentGroupSize !== 0) {
-        if (currentGroupSize !== groups[currentGroupIndex]) { return false }
-        currentGroupSize = 0
-        currentGroupIndex++
-      }
+      if (!handleUndamagedSpring()) { return false }
     } else if (spring === damagedSpring) {
       currentGroupSize++
     } else {
       throw new Error("Invalid configuration char: " + spring)
     }
   }
-  if (currentGroupSize !== 0 && currentGroupSize !== groups[currentGroupIndex]) {
+
+  if (!handleUndamagedSpring()) { return false } // treat the end of line as an undamaged spring
+
+  // return false if we don't find the expected number of groups
+  if (currentGroupIndex !== groups.length) {
     return false
   }
+
+  // if we have the right number of groups and they are all of the correct size, we can return true
   return true
 }
 
-const parseInput = (input) => {
-  const lines = input.split('\n')
-  return lines.map((line) => {
-    const [conditions, groupsStr] = line.split(' ')
-    const groups = groupsStr.split(',').map(s => Number(s))
-    const damagedSprintsCount = sum(groups)
-    const workingSpringsCount = conditions.length - damagedSprintsCount
-    return {
-      conditions,
-      conditionsCount: conditions.length,
-      groups,
-      workingSpringsCount
-    }
-  })
-}
-
-const countCombinationsWithRepitions = (n, r) => {
-  if (r === 0) { return {numerator: 1, denominator: 1, result: 1} }
-  const numeratorFactorial = n + r - 1
-  const denominatorFactorials = [r, numeratorFactorial - r].sort()
-  const numeratorLastMultiple = denominatorFactorials[1] + 1
-  console.log("numeratorFactorial:", numeratorFactorial, r, denominatorFactorials[1], numeratorLastMultiple)
-  let numerator = 1
-  for (let i = numeratorLastMultiple; i <= numeratorFactorial; i++) {
-    numerator *= i
+// brute force check by trying all possible combinations of replacements for the uknown conditions
+const countValidConfigurations = (configuration, groups, currentIndex = 0) => {
+  if (currentIndex === configuration.length) {
+    return isValidConfiguration(configuration, groups) ? 1 : 0
   }
-  let denominator = 1
-  for (let i = 1; i <= denominatorFactorials[0]; i++) {
-    denominator *= i
+  const currentSpring = configuration[currentIndex]
+  const nextIndex = currentIndex + 1
+  if (currentSpring !== unknownSpring) {
+    return countValidConfigurations(configuration, groups, nextIndex)
   }
-  const result = numerator / denominator
-  return {numerator, denominator, result}
+  const startOfConfig = configuration.substring(0, currentIndex)
+  const endOfConfig = configuration.substring(currentIndex + 1)
+  const nextConfig1 = startOfConfig + workingSpring + endOfConfig
+  const nextConfig2 = startOfConfig + damagedSpring + endOfConfig
+  return countValidConfigurations(nextConfig1, groups, nextIndex) + countValidConfigurations(nextConfig2, groups, nextIndex)
 }
 
 const part1 = (input) => {
   const records = parseInput(input)
-  inspect(records)
-  let totalCombinationsCount = 0
-  records.forEach(({conditionsCount, workingSpringsCount, groups}, i) => {
-    const groupsCount = groups.length
-    const combinationsCount = countCombinationsWithRepitions(groupsCount + 1, workingSpringsCount - (groupsCount - 1))
-    totalCombinationsCount += combinationsCount.result
-    console.log(`row ${i}: ${combinationsCount.result}`)
+
+  const allCounts = records.map(({conditions, groups}) => {
+    const count = countValidConfigurations(conditions, groups)
+    return count
   })
 
-  const valid1 = isValidConfiguration("#.#.###", [1,1,3])
-  console.log("isvalid", valid1)
-  return totalCombinationsCount
+  return sum(allCounts)
 }
 
 // const part2 = (input) => {
@@ -87,7 +91,7 @@ await runner.testOutput('day12/example', '1', part1)
 // await runner.printOutput('day12/test', part1)
 // await runner.copyOutput('day12/test', part1)
 // await runner.writeOutput('day12/test', '1', part1)
-// await runner.testOutput('day12/test', '1', part1)
+await runner.testOutput('day12/test', '1', part1)
 
 // await runner.testOutput('day12/example', '2', part2)
 // await runner.printOutput('day12/test', part2)
