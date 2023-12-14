@@ -83,9 +83,87 @@ const part1 = (input) => {
   return sum(allCounts)
 }
 
-// const part2 = (input) => {
-//   return 0
-// }
+// memoized version of countValidConfigurations
+const countValidConfigurationsPart2Memo = (memo, configuration, groups) => {
+  if (configuration.length === 0) {
+    // if we are at the end of our string and we have no more groups left to process, return 1 because we found a valid configuration
+    // else if we still have groups left to process, return 0 as this did not lead to a valid configuration
+    return groups.length === 0 ? 1 : 0
+  }
+
+  if (groups.length === 0) {
+    // if we are found all of the damaged groups but still have damaged springs left in the configuration, then we don't have a valid config and should return 0
+    // else return 1 if we processed all groups and have no damaged springs as this is a valid configuariation and any remaining unknown springs must be undamaged
+    return configuration.includes(damagedSpring) ? 0 : 1
+  }
+
+  const memoKey = `${configuration}:${groups.length}`
+  if (memo.has(memoKey)) {
+    return memo.get(memoKey)
+  }
+
+  let validCount = 0
+
+  // move on to the next character
+  const handleWorkingSpring = () => validCount += countValidConfigurationsPart2Memo(memo, configuration.substring(1), groups)
+
+  // check if we have a valid position for the current damaged group
+  const handleDamagedSpring = () => {
+    const currentDamagedGroup = groups[0]
+    if (currentDamagedGroup <= configuration.length // if we have enough room to contain the current damaged group
+      && !configuration.substring(0, currentDamagedGroup).includes(workingSpring) // and there are no working springs within the length of the damaged group
+      && (currentDamagedGroup === configuration.length || configuration[currentDamagedGroup] !== damagedSpring)) { // and the damaged group is either at the end of the configuration or is seperated by a non damaged spring
+      // Then we have a valid position for our current group. Add to the valid count all the cases where we assume the block to go here
+      const nextConfigurationSubstring = configuration.substring(currentDamagedGroup + 1) // start one character after our group size because we know for sure the next character will have to be undamaged. Or we are at the end, and substring returns an empty string if you give it a value past the last index
+      const [, ...nextGroupsSublist] = groups // remove the group we just placed and move on to the next group
+      validCount += countValidConfigurationsPart2Memo(memo, nextConfigurationSubstring, nextGroupsSublist)
+    }
+  }
+
+  const nextSpring = configuration[0]
+  switch (nextSpring) {
+  case workingSpring:
+    handleWorkingSpring()
+    break
+  case damagedSpring:
+    handleDamagedSpring()
+    break
+  case unknownSpring: // if the spring is unknown, we add up all the cases where its valid to place a damaged or a working spring
+    handleWorkingSpring()
+    handleDamagedSpring()
+    break
+  default:
+    throw new Error("Invalid character in configuration")
+  }
+
+  memo.set(memoKey, validCount)
+
+  return validCount
+}
+
+// create function to kick off the recursive function by initializing an empty map for the memo cache
+const countValidConfigurationsPart2 = (configuration, groups) => {
+  const memo = new Map()
+  return countValidConfigurationsPart2Memo(memo, configuration, groups)
+}
+
+const unfoldMultiplier = 5
+
+const unfoldRecord = ({conditions, groups}) => ({
+  conditions: Array.from({length: unfoldMultiplier}, () => conditions).join(unknownSpring),
+  groups: Array.from({length: unfoldMultiplier}, () => groups).flatMap(g => g)
+})
+
+const part2 = (input) => {
+  const records = parseInput(input)
+
+  const allCounts = records.map(unfoldRecord).map(({conditions, groups}) => {
+    const count = countValidConfigurationsPart2(conditions, groups)
+    return count
+  })
+
+  return sum(allCounts)
+}
 
 await runner.testOutput('day12/example', '1', part1)
 // await runner.printOutput('day12/test', part1)
@@ -93,8 +171,8 @@ await runner.testOutput('day12/example', '1', part1)
 // await runner.writeOutput('day12/test', '1', part1)
 await runner.testOutput('day12/test', '1', part1)
 
-// await runner.testOutput('day12/example', '2', part2)
+await runner.testOutput('day12/example', '2', part2)
 // await runner.printOutput('day12/test', part2)
 // await runner.copyOutput('day12/test', part2)
 // await runner.writeOutput('day12/test', '2', part2)
-// await runner.testOutput('day12/test', '2', part2)
+await runner.testOutput('day12/test', '2', part2)
