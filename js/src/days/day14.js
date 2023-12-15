@@ -9,9 +9,7 @@ const empty = "."
 
 const parseInput = (input) => input.split('\n').map(line => [...line])
 
-const printPlatform = (platformRows) => {
-  console.log(platformRows.map(line => line.join('')).join("\n"))
-}
+const platformToString = (platformRows) => platformRows.map(line => line.join('')).join("\n")
 
 const tiltPlatformPart1 = (platformRows) => {
   const tiltedPlatform = platformRows.map(() => [])
@@ -121,14 +119,31 @@ const spinPlatform = (platform) => {
   return platform
 }
 
-const part2 = (input) => {
-  const platformRows = parseInput(input)
-  printPlatform(platformRows)
-  let spunPlatform = spinPlatform(platformRows)
-  console.log()
-  printPlatform(spunPlatform)
+const numSpinCycles = 1_000_000_000
 
-  return getPlatformScore(spunPlatform)
+const part2 = (input) => {
+  const stateToSpinCount = new Map()
+  const spinCountToState = new Map()
+
+  let nextState = parseInput(input)
+  stateToSpinCount.set(platformToString(nextState), 0)
+  for (let spinCount = 1; spinCount <= numSpinCycles; spinCount++) {
+    nextState = spinPlatform(nextState)
+    const nextKey = platformToString(nextState)
+
+    if (stateToSpinCount.has(nextKey)) {
+      const loopStartSpinCount = stateToSpinCount.get(nextKey)
+      const loopLength = spinCount - loopStartSpinCount
+      const resultSpinCount = ((numSpinCycles - loopStartSpinCount) % loopLength) + loopStartSpinCount
+      console.log("loop found", loopLength, loopStartSpinCount, spinCount)
+      return getPlatformScore(spinCountToState.get(resultSpinCount))
+    }
+
+    stateToSpinCount.set(nextKey, spinCount)
+    spinCountToState.set(spinCount, nextState)
+  }
+
+  throw new Error("No loop found.")
 }
 
 await runner.testOutput('day14/example', '1', part1)
@@ -141,4 +156,4 @@ await runner.testOutput('day14/example', '2', part2)
 // await runner.printOutput('day14/test', part2)
 // await runner.copyOutput('day14/test', part2)
 // await runner.writeOutput('day14/test', '2', part2)
-// await runner.testOutput('day14/test', '2', part2)
+await runner.testOutput('day14/test', '2', part2)
