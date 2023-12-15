@@ -10,10 +10,10 @@ const empty = "."
 const parseInput = (input) => input.split('\n').map(line => [...line])
 
 const printPlatform = (platformRows) => {
-  console.log(platformRows.map(line => line.join()).join("\n"))
+  console.log(platformRows.map(line => line.join('')).join("\n"))
 }
 
-const tiltPlatformNorth = (platformRows) => {
+const tiltPlatformPart1 = (platformRows) => {
   const tiltedPlatform = platformRows.map(() => [])
 
   const numCols = platformRows[0].length
@@ -49,17 +49,70 @@ const getPlatformScore = (platformRows) => {
 
 const part1 = (input) => {
   const platformRows = parseInput(input)
+  const tiltedPlatform = tiltPlatformPart1(platformRows)
+
+  return getPlatformScore(tiltedPlatform)
+}
+
+const tiltPlatform = (platformRows, by, direction) => {
+  const tiltedPlatform = platformRows.map(() => [])
+
+  const numCols = platformRows[0].length
+  const numRows = platformRows.length
+
+  let outerIterator = {start: 0, length: numCols, direction}
+  let innerIterator = {start: 0, length: numRows, direction}
+  if (by === "row") {
+    [innerIterator, outerIterator] = [outerIterator, innerIterator]
+  }
+
+  let colIndex, rowIndex
+
+  for (let outerIndex = 0; outerIndex < outerIterator.length; outerIndex++) {
+    if (by === "row") {
+      rowIndex = outerIndex
+    } else {
+      colIndex = outerIndex
+    }
+    let currentRollIndex = innerIterator.start
+    for (let innerIndex = 0; innerIndex < innerIterator.length; innerIndex++) {
+      if (by === "row") {
+        colIndex = innerIndex
+      } else {
+        rowIndex = innerIndex
+      }
+      switch (platformRows[rowIndex][colIndex]) {
+      case roundedRock:
+        tiltedPlatform[rowIndex][colIndex] = empty
+        if (by === "row") {
+          tiltedPlatform[rowIndex][currentRollIndex] = roundedRock
+        } else {
+          tiltedPlatform[currentRollIndex][colIndex] = roundedRock
+        }
+        currentRollIndex++
+        break
+      case squareRock:
+        tiltedPlatform[rowIndex][colIndex] = squareRock
+        currentRollIndex = innerIndex + 1
+        break
+      default:
+        tiltedPlatform[rowIndex][colIndex] = empty
+      }
+    }
+  }
+
+  return tiltedPlatform
+}
+
+const part2 = (input) => {
+  const platformRows = parseInput(input)
   printPlatform(platformRows)
-  const tiltedPlatform = tiltPlatformNorth(platformRows)
+  let tiltedPlatform = tiltPlatform(platformRows, "row", -1)
   console.log()
   printPlatform(tiltedPlatform)
 
   return getPlatformScore(tiltedPlatform)
 }
-
-// const part2 = (input) => {
-//   return 0
-// }
 
 await runner.testOutput('day14/example', '1', part1)
 // await runner.printOutput('day14/test', part1)
@@ -67,7 +120,7 @@ await runner.testOutput('day14/example', '1', part1)
 // await runner.writeOutput('day14/test', '1', part1)
 await runner.testOutput('day14/test', '1', part1)
 
-// await runner.testOutput('day14/example', '2', part2)
+await runner.testOutput('day14/example', '2', part2)
 // await runner.printOutput('day14/test', part2)
 // await runner.copyOutput('day14/test', part2)
 // await runner.writeOutput('day14/test', '2', part2)
