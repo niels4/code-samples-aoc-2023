@@ -69,7 +69,6 @@ const removeLenseFromBox = (boxes, {label, labelHash}) => {
 const part2 = (input) => {
   const sequenceStrings = parseInput(input)
   const sequences = sequenceStrings.map(parseSequences)
-  inspect(sequences)
   const boxes = []
   sequences.forEach((sequence) => {
     const {operation} = sequence
@@ -80,8 +79,17 @@ const part2 = (input) => {
     }
   })
 
-  inspect(boxes)
-  return 0
+  const result = boxes.reduce((acc, box, boxIndex) => {
+    if (!box) { return acc}
+    const {lenses} = box
+    const boxNumber = boxIndex + 1
+    return acc + Object.values(lenses).reduce((acc, {focalLength}, lenseIndex) => {
+      const lenseNumber = lenseIndex + 1
+      return acc + boxNumber * lenseNumber * focalLength
+    }, 0)
+  }, 0)
+
+  return result
 }
 
 await runner.testOutput('day15/example', '1', part1)
@@ -94,4 +102,4 @@ await runner.testOutput('day15/example', '2', part2)
 // await runner.printOutput('day15/test', part2)
 // await runner.copyOutput('day15/test', part2)
 // await runner.writeOutput('day15/test', '2', part2)
-// await runner.testOutput('day15/test', '2', part2)
+await runner.testOutput('day15/test', '2', part2)
