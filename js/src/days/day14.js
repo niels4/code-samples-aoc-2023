@@ -62,20 +62,26 @@ const tiltPlatform = (platformRows, by, direction) => {
 
   let outerIterator = {start: 0, length: numCols, direction}
   let innerIterator = {start: 0, length: numRows, direction}
+  if (direction === -1) {
+    outerIterator.start = outerIterator.length - 1
+    innerIterator.start = innerIterator.length - 1
+  }
   if (by === "row") {
     [innerIterator, outerIterator] = [outerIterator, innerIterator]
   }
 
   let colIndex, rowIndex
 
-  for (let outerIndex = 0; outerIndex < outerIterator.length; outerIndex++) {
+  for (let outerIndex = outerIterator.start; outerIndex * direction < (outerIterator.start + outerIterator.length * direction) * direction; outerIndex += direction) {
     if (by === "row") {
       rowIndex = outerIndex
     } else {
       colIndex = outerIndex
     }
     let currentRollIndex = innerIterator.start
-    for (let innerIndex = 0; innerIndex < innerIterator.length; innerIndex++) {
+    console.log("starting inner iterator", innerIterator.start, innerIterator.length, innerIterator.start + innerIterator.length * direction)
+    for (let innerIndex = innerIterator.start; innerIndex * direction < (innerIterator.start + innerIterator.length * direction) * direction; innerIndex += direction) {
+      console.log("inner index?", currentRollIndex, innerIndex, innerIterator.start + innerIterator.length * direction)
       if (by === "row") {
         colIndex = innerIndex
       } else {
@@ -87,13 +93,14 @@ const tiltPlatform = (platformRows, by, direction) => {
         if (by === "row") {
           tiltedPlatform[rowIndex][currentRollIndex] = roundedRock
         } else {
+          // console.log("updating", currentRollIndex, colIndex, outerIterator.length)
           tiltedPlatform[currentRollIndex][colIndex] = roundedRock
         }
-        currentRollIndex++
+        currentRollIndex += direction
         break
       case squareRock:
         tiltedPlatform[rowIndex][colIndex] = squareRock
-        currentRollIndex = innerIndex + 1
+        currentRollIndex = innerIndex + direction
         break
       default:
         tiltedPlatform[rowIndex][colIndex] = empty
