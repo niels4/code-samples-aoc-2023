@@ -54,7 +54,7 @@ const part1 = (input) => {
   return getPlatformScore(tiltedPlatform)
 }
 
-const tiltPlatform = (platformRows, by, direction) => {
+const tiltPlatform = (by, direction) => (platformRows) => {
   const tiltedPlatform = platformRows.map(() => [])
 
   const numCols = platformRows[0].length
@@ -79,9 +79,7 @@ const tiltPlatform = (platformRows, by, direction) => {
       colIndex = outerIndex
     }
     let currentRollIndex = innerIterator.start
-    console.log("starting inner iterator", innerIterator.start, innerIterator.length, innerIterator.start + innerIterator.length * direction)
     for (let innerIndex = innerIterator.start; innerIndex * direction < (innerIterator.start + innerIterator.length * direction) * direction; innerIndex += direction) {
-      console.log("inner index?", currentRollIndex, innerIndex, innerIterator.start + innerIterator.length * direction)
       if (by === "row") {
         colIndex = innerIndex
       } else {
@@ -93,7 +91,6 @@ const tiltPlatform = (platformRows, by, direction) => {
         if (by === "row") {
           tiltedPlatform[rowIndex][currentRollIndex] = roundedRock
         } else {
-          // console.log("updating", currentRollIndex, colIndex, outerIterator.length)
           tiltedPlatform[currentRollIndex][colIndex] = roundedRock
         }
         currentRollIndex += direction
@@ -111,14 +108,27 @@ const tiltPlatform = (platformRows, by, direction) => {
   return tiltedPlatform
 }
 
+const tiltNorth = tiltPlatform("column", 1)
+const tiltSouth = tiltPlatform("column", -1)
+const tiltWest = tiltPlatform("row", 1)
+const tiltEast = tiltPlatform("row", -1)
+
+const spinPlatform = (platform) => {
+  platform = tiltNorth(platform)
+  platform = tiltWest(platform)
+  platform = tiltSouth(platform)
+  platform = tiltEast(platform)
+  return platform
+}
+
 const part2 = (input) => {
   const platformRows = parseInput(input)
   printPlatform(platformRows)
-  let tiltedPlatform = tiltPlatform(platformRows, "row", -1)
+  let spunPlatform = spinPlatform(platformRows)
   console.log()
-  printPlatform(tiltedPlatform)
+  printPlatform(spunPlatform)
 
-  return getPlatformScore(tiltedPlatform)
+  return getPlatformScore(spunPlatform)
 }
 
 await runner.testOutput('day14/example', '1', part1)
