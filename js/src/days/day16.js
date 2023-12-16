@@ -116,12 +116,7 @@ const printVisited = (rows, visitCount) => {
   console.log()
 }
 
-let loopCount = 0
 const followPath0 = (rows, visitCount, pathHistory, currentSquare, directionKey) => {
-  // printVisited(rows, visitCount)
-  // console.log("size", visitCount.size, )
-  // loopCount++
-  // if (loopCount > 50) { process.exit(98)}
   const direction = directions[directionKey]
   const nextSquare = currentSquare.map((coord, i) => coord + direction[i])
   if (!isValidSquare(rows, pathHistory, nextSquare, directionKey)) { return }
@@ -134,25 +129,49 @@ const followPath0 = (rows, visitCount, pathHistory, currentSquare, directionKey)
   }
 }
 
-const followPath = (rows) => {
+const followPath = (rows, startLocation) => {
   const visitCount = new Map()
   const pathHistory = new Set()
-  const startSquare = [-1, 0]
-  const startDirecton = "right"
-  followPath0(rows, visitCount, pathHistory, startSquare, startDirecton)
-  return visitCount
+  followPath0(rows, visitCount, pathHistory, startLocation.square, startLocation.directionKey)
+  return visitCount.size
 }
 
 const part1 = (input) => {
   const rows = parseInput(input)
-  const visitCount = followPath(rows)
+  const visitCount = followPath(rows, {square: [-1, 0], directionKey: "right"})
   // printVisited(rows, visitCount)
-  return visitCount.size
+  return visitCount
 }
 
-// const part2 = (input) => {
-//   return 0
-// }
+const getStartLocations = (rows) => {
+  const startLocations = []
+  const numRows = rows.length
+  const numCols = rows[0].length
+
+  for (let rowIndex = 0; rowIndex < numRows; rowIndex++) {
+    const fromLeft = {square: [-1, rowIndex], directionKey: "right"}
+    startLocations.push(fromLeft)
+    const fromRight = {square: [numCols, rowIndex], directionKey: "left"}
+    startLocations.push(fromRight)
+  }
+
+  for (let colIndex = 0; colIndex < numCols; colIndex++) {
+    const fromTop = {square: [colIndex, -1], directionKey: "down"}
+    startLocations.push(fromTop)
+    const fromBottom = {square: [colIndex, numRows], directionKey: "up"}
+    startLocations.push(fromBottom)
+  }
+
+  return startLocations
+}
+
+const part2 = (input) => {
+  const rows = parseInput(input)
+  const startLocations = getStartLocations(rows)
+  const scores = startLocations.map(startLocation => followPath(rows, startLocation))
+  const maxScore = Math.max.apply(null, scores)
+  return maxScore
+}
 
 await runner.testOutput('day16/example', '1', part1)
 // await runner.printOutput('day16/test', part1)
@@ -160,8 +179,8 @@ await runner.testOutput('day16/example', '1', part1)
 // await runner.writeOutput('day16/test', '1', part1)
 await runner.testOutput('day16/test', '1', part1)
 
-// await runner.testOutput('day16/example', '2', part2)
+await runner.testOutput('day16/example', '2', part2)
 // await runner.printOutput('day16/test', part2)
 // await runner.copyOutput('day16/test', part2)
 // await runner.writeOutput('day16/test', '2', part2)
-// await runner.testOutput('day16/test', '2', part2)
+await runner.testOutput('day16/test', '2', part2)
