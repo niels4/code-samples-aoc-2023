@@ -2,7 +2,7 @@ import * as runner from "../lib/runner.js"
 
 console.log("Solving AoC 2023 day 16")
 
-const printVisited = (rows, visitedSquares) => {
+const printVisited = (rows, visitedSquares) => { // eslint-disable-line
   console.log()
   const visitedRows = rows.map((row, rowIndex) => {
     return [...row].map((char, colIndex) => {
@@ -23,16 +23,6 @@ const verticalSplitter = "|"
 const horizontalSplitter = "-"
 
 const verticalDirections = new Set(["up", "down"])
-
-const isValidSquare = (rows, pathHistory, square, directionKey) => {
-  const numRows = rows.length
-  const numCols = rows[0].length
-  if (square.row < 0 || square.row >= numRows ||
-    square.col < 0 || square.col >= numCols) { return false }
-  const historyKey = createHistoryKey(square, directionKey)
-  if (pathHistory.has(historyKey)) { return false }
-  return true
-}
 
 const rightMirrorMapping = {
   "up": ["right"],
@@ -56,10 +46,7 @@ const beamMapping = new Map([
   [leftMirror, (directionKey) => leftMirrorMapping[directionKey]],
 ])
 
-const getBeamMapping = (directionKey, symbol) => {
-  const mappingFunc = beamMapping.get(symbol)
-  return mappingFunc(directionKey)
-}
+const getBeamMapping = (directionKey, symbol) => beamMapping.get(symbol)(directionKey)
 
 const createSquareKey = ({row, col}) => `${row}:${col}`
 const createHistoryKey = ({row, col}, directionKey) => `${row}:${col}:${directionKey}`
@@ -67,6 +54,16 @@ const createHistoryKey = ({row, col}, directionKey) => `${row}:${col}:${directio
 const markSquareAsVisited = (visitedSquares, pathHistory, square, directionKey) => {
   visitedSquares.add(createSquareKey(square))
   pathHistory.add(createHistoryKey(square, directionKey))
+}
+
+const isValidSquare = (rows, pathHistory, square, directionKey) => {
+  const numRows = rows.length
+  const numCols = rows[0].length
+  if (square.row < 0 || square.row >= numRows ||
+    square.col < 0 || square.col >= numCols) { return false }
+  const historyKey = createHistoryKey(square, directionKey)
+  if (pathHistory.has(historyKey)) { return false }
+  return true
 }
 
 const directionOffsets = {
@@ -111,44 +108,44 @@ const part1 = (input) => {
   return visitedCount
 }
 
-// const getStartLocations = (rows) => {
-//   const startLocations = []
-//   const numRows = rows.length
-//   const numCols = rows[0].length
-//
-//   for (let rowIndex = 0; rowIndex < numRows; rowIndex++) {
-//     const fromLeft = {square: [-1, rowIndex], directionKey: "right"}
-//     startLocations.push(fromLeft)
-//     const fromRight = {square: [numCols, rowIndex], directionKey: "left"}
-//     startLocations.push(fromRight)
-//   }
-//
-//   for (let colIndex = 0; colIndex < numCols; colIndex++) {
-//     const fromTop = {square: [colIndex, -1], directionKey: "down"}
-//     startLocations.push(fromTop)
-//     const fromBottom = {square: [colIndex, numRows], directionKey: "up"}
-//     startLocations.push(fromBottom)
-//   }
-//
-//   return startLocations
-// }
-//
-// const part2 = (input) => {
-//   const rows = parseInput(input)
-//   const startLocations = getStartLocations(rows)
-//   const scores = startLocations.map(startLocation => followPath(rows, startLocation))
-//   const maxScore = Math.max.apply(null, scores)
-//   return maxScore
-// }
+const getStartLocations = (rows) => {
+  const startLocations = []
+  const numRows = rows.length
+  const numCols = rows[0].length
 
-// await runner.testOutput('day16/example', '1', part1)
+  for (let rowIndex = 0; rowIndex < numRows; rowIndex++) {
+    const fromLeft = {square: {row: rowIndex, col: 0}, directionKey: "right"}
+    startLocations.push(fromLeft)
+    const fromRight = {square: {row: rowIndex, col: numCols - 1}, directionKey: "left"}
+    startLocations.push(fromRight)
+  }
+
+  for (let colIndex = 0; colIndex < numCols; colIndex++) {
+    const fromTop = {square: {row: 0, col: colIndex}, directionKey: "down"}
+    startLocations.push(fromTop)
+    const fromBottom = {square: {row: numRows - 1, col: colIndex}, directionKey: "up"}
+    startLocations.push(fromBottom)
+  }
+
+  return startLocations
+}
+
+const part2 = (input) => {
+  const rows = parseInput(input)
+  const startLocations = getStartLocations(rows)
+  const scores = startLocations.map(startLocation => followPath(rows, startLocation))
+  const maxScore = Math.max.apply(null, scores)
+  return maxScore
+}
+
+await runner.testOutput('day16/example', '1', part1)
 // await runner.printOutput('day16/test', part1)
 // await runner.copyOutput('day16/test', part1)
 // await runner.writeOutput('day16/test', '1', part1)
 await runner.testOutput('day16/test', '1', part1)
 
-// await runner.testOutput('day16/example', '2', part2)
+await runner.testOutput('day16/example', '2', part2)
 // await runner.printOutput('day16/test', part2)
 // await runner.copyOutput('day16/test', part2)
 // await runner.writeOutput('day16/test', '2', part2)
-// await runner.testOutput('day16/test', '2', part2)
+await runner.testOutput('day16/test', '2', part2)
