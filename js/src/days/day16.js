@@ -91,16 +91,15 @@ const followPath0 = (rows, visitedSquares, pathHistory, currentSquare, direction
   const currentSymbol = rows[currentSquare.row][currentSquare.col]
   const nextDirectionKeys = getBeamMapping(directionKey, currentSymbol)
   const nextLocations = nextDirectionKeys.map((nextDirectionKey) => followDirection(currentSquare, nextDirectionKey))
-  nextLocations.forEach(({square: nextSquare, directionKey: nextDirectionKey}) => {
+  for (const {square: nextSquare, directionKey: nextDirectionKey} of nextLocations) {
     followPath0(rows, visitedSquares, pathHistory, nextSquare, nextDirectionKey)
-  })
+  }
 }
 
 const followPath = (rows, startLocation) => {
   const visitedSquares = new Set()
   const pathHistory = new Set()
   followPath0(rows, visitedSquares, pathHistory, startLocation.square, startLocation.directionKey)
-  printVisited(rows, visitedSquares)
   return visitedSquares.size
 }
 
@@ -142,11 +141,11 @@ const part1 = (input) => {
 //   return maxScore
 // }
 
-await runner.testOutput('day16/example', '1', part1)
+// await runner.testOutput('day16/example', '1', part1)
 // await runner.printOutput('day16/test', part1)
 // await runner.copyOutput('day16/test', part1)
 // await runner.writeOutput('day16/test', '1', part1)
-// await runner.testOutput('day16/test', '1', part1)
+await runner.testOutput('day16/test', '1', part1)
 
 // await runner.testOutput('day16/example', '2', part2)
 // await runner.printOutput('day16/test', part2)
