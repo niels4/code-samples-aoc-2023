@@ -1,19 +1,35 @@
+import { UniqueHeap } from "../lib/data-structures/UniqueHeap.js"
 import * as runner from "../lib/runner.js"
 
 console.log("Solving AoC 2023 day 17")
 
-const parseInput = (input) => input.split('\n').map((line, row) =>
-  [...line].map((char, col) => ({ col, row, char })))
+const blockCompare = (l, r) => l.totalLoss < r.totalLoss
 
-const getNeighbors = (currSquare, prevSquare) => {
+const parseInput = (input) => {
+  const lines = input.split('\n')
+  const blocksToVisit = new UniqueHeap(blockCompare)
 
+  const rows = lines.map((line, row) => {
+    return [...line].map((digit, col) => {
+      const loss = Number(digit)
+      const block = {loss, col, row, totalLoss: Infinity, from: null}
+      blocksToVisit.push(block)
+      return block
+    })
+  })
+
+  return {rows, blocksToVisit}
+}
+
+const updateDistance = (blocksToVisit, block, totalLoss) => {
+  const updatedBlock = {...block, totalLoss}
+  blocksToVisit.replace(block, updatedBlock)
 }
 
 const part1 = (input) => {
-  const rows = parseInput(input)
-  const start = rows[0][0]
-  inspect(rows)
-  console.log(start)
+  const {rows, blocksToVisit} = parseInput(input)
+  updateDistance(blocksToVisit, rows[0][0], 0) // start at block 0, 0
+  inspect(blocksToVisit)
   return 0
 }
 
