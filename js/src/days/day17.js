@@ -53,6 +53,19 @@ const getNeighbors = (rows, blocksToVisit, block) => {
   return neighbors
 }
 
+const getPathString = (rows, endBlock) => {
+  const pathArray = rows.map((row) => row.map(({loss}) => loss))
+
+  let currentBlock = endBlock
+  while (currentBlock.from) {
+    pathArray[currentBlock.row][currentBlock.col] = "#"
+    currentBlock = currentBlock.from
+  }
+  pathArray[0][0] = "*"
+
+  return pathArray.map(row => row.join('')).join('\n')
+}
+
 const part1 = (input) => {
   const {rows, blocksToVisit} = parseInput(input)
   updateTotalLoss(blocksToVisit, rows[0][0], 0) // start at block 0, 0
@@ -65,6 +78,7 @@ const part1 = (input) => {
     for (const nextBlock of nextBlocks) {
       const nextTotalLost = currentBlock.totalLoss + nextBlock.loss
       if (nextTotalLost < nextBlock.totalLoss) {
+        nextBlock.from = currentBlock
         updateTotalLoss(blocksToVisit, nextBlock, nextTotalLost)
       }
     }
@@ -72,7 +86,7 @@ const part1 = (input) => {
 
   const endBlock = updatedRows.at(-1).at(-1)
   inspect(blocksToVisit)
-  inspect(updatedRows)
+  console.log(getPathString(updatedRows, endBlock))
   return endBlock.totalLoss
 }
 
