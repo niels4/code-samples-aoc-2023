@@ -53,12 +53,24 @@ const getNeighbors = (rows, blocksToVisit, block) => {
   return neighbors
 }
 
+const getDirectionChar = (block) => {
+  const rowOffset = block.row - block.from.row
+  const colOffset = block.col - block.from.col
+  if (rowOffset === 0) {
+    return colOffset === -1 ? "<" : ">"
+  }
+  if (colOffset === 0) {
+    return rowOffset === -1 ? "^" : "v"
+  }
+}
+
 const getPathString = (rows, endBlock) => {
   const pathArray = rows.map((row) => row.map(({loss}) => loss))
 
   let currentBlock = endBlock
   while (currentBlock.from) {
-    pathArray[currentBlock.row][currentBlock.col] = "#"
+    const directionChar = getDirectionChar(currentBlock)
+    pathArray[currentBlock.row][currentBlock.col] = directionChar
     currentBlock = currentBlock.from
   }
   pathArray[0][0] = "*"
