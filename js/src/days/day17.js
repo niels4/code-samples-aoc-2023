@@ -7,29 +7,28 @@ const blockCompare = (l, r) => l.totalLoss < r.totalLoss
 
 const parseInput = (input) => {
   const lines = input.split('\n')
-  const blocksToVisit = new UniqueHeap(blockCompare)
 
   const rows = lines.map((line, row) => {
     return [...line].map((digit, col) => {
       const loss = Number(digit)
       const block = {loss, col, row, totalLoss: Infinity, from: null}
-      blocksToVisit.push(block)
       return block
     })
   })
 
-  return {rows, blocksToVisit}
+  return rows
 }
 
-const updateTotalLoss = (blocksToVisit, block, totalLoss) => {
+const updateTotalLoss = (block, totalLoss) => {
   const updatedBlock = {...block, totalLoss}
-  blocksToVisit.replace(block, updatedBlock)
+  return updatedBlock
 }
 
 const isValidIndex = (arrayLength, index) => (index >= 0) && (index < arrayLength)
 
 const getDirectionChar = (block, fromBlock) => {
   fromBlock = fromBlock || block.from
+  if (!fromBlock) { return "*" }
   const rowOffset = block.row - fromBlock.row
   const colOffset = block.col - fromBlock.col
   if (rowOffset === 0) {
@@ -40,7 +39,7 @@ const getDirectionChar = (block, fromBlock) => {
   }
 }
 
-const maxMovementInOneDirection = 3
+const maxMovementInOneDirection = 100
 
 const canMoveToBlock = (currentBlock, nextBlock) => {
   const direction = getDirectionChar(nextBlock, currentBlock)
@@ -77,7 +76,7 @@ const getNeighbors = (rows, blocksToVisit, block) => {
     const nextCol = block.col + colOffset
     if (!isValidIndex(numRows, nextRow) || !isValidIndex(numCols, nextCol)) { continue }
     const nextBlock = rows[nextRow][nextCol]
-    if (!blocksToVisit.contains(nextBlock) || !canMoveToBlock(block, nextBlock)) { continue }
+    if (!canMoveToBlock(block, nextBlock)) { continue }
     neighbors.push(nextBlock)
   }
 
@@ -99,25 +98,35 @@ const getPathString = (rows, endBlock) => {
 }
 
 const part1 = (input) => {
-  const {rows, blocksToVisit} = parseInput(input)
-  updateTotalLoss(blocksToVisit, rows[0][0], 0) // start at block 0, 0
+  const rows = parseInput(input)
+
+  const seen = new Set()
+  const blocksToVisit = new UniqueHeap(blockCompare)
+
+  const startBlock = rows[0][0]
+  startBlock.totalLoss = 0
+  blocksToVisit.push(startBlock)
+
   const updatedRows = rows.map(() => [])
 
   while (blocksToVisit.size() > 0) {
     const currentBlock = blocksToVisit.pop()
     updatedRows[currentBlock.row][currentBlock.col] = currentBlock
+
     const nextBlocks = getNeighbors(rows, blocksToVisit, currentBlock)
     for (const nextBlock of nextBlocks) {
       const nextTotalLost = currentBlock.totalLoss + nextBlock.loss
       if (nextTotalLost < nextBlock.totalLoss) {
         nextBlock.from = currentBlock
-        updateTotalLoss(blocksToVisit, nextBlock, nextTotalLost)
+        nextBlock.totalLoss = nextTotalLost
+        blocksToVisit.push(nextBlock)
       }
     }
   }
 
   const endBlock = updatedRows.at(-1).at(-1)
 
+  // inspect(updatedRows)
   console.log(getPathString(updatedRows, endBlock))
 
   return endBlock.totalLoss
