@@ -1,5 +1,5 @@
-const minCompareFunc = (l, r) => r - l
-const maxCompareFunc = (l, r) => l - r
+const minCompareFunc = (l, r) => l < r
+const maxCompareFunc = (l, r) => l > r
 
 export const initMinNumberHeap = () => new Heap(minCompareFunc)
 export const initMaxNumberHeap = () => new Heap(maxCompareFunc)
@@ -47,7 +47,7 @@ export class Heap {
     const current = this.array[currentIndex]
     const parent = this.array[parentIndex]
     const shouldSwap = this.compare(current, parent)
-    if (shouldSwap > 0) {
+    if (shouldSwap) {
       this.array[parentIndex] = current
       this.array[currentIndex] = parent
       this._bubbleUp(parentIndex)
@@ -63,7 +63,7 @@ export class Heap {
     let topChildIndex
     for (let childIndex = firstChildIndex; childIndex < this.array.length; childIndex++) {
       const child = this.array[childIndex]
-      if (topChild === undefined || this.compare(child, topChild) > 0) {
+      if (topChild === undefined || this.compare(child, topChild)) {
         topChildIndex = childIndex
         topChild = child
       }
@@ -72,7 +72,7 @@ export class Heap {
     // no children to be swapped
     if (topChild == null) { return }
 
-    const shouldSwap = this.compare(topChild, current) > 0
+    const shouldSwap = this.compare(topChild, current)
     if (shouldSwap) {
       this.array[topChildIndex] = current
       this.array[currentIndex] = topChild
