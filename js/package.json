@@ -4,12 +4,14 @@
   "type": "module",
   "description": "Solving AoC 2023 problems using nodejs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 0",
-    "lint": "eslint 'src/**/*.js'"
+    "lint": "eslint 'src/**/*.js'",
+    "test": "vitest --run",
+    "test-watch": "vitest"
   },
   "author": "Niels",
   "license": "MIT",
   "devDependencies": {
-    "eslint": "^8.55.0"
+    "eslint": "^8.55.0",
+    "vitest": "^1.0.4"
   }
 }
