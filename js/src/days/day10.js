@@ -67,8 +67,6 @@ const defineOpposite = (dirKey, oppositeDirKey) => {
 defineOpposite("n", "s")
 defineOpposite("e", "w")
 
-const isHorizontal = ([, rowDiff]) => rowDiff === 0
-
 const parseInput = (input) => {
   const startIndex = input.indexOf(startChar)
   const lines = input.split('\n')
@@ -127,7 +125,7 @@ const applyDebugPoints = (map, debugPoints) => {
 const printMap = (map, debugPoints) => {
   map = applyDebugPoints(map, debugPoints)
   console.log()
-  map.forEach((row, rowIndex) => {
+  map.forEach((row) => {
     console.log(row.join(""))
   })
   console.log()
@@ -213,73 +211,6 @@ const fillInternalArea = (filteredMap, internalPoint) => {
   return pointsFilled
 }
 
-const handleHorizontalMovement = (filteredMap, prevLoopPoint, nextLoopPoint, insidePoint, [colDiff], directionKey, prevLoopSymbol, nextLoopSymbol) => {
-  let nextInsidePoint
-  let loopPoint = nextLoopPoint
-  if (nextLoopSymbol === "-") {
-    if (prevLoopSymbol === "-") {
-      nextInsidePoint = {colIndex: insidePoint.colIndex + colDiff, rowIndex: insidePoint.rowIndex}
-    } else {
-      nextInsidePoint = insidePoint
-    }
-  } else {
-    const nextDirKey = [...pipeTransforms[nextLoopSymbol]].filter(dir => dir !== opposites[directionKey])[0]
-    const nextDirection = directions[nextDirKey]
-    if (nextDirection[1] === insidePoint.rowIndex - nextLoopPoint.rowIndex) {
-      nextInsidePoint = insidePoint
-    } else if (insidePoint.colIndex * colDiff <= nextLoopPoint.colIndex * colDiff) {
-      nextInsidePoint = {colIndex: insidePoint.colIndex + colDiff, rowIndex: insidePoint.rowIndex}
-      loopPoint = prevLoopPoint
-    } else {
-      if (insidePoint.rowIndex * nextDirection[1] <= loopPoint.rowIndex * nextDirection[1]) {
-        loopPoint = prevLoopPoint
-      }
-      nextInsidePoint = {colIndex: insidePoint.colIndex, rowIndex: insidePoint.rowIndex + nextDirection[1]}
-    }
-  }
-  return {loopPoint, insidePoint: nextInsidePoint}
-}
-
-const handleVerticalMovement = (filteredMap, prevLoopPoint, nextLoopPoint, insidePoint, [,rowDiff], directionKey, prevLoopSymbol, nextLoopSymbol) => {
-  let nextInsidePoint
-  let loopPoint = nextLoopPoint
-  if (nextLoopSymbol === "|") {
-    if (prevLoopSymbol === "|") {
-      nextInsidePoint = {colIndex: insidePoint.colIndex, rowIndex: insidePoint.rowIndex + rowDiff}
-    } else {
-      nextInsidePoint = insidePoint
-    }
-  } else {
-    const nextDirKey = [...pipeTransforms[nextLoopSymbol]].filter(dir => dir !== opposites[directionKey])[0]
-    const nextDirection = directions[nextDirKey]
-    if (nextDirection[0] === insidePoint.colIndex - nextLoopPoint.colIndex) {
-      nextInsidePoint = insidePoint
-    } else if (insidePoint.rowIndex * rowDiff <= nextLoopPoint.rowIndex * rowDiff) {
-      nextInsidePoint = {colIndex: insidePoint.colIndex, rowIndex: insidePoint.rowIndex + rowDiff}
-      loopPoint = prevLoopPoint
-    } else {
-      if (insidePoint.colIndex * nextDirection[0] <= loopPoint.colIndex * nextDirection[0]) {
-        loopPoint = prevLoopPoint
-      }
-      nextInsidePoint = {colIndex: insidePoint.colIndex + nextDirection[0], rowIndex: insidePoint.rowIndex}
-    }
-
-  }
-
-  return {loopPoint, insidePoint: nextInsidePoint}
-}
-
-const moveDirection = (filteredMap, loopPoint, insidePoint, directionKey) => {
-  const direction = directions[directionKey]
-  const nextLoopPoint = {colIndex: loopPoint.colIndex + direction[0], rowIndex: loopPoint.rowIndex + direction[1]}
-  const prevLoopSymbol = filteredMap[loopPoint.rowIndex][loopPoint.colIndex]
-  const nextLoopSymbol = filteredMap[nextLoopPoint.rowIndex][nextLoopPoint.colIndex]
-  if (isHorizontal(direction)) {
-    return handleHorizontalMovement(filteredMap, loopPoint, nextLoopPoint, insidePoint, direction, directionKey, prevLoopSymbol, nextLoopSymbol)
-  }
-  return handleVerticalMovement(filteredMap, loopPoint, nextLoopPoint, insidePoint, direction, directionKey, prevLoopSymbol, nextLoopSymbol)
-}
-
 const part2 = (input) => {
   const {lines, startCol, startRow} = parseInput(input)
   let filteredMap = lines.map(line => Array.from(line, () => emptyPointChar))
@@ -312,9 +243,7 @@ const part2 = (input) => {
   let loopPoint = {colIndex: startingLoopPoint.colIndex + colDiff, rowIndex: startingLoopPoint.rowIndex + rowDiff}
 
   currChar = filteredMap[loopPoint.rowIndex][loopPoint.colIndex]
-  let numSteps = 0
   while (!(loopPoint.colIndex === startingLoopPoint.colIndex && loopPoint.rowIndex === startingLoopPoint.rowIndex)) {
-    numSteps++
 
     debugPoints = {p: loopPoint}
     const nearbyInteralOffsets = getNearbyInternalPointOffsets(opposites[fromDir], currChar)
