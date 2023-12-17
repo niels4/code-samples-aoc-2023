@@ -21,14 +21,49 @@ const parseInput = (input) => {
   return {rows, blocksToVisit}
 }
 
-const updateDistance = (blocksToVisit, block, totalLoss) => {
+const updateTotalLoss = (blocksToVisit, block, totalLoss) => {
   const updatedBlock = {...block, totalLoss}
   blocksToVisit.replace(block, updatedBlock)
 }
 
+const isValidIndex = (arrayLength, index) => (index >= 0) && (index < arrayLength)
+
+const neighborOffsets = [
+  [0, -1], // up
+  [0, 1], // down
+  [-1, 0], // left
+  [1, 0], // right
+]
+
+const getNeighbors = (rows, blocksToVisit, block) => {
+  const neighbors = []
+
+  const numRows = rows.length
+  const numCols = rows[0].length
+
+  for (const [colOffset, rowOffset] of neighborOffsets) {
+    const nextRow = block.row + rowOffset
+    const nextCol = block.col + colOffset
+    if (!isValidIndex(numRows, nextRow) || !isValidIndex(numCols, nextCol)) { continue }
+    const nextBlock = rows[nextRow][nextCol]
+    if (!blocksToVisit.contains(nextBlock)) { continue }
+    neighbors.push(nextBlock)
+  }
+
+  return neighbors
+}
+
 const part1 = (input) => {
   const {rows, blocksToVisit} = parseInput(input)
-  updateDistance(blocksToVisit, rows[0][0], 0) // start at block 0, 0
+  updateTotalLoss(blocksToVisit, rows[0][0], 0) // start at block 0, 0
+
+  while (blocksToVisit.size() > 0) {
+    const currentBlock = blocksToVisit.pop()
+    const nextBlocks = getNeighbors(rows, blocksToVisit, currentBlock)
+    console.log("neighbors,", nextBlocks)
+    process.exit(99)
+  }
+
   inspect(blocksToVisit)
   return 0
 }
