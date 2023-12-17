@@ -28,6 +28,37 @@ const updateTotalLoss = (blocksToVisit, block, totalLoss) => {
 
 const isValidIndex = (arrayLength, index) => (index >= 0) && (index < arrayLength)
 
+const getDirectionChar = (block, fromBlock) => {
+  fromBlock = fromBlock || block.from
+  const rowOffset = block.row - fromBlock.row
+  const colOffset = block.col - fromBlock.col
+  if (rowOffset === 0) {
+    return colOffset === -1 ? "<" : ">"
+  }
+  if (colOffset === 0) {
+    return rowOffset === -1 ? "^" : "v"
+  }
+}
+
+const maxMovementInOneDirection = 3
+
+const canMoveToBlock = (currentBlock, nextBlock) => {
+  const direction = getDirectionChar(nextBlock, currentBlock)
+  let directionCount = 1
+  while (currentBlock.from) {
+    const prevBlock = currentBlock.from
+    const prevDirection = getDirectionChar(currentBlock, prevBlock)
+    if (prevDirection !== direction) { return true }
+    directionCount++
+    if (directionCount > maxMovementInOneDirection) {
+      console.log("returning false here", directionCount)
+      return false
+    }
+    currentBlock = currentBlock.from
+  }
+  return true
+}
+
 const neighborOffsets = [
   [0, -1], // up
   [0, 1], // down
@@ -46,22 +77,11 @@ const getNeighbors = (rows, blocksToVisit, block) => {
     const nextCol = block.col + colOffset
     if (!isValidIndex(numRows, nextRow) || !isValidIndex(numCols, nextCol)) { continue }
     const nextBlock = rows[nextRow][nextCol]
-    if (!blocksToVisit.contains(nextBlock)) { continue }
+    if (!blocksToVisit.contains(nextBlock) || !canMoveToBlock(block, nextBlock)) { continue }
     neighbors.push(nextBlock)
   }
 
   return neighbors
-}
-
-const getDirectionChar = (block) => {
-  const rowOffset = block.row - block.from.row
-  const colOffset = block.col - block.from.col
-  if (rowOffset === 0) {
-    return colOffset === -1 ? "<" : ">"
-  }
-  if (colOffset === 0) {
-    return rowOffset === -1 ? "^" : "v"
-  }
 }
 
 const getPathString = (rows, endBlock) => {
@@ -97,8 +117,9 @@ const part1 = (input) => {
   }
 
   const endBlock = updatedRows.at(-1).at(-1)
-  inspect(blocksToVisit)
+
   console.log(getPathString(updatedRows, endBlock))
+
   return endBlock.totalLoss
 }
 
