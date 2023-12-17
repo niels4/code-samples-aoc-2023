@@ -56,16 +56,24 @@ const getNeighbors = (rows, blocksToVisit, block) => {
 const part1 = (input) => {
   const {rows, blocksToVisit} = parseInput(input)
   updateTotalLoss(blocksToVisit, rows[0][0], 0) // start at block 0, 0
+  const updatedRows = rows.map(() => [])
 
   while (blocksToVisit.size() > 0) {
     const currentBlock = blocksToVisit.pop()
+    updatedRows[currentBlock.row][currentBlock.col] = currentBlock
     const nextBlocks = getNeighbors(rows, blocksToVisit, currentBlock)
-    console.log("neighbors,", nextBlocks)
-    process.exit(99)
+    for (const nextBlock of nextBlocks) {
+      const nextTotalLost = currentBlock.totalLoss + nextBlock.loss
+      if (nextTotalLost < nextBlock.totalLoss) {
+        updateTotalLoss(blocksToVisit, nextBlock, nextTotalLost)
+      }
+    }
   }
 
+  const endBlock = updatedRows.at(-1).at(-1)
   inspect(blocksToVisit)
-  return 0
+  inspect(updatedRows)
+  return endBlock.totalLoss
 }
 
 // const part2 = (input) => {
