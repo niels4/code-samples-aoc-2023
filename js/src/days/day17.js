@@ -4,7 +4,7 @@ import * as runner from "../lib/runner.js"
 console.log("Solving AoC 2023 day 17")
 
 // const createBlockKey = ({row, col, direction, directionCount}) => `${row}:${col}:${direction}:${directionCount}`
-const createStateKey = ({row, col}) => `${row}:${col}`
+const createStateKey = ({row, col, direction, directionCount}) => `${row}:${col}:${direction.row}:${direction.col}:${directionCount}`
 
 const parseInput = (input) => {
   const lines = input.split('\n')
@@ -16,16 +16,6 @@ const parseInput = (input) => {
   return rows
 }
 
-const getDirectionChar = (rowOffset, colOffset) => {
-  if (rowOffset === 0) {
-    return colOffset === 1 ? ">" : "<"
-  }
-  if (colOffset === 0) {
-    return rowOffset === 1 ? "v" : "^"
-  }
-  return "*"
-}
-
 const isValidIndex = (arrayLength, index) => (index >= 0) && (index < arrayLength)
 
 const neighborOffsets = [
@@ -35,18 +25,34 @@ const neighborOffsets = [
   [1, 0], // right
 ]
 
+const maxDirectionCount = 3
+
+const directionsEqual = (dir1, dir2) => dir1.col === dir2.col && dir1.row === dir2.row
+
+const directionsOpposite = (dir1, dir2) => {
+  if (dir1.col === 0) {
+    return dir2.col === 0 && dir1.row === -dir2.row
+  }
+  if (dir1.row === 0) {
+    return dir2.row === 0 && dir1.col === -dir2.col
+  }
+}
+
 const getNeighbors = (rows, seen, state) => {
   const numRows = rows.length
   const numCols = rows[0].length
 
   const neighbors = []
   
-  const {col, row} = state
+  const {col, row, direction, directionCount} = state
   for (const [colOffset, rowOffset] of neighborOffsets) {
     const nextRow = row + rowOffset
     const nextCol = col + colOffset
     if (!isValidIndex(numRows, nextRow) || !isValidIndex(numCols, nextCol)) { continue }
-    const nextState = {col: nextCol, row: nextRow}
+    const nextDirection = {row: rowOffset, col: colOffset}
+    const nextDirectionCount = directionsEqual(direction, nextDirection) ? directionCount + 1 : 1
+    if (nextDirectionCount > maxDirectionCount || directionsOpposite(direction, nextDirection)) { continue }
+    const nextState = {col: nextCol, row: nextRow, direction: nextDirection, directionCount: nextDirectionCount}
     const nextKey = createStateKey(nextState)
     if (seen.has(nextKey)) { continue }
     neighbors.push(nextState)
@@ -62,7 +68,7 @@ const part1 = (input) => {
   const seen = new Set()
 
   const statesToVisit = new UniqueHeap(totalLossCompare)
-  const startState = {col: 0, row: 0, totalLoss: 0}
+  const startState = {col: 0, row: 0, totalLoss: 0, direction: {row: 0, col: 0}, directionCount: 1}
   statesToVisit.push(startState)
 
   while (statesToVisit.size() > 0) {
@@ -87,7 +93,7 @@ const part1 = (input) => {
 // }
 
 await runner.testOutput('day17/example', '1', part1)
-// await runner.printOutput('day17/test', part1)
+await runner.printOutput('day17/test', part1)
 // await runner.copyOutput('day17/test', part1)
 // await runner.writeOutput('day17/test', '1', part1)
 // await runner.testOutput('day17/test', '1', part1)
