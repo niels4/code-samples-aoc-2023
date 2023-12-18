@@ -24,8 +24,10 @@ const buildPath = (commands) => {
   const squaresMap = new Map()
   const startSquare = {col: 0, row: 0, color: "(#000000)"}
   squaresMap.set(createSquareKey(startSquare), startSquare)
-  let numCols = 1
-  let numRows = 1
+  let minCol = 0
+  let maxCol = 0
+  let minRow = 0
+  let maxRow = 0
 
   let currentSquare = startSquare
   commands.forEach(({direction, magnitude, color}) => {
@@ -34,22 +36,25 @@ const buildPath = (commands) => {
       const nextSquare = {col: currentSquare.col + offset.col, row: currentSquare.row + offset.row, color}
       squaresMap.set(createSquareKey(nextSquare), nextSquare)
       currentSquare = nextSquare
-      const nextNumCols = Math.abs(currentSquare.col) + 1
-      if (nextNumCols > numCols) { numCols = nextNumCols }
-      const nextNumRows = Math.abs(currentSquare.row) + 1
-      if (nextNumRows > numRows) { numRows = nextNumRows }
+      if (currentSquare.col < minCol) { minCol = currentSquare.col }
+      if (currentSquare.col > maxCol) { maxCol = currentSquare.col }
+      if (currentSquare.row < minRow) { minRow = currentSquare.row }
+      if (currentSquare.row > maxRow) { maxRow = currentSquare.row }
     }
   })
 
-  return {squaresMap, numCols, numRows}
+  return {squaresMap, minCol, maxCol, minRow, maxRow}
 }
 
 const getPathString = (path) => {
-  const {squaresMap, numRows, numCols} = path
+  const {squaresMap, minCol, maxCol, minRow, maxRow} = path
+  const numRows = Math.abs(minRow) + Math.abs(maxRow) + 1
+  const numCols = Math.abs(minCol) + Math.abs(maxCol) + 1
   const lines = Array.from({length: numRows}, () => [])
+
   for (let row = 0; row < numRows; row++) {
     for (let col = 0; col < numCols; col++) {
-      const nextKey = createSquareKey({col, row})
+      const nextKey = createSquareKey({col: + col + minCol, row: row + minRow})
       const nextChar = squaresMap.has(nextKey) ? "#" : "."
       lines[row][col] = nextChar
     }
@@ -60,7 +65,6 @@ const getPathString = (path) => {
 const part1 = (input) => {
   const commands = parseInput(input)
   const path = buildPath(commands)
-  console.log("result", path.numCols, path.numRows)
   inspect(path.squaresMap)
   console.log()
   console.log(getPathString(path))
@@ -72,7 +76,7 @@ const part1 = (input) => {
 // }
 
 await runner.testOutput('day18/example', '1', part1)
-// await runner.printOutput('day18/test', part1)
+await runner.printOutput('day18/test', part1)
 // await runner.copyOutput('day18/test', part1)
 // await runner.writeOutput('day18/test', '1', part1)
 // await runner.testOutput('day18/test', '1', part1)
