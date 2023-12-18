@@ -3,60 +3,30 @@ import * as runner from "../lib/runner.js"
 
 console.log("Solving AoC 2023 day 17")
 
-const blockCompare = (l, r) => l.totalLoss < r.totalLoss
+// const createBlockKey = ({row, col, direction, directionCount}) => `${row}:${col}:${direction}:${directionCount}`
+const createStateKey = ({row, col}) => `${row}:${col}`
 
 const parseInput = (input) => {
   const lines = input.split('\n')
-
-  const rows = lines.map((line, row) => {
-    return [...line].map((digit, col) => {
-      const loss = Number(digit)
-      const block = {loss, col, row, totalLoss: Infinity, from: null}
-      return block
+  const rows = lines.map((line) => {
+    return [...line].map((digit) => {
+      return Number(digit)
     })
   })
-
   return rows
 }
 
-const updateTotalLoss = (block, totalLoss) => {
-  const updatedBlock = {...block, totalLoss}
-  return updatedBlock
+const getDirectionChar = (rowOffset, colOffset) => {
+  if (rowOffset === 0) {
+    return colOffset === 1 ? ">" : "<"
+  }
+  if (colOffset === 0) {
+    return rowOffset === 1 ? "v" : "^"
+  }
+  return "*"
 }
 
 const isValidIndex = (arrayLength, index) => (index >= 0) && (index < arrayLength)
-
-const getDirectionChar = (block, fromBlock) => {
-  fromBlock = fromBlock || block.from
-  if (!fromBlock) { return "*" }
-  const rowOffset = block.row - fromBlock.row
-  const colOffset = block.col - fromBlock.col
-  if (rowOffset === 0) {
-    return colOffset === -1 ? "<" : ">"
-  }
-  if (colOffset === 0) {
-    return rowOffset === -1 ? "^" : "v"
-  }
-}
-
-const maxMovementInOneDirection = 100
-
-const canMoveToBlock = (currentBlock, nextBlock) => {
-  const direction = getDirectionChar(nextBlock, currentBlock)
-  let directionCount = 1
-  while (currentBlock.from) {
-    const prevBlock = currentBlock.from
-    const prevDirection = getDirectionChar(currentBlock, prevBlock)
-    if (prevDirection !== direction) { return true }
-    directionCount++
-    if (directionCount > maxMovementInOneDirection) {
-      console.log("returning false here", directionCount)
-      return false
-    }
-    currentBlock = currentBlock.from
-  }
-  return true
-}
 
 const neighborOffsets = [
   [0, -1], // up
@@ -65,71 +35,51 @@ const neighborOffsets = [
   [1, 0], // right
 ]
 
-const getNeighbors = (rows, blocksToVisit, block) => {
-  const neighbors = []
-
+const getNeighbors = (rows, seen, state) => {
   const numRows = rows.length
   const numCols = rows[0].length
 
+  const neighbors = []
+  
+  const {col, row} = state
   for (const [colOffset, rowOffset] of neighborOffsets) {
-    const nextRow = block.row + rowOffset
-    const nextCol = block.col + colOffset
+    const nextRow = row + rowOffset
+    const nextCol = col + colOffset
     if (!isValidIndex(numRows, nextRow) || !isValidIndex(numCols, nextCol)) { continue }
-    const nextBlock = rows[nextRow][nextCol]
-    if (!canMoveToBlock(block, nextBlock)) { continue }
-    neighbors.push(nextBlock)
+    const nextState = {col: nextCol, row: nextRow}
+    const nextKey = createStateKey(nextState)
+    if (seen.has(nextKey)) { continue }
+    neighbors.push(nextState)
   }
 
   return neighbors
 }
 
-const getPathString = (rows, endBlock) => {
-  const pathArray = rows.map((row) => row.map(({loss}) => loss))
-
-  let currentBlock = endBlock
-  while (currentBlock.from) {
-    const directionChar = getDirectionChar(currentBlock)
-    pathArray[currentBlock.row][currentBlock.col] = directionChar
-    currentBlock = currentBlock.from
-  }
-  pathArray[0][0] = "*"
-
-  return pathArray.map(row => row.join('')).join('\n')
-}
+const totalLossCompare = (l, r) => l.totalLoss < r.totalLoss
 
 const part1 = (input) => {
   const rows = parseInput(input)
-
   const seen = new Set()
-  const blocksToVisit = new UniqueHeap(blockCompare)
 
-  const startBlock = rows[0][0]
-  startBlock.totalLoss = 0
-  blocksToVisit.push(startBlock)
+  const statesToVisit = new UniqueHeap(totalLossCompare)
+  const startState = {col: 0, row: 0, totalLoss: 0}
+  statesToVisit.push(startState)
 
-  const updatedRows = rows.map(() => [])
-
-  while (blocksToVisit.size() > 0) {
-    const currentBlock = blocksToVisit.pop()
-    updatedRows[currentBlock.row][currentBlock.col] = currentBlock
-
-    const nextBlocks = getNeighbors(rows, blocksToVisit, currentBlock)
-    for (const nextBlock of nextBlocks) {
-      const nextTotalLost = currentBlock.totalLoss + nextBlock.loss
-      if (nextTotalLost < nextBlock.totalLoss) {
-        nextBlock.from = currentBlock
-        nextBlock.totalLoss = nextTotalLost
-        blocksToVisit.push(nextBlock)
-      }
+  while (statesToVisit.size() > 0) {
+    const currentState = statesToVisit.pop()
+    const currentKey = createStateKey(currentState)
+    if (currentState.row === rows.length - 1 && currentState.col === rows[0].length - 1) {
+      return currentState.totalLoss
+    }
+    seen.add(currentKey)
+    const nextStates = getNeighbors(rows, seen, currentState)
+    for (const nextState of nextStates) {
+      nextState.totalLoss = currentState.totalLoss + rows[nextState.row][nextState.col]
+      statesToVisit.push(nextState)
     }
   }
 
-  const endBlock = updatedRows.at(-1).at(-1)
-
-  // inspect(updatedRows)
-  console.log(getPathString(updatedRows, endBlock))
-
-  return endBlock.totalLoss
+  return Infinity
 }
 
 // const part2 = (input) => {
