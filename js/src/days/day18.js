@@ -20,9 +20,16 @@ const directionOffsets = {
   R: {col: 1, row: 0},
 }
 
+const directionChars = {
+  U: "^",
+  D: "v",
+  L: "<",
+  R: ">",
+}
+
 const buildPath = (commands) => {
   const squaresMap = new Map()
-  const startSquare = {col: 0, row: 0, color: "(#000000)"}
+  const startSquare = {col: 0, row: 0, char: "*"}
   squaresMap.set(createSquareKey(startSquare), startSquare)
   let minCol = 0
   let maxCol = 0
@@ -30,10 +37,11 @@ const buildPath = (commands) => {
   let maxRow = 0
 
   let currentSquare = startSquare
-  commands.forEach(({direction, magnitude, color}) => {
+  commands.forEach(({direction, magnitude}) => {
     const offset = directionOffsets[direction]
+    const char = directionChars[direction]
     for (let i = 0; i < magnitude; i++) {
-      const nextSquare = {col: currentSquare.col + offset.col, row: currentSquare.row + offset.row, color}
+      const nextSquare = {col: currentSquare.col + offset.col, row: currentSquare.row + offset.row, char}
       squaresMap.set(createSquareKey(nextSquare), nextSquare)
       currentSquare = nextSquare
       if (currentSquare.col < minCol) { minCol = currentSquare.col }
@@ -55,10 +63,12 @@ const getPathString = (path) => {
   for (let row = 0; row < numRows; row++) {
     for (let col = 0; col < numCols; col++) {
       const nextKey = createSquareKey({col: + col + minCol, row: row + minRow})
-      const nextChar = squaresMap.has(nextKey) ? "#" : "."
+      const nextSquare = squaresMap.get(nextKey)
+      const nextChar = nextSquare ? nextSquare.char : "."
       lines[row][col] = nextChar
     }
   }
+  lines[Math.abs(minRow)][Math.abs(minCol)] = "*"
   return lines.map(line => line.join("")).join("\n")
 }
 
