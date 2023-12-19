@@ -72,13 +72,44 @@ const getPathString = (path) => {
   return lines.map(line => line.join("")).join("\n")
 }
 
+const buildPolygonPoints = (commands) => {
+  const polygonPoints = []
+  let numBorderPoints = 0
+  let currentSquare = {col: 0, row: 0} // the loop always ends on the current square so we don't need to add it to points or count it here
+  commands.forEach(({direction, magnitude}) => {
+    numBorderPoints += magnitude
+    const offset = directionOffsets[direction]
+    const nextSquare = {col: currentSquare.col + offset.col * magnitude, row: currentSquare.row + offset.row * magnitude}
+    polygonPoints.push(nextSquare)
+    currentSquare = nextSquare
+  })
+  return { polygonPoints, numBorderPoints }
+}
+
+const findInnerArea = (polygonPoints) => {
+  const shoelace = polygonPoints.reduce((acc, p2, i) => {
+    const p1 = polygonPoints.at(i - 1)
+    return acc + p1.col * p2.row - p2.col * p1.row
+  }, 0)
+  return Math.abs(shoelace * 0.5)
+}
+
+const findTotalArea = (commands) => {
+  const {polygonPoints, numBorderPoints} = buildPolygonPoints(commands)
+  const innerArea = findInnerArea(polygonPoints)
+
+  return innerArea + numBorderPoints / 2 + 1
+}
+
 const part1 = (input) => {
   const commands = parseInput(input)
+
   const path = buildPath(commands)
-  inspect(path.squaresMap)
   console.log()
   console.log(getPathString(path))
-  return 0
+
+  const result = findTotalArea(commands)
+  return result
 }
 
 // const part2 = (input) => {
@@ -86,10 +117,10 @@ const part1 = (input) => {
 // }
 
 await runner.testOutput('day18/example', '1', part1)
-await runner.printOutput('day18/test', part1)
+// await runner.printOutput('day18/test', part1)
 // await runner.copyOutput('day18/test', part1)
 // await runner.writeOutput('day18/test', '1', part1)
-// await runner.testOutput('day18/test', '1', part1)
+await runner.testOutput('day18/test', '1', part1)
 
 // await runner.testOutput('day18/example', '2', part2)
 // await runner.printOutput('day18/test', part2)
