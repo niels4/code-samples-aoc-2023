@@ -87,14 +87,13 @@ const countAcceptableCombinations = (workflows, ranges, workflowName) => {
   if (workflowName === acceptedWorkflowName) { return getRangeCombinations(ranges) }
 
   const rules = workflows.get(workflowName)
+  const defaultNextState = rules.at(-1).nextState
 
   let count = 0
+  let noFails = false
 
   for (const {prop, compare, value, nextState} of rules) {
-    if (prop == null) { 
-      count += countAcceptableCombinations(workflows, ranges, nextState)
-      continue
-    }
+    if (prop == null) { continue }
     const {min, max} = ranges[prop]
 
     let passes, fails
@@ -110,8 +109,14 @@ const countAcceptableCombinations = (workflows, ranges, workflowName) => {
       count += countAcceptableCombinations(workflows, {...ranges, [prop]: passes}, nextState)
     }
     if (fails.min <= fails.max) {
-      count += countAcceptableCombinations(workflows, {...ranges, [prop]: fails}, nextState)
+      ranges = {...ranges, [prop]: fails}
+    } else {
+      noFails = true
+      break
     }
+  }
+  if (!noFails) {
+    count += countAcceptableCombinations(workflows, ranges, defaultNextState)
   }
 
   return count
@@ -139,6 +144,6 @@ await runner.testOutput('day19/test', '1', part1)
 
 await runner.testOutput('day19/example', '2', part2)
 // await runner.printOutput('day19/test', part2)
-// await runner.copyOutput('day19/test', part2)
 // await runner.writeOutput('day19/test', '2', part2)
-// await runner.testOutput('day19/test', '2', part2)
+// await runner.copyOutput('day19/test', part2)
+await runner.testOutput('day19/test', '2', part2)
