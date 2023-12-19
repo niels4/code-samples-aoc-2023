@@ -78,9 +78,58 @@ const part1 = (input) => {
   return result
 }
 
-// const part2 = (input) => {
-//   return 0
-// }
+const getRangeCombinations = (ranges) => Object.values(ranges).reduce((acc, {min, max}) => {
+  return acc * (max - min + 1) // add 1 because range is inclusive
+}, 1)
+
+const countAcceptableCombinations = (workflows, ranges, workflowName) => {
+  if (workflowName === rejectedWorkflowName) { return 0 }
+  if (workflowName === acceptedWorkflowName) { return getRangeCombinations(ranges) }
+
+  const rules = workflows.get(workflowName)
+
+  let count = 0
+
+  for (const {prop, compare, value, nextState} of rules) {
+    if (prop == null) { 
+      count += countAcceptableCombinations(workflows, ranges, nextState)
+      continue
+    }
+    const {min, max} = ranges[prop]
+
+    let passes, fails
+    if (compare === "<") {
+      passes = {min, max: value - 1}
+      fails = {min: value, max}
+    } else {
+      passes = {min: value + 1, max}
+      fails = {min, max: value}
+    }
+
+    if (passes.min <= passes.max) {
+      count += countAcceptableCombinations(workflows, {...ranges, [prop]: passes}, nextState)
+    }
+    if (fails.min <= fails.max) {
+      count += countAcceptableCombinations(workflows, {...ranges, [prop]: fails}, nextState)
+    }
+  }
+
+  return count
+}
+
+const part2 = (input) => {
+  const {workflows} = parseInput(input)
+
+  const startRanges = {
+    x: {min: 1, max: 4000},
+    m: {min: 1, max: 4000},
+    a: {min: 1, max: 4000},
+    s: {min: 1, max: 4000},
+  }
+
+  const result = countAcceptableCombinations(workflows, startRanges, startWorkflowName)
+  return result
+}
 
 await runner.testOutput('day19/example', '1', part1)
 // await runner.printOutput('day19/test', part1)
@@ -88,7 +137,7 @@ await runner.testOutput('day19/example', '1', part1)
 // await runner.writeOutput('day19/test', '1', part1)
 await runner.testOutput('day19/test', '1', part1)
 
-// await runner.testOutput('day19/example', '2', part2)
+await runner.testOutput('day19/example', '2', part2)
 // await runner.printOutput('day19/test', part2)
 // await runner.copyOutput('day19/test', part2)
 // await runner.writeOutput('day19/test', '2', part2)
