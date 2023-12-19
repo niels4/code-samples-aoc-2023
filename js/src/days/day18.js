@@ -112,9 +112,27 @@ const part1 = (input) => {
   return result
 }
 
-// const part2 = (input) => {
-//   return 0
-// }
+const directionDigitMapping = {
+  "0": "R",
+  "1": "D",
+  "2": "L",
+  "3": "U"
+}
+
+const convertCommand = ({color}) => {
+  const magnitudeHex = color.substring(2, 7)
+  const directionDigit = color.substring(7, 8)
+  const direction = directionDigitMapping[directionDigit]
+  const magnitude = Number.parseInt(magnitudeHex, 16)
+  return {direction, magnitude}
+}
+
+const part2 = (input) => {
+  const commands = parseInput(input)
+  const convertedCommands = commands.map(convertCommand)
+  const result = findTotalArea(convertedCommands)
+  return result
+}
 
 await runner.testOutput('day18/example', '1', part1)
 // await runner.printOutput('day18/test', part1)
@@ -122,8 +140,8 @@ await runner.testOutput('day18/example', '1', part1)
 // await runner.writeOutput('day18/test', '1', part1)
 await runner.testOutput('day18/test', '1', part1)
 
-// await runner.testOutput('day18/example', '2', part2)
+await runner.testOutput('day18/example', '2', part2)
 // await runner.printOutput('day18/test', part2)
 // await runner.copyOutput('day18/test', part2)
 // await runner.writeOutput('day18/test', '2', part2)
-// await runner.testOutput('day18/test', '2', part2)
+await runner.testOutput('day18/test', '2', part2)
