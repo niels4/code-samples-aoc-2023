@@ -90,10 +90,12 @@ const countAcceptableCombinations = (workflows, ranges, workflowName) => {
   const defaultNextState = rules.at(-1).nextState
 
   let count = 0
-  let noFails = false
 
   for (const {prop, compare, value, nextState} of rules) {
-    if (prop == null) { continue }
+    if (prop == null) {
+      count += countAcceptableCombinations(workflows, ranges, defaultNextState)
+      continue
+    }
     const {min, max} = ranges[prop]
 
     let passes, fails
@@ -110,13 +112,7 @@ const countAcceptableCombinations = (workflows, ranges, workflowName) => {
     }
     if (fails.min <= fails.max) {
       ranges = {...ranges, [prop]: fails}
-    } else {
-      noFails = true
-      break
     }
-  }
-  if (!noFails) {
-    count += countAcceptableCombinations(workflows, ranges, defaultNextState)
   }
 
   return count
