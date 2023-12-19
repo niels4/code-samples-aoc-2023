@@ -1,10 +1,16 @@
+import { sum } from "../lib/iterators.js"
 import * as runner from "../lib/runner.js"
 
 console.log("Solving AoC 2023 day 19")
 
+const startWorkflowName = "in"
+const rejectedWorkflowName = "R"
+const acceptedWorkflowName = "A"
+
 const parseInput = (input) => {
   const [workflowLines, ratingLines] = input.split('\n\n')
   const workflows = new Map()
+
   workflowLines.split("\n").forEach((line) => {
     const rulesStart = line.indexOf('{')
     const name = line.substring(0, rulesStart)
@@ -35,18 +41,41 @@ const parseInput = (input) => {
     return rating
   })
 
+  workflows.set(rejectedWorkflowName, {done: true, accepted: false})
+  workflows.set(acceptedWorkflowName, {done: true, accepted: true})
+
   return {workflows, ratings}
 }
 
-const isPartAcceptable = (rating) => {
-  
+const ratingPassesRule = (rule, rating) => {
+  const {compare, prop, value} = rule
+  if (compare === ">") {
+    return rating[prop] > value
+  } else {
+    return rating[prop] < value
+  }
 }
+
+const isPartAcceptable = (workflows, rating) => {
+  let currentWorkflow = workflows.get(startWorkflowName)
+  while (!currentWorkflow.done) {
+    for (const rule of currentWorkflow) {
+      if (rule.prop == null || ratingPassesRule(rule, rating)) {
+        currentWorkflow = workflows.get(rule.nextState)
+        break
+      }
+    }
+  }
+  return currentWorkflow.accepted
+}
+
+const getRatingScore = ({x, m, a, s}) => x + m + a + s
 
 const part1 = (input) => {
   const {workflows, ratings} = parseInput(input)
-  inspect(workflows)
-  console.log("ratings", ratings)
-  return 0
+  const acceptedRatings = ratings.filter(rating => isPartAcceptable(workflows, rating))
+  const result = sum(acceptedRatings.map(getRatingScore))
+  return result
 }
 
 // const part2 = (input) => {
@@ -57,7 +86,7 @@ await runner.testOutput('day19/example', '1', part1)
 // await runner.printOutput('day19/test', part1)
 // await runner.copyOutput('day19/test', part1)
 // await runner.writeOutput('day19/test', '1', part1)
-// await runner.testOutput('day19/test', '1', part1)
+await runner.testOutput('day19/test', '1', part1)
 
 // await runner.testOutput('day19/example', '2', part2)
 // await runner.printOutput('day19/test', part2)
