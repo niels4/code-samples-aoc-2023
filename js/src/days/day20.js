@@ -98,6 +98,23 @@ const part1 = (input) => {
   return totalPulseCount.low * totalPulseCount.high
 }
 
+const pressButtonPart2 = (modules, finalModuleName) => {
+  let pulseCount = {}
+
+  const queuedPulses = [{from: button, to: broadcaster, signal: low}]
+  while (queuedPulses.length > 0) {
+    const pulse = queuedPulses.shift() // use unshift to act as an less efficient fifo queue
+    if (pulse.to === finalModuleName && pulse.signal === high) {
+      pulseCount[pulse.from] = (pulseCount[pulse.from] || 0) + 1
+    }
+    pulseCount[pulse.signal]++
+    const newPulses = handlePulse(modules, pulse)
+    queuedPulses.push.apply(queuedPulses, newPulses)
+  }
+
+  return pulseCount
+}
+
 const part2 = (input) => {
   const modules = parseInput(input)
   const finalModules = [...modules.values()].filter(m => m.outputs.includes(finalModuleOutput))
@@ -105,10 +122,22 @@ const part2 = (input) => {
   if (finalModules.length !== 1) { throw new Error(`Expected exactly 1 final module that outputs to ${finalModuleOutput}, instead found ${finalModules.length}`) }
   const finalModule = finalModules[0]
   if (finalModule.type !== conjunction) { throw new Error(`Expected final module to be a conjunction (&) type. Instead found ${finalModule.type}`)}
-  const finalConjuctionInputs = [...modules.values()].filter(m => m.outputs.includes(finalModule.name))
+  const finalConjunctionInputs = new Set([...modules.values()].filter(m => m.outputs.includes(finalModule.name)).map(m => m.name))
   console.log("final inputs")
-  inspect(finalConjuctionInputs)
+  inspect(finalConjunctionInputs)
+  const foundCycles = new Map()
+  let buttonPresses = 0
+  while (foundCycles.size < finalConjunctionInputs.size) {
+    buttonPresses++
+    const pulseCount = pressButtonPart2(modules, finalModule.name)
+    for (const moduleName of finalConjunctionInputs) {
+      if (pulseCount[moduleName]) {
+        foundCycles.set(moduleName, buttonPresses)
+      }
+    }
+  }
 
+  inspect(foundCycles)
   return 0
 }
 
