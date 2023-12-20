@@ -8,6 +8,7 @@ const flipflop = "%"
 const conjunction = "&"
 const low = "low"
 const high = "high"
+const finalModuleOutput = "rx"
 
 const parseInput = (input) => {
   const modules = new Map()
@@ -97,9 +98,19 @@ const part1 = (input) => {
   return totalPulseCount.low * totalPulseCount.high
 }
 
-// const part2 = (input) => {
-//   return 0
-// }
+const part2 = (input) => {
+  const modules = parseInput(input)
+  const finalModules = [...modules.values()].filter(m => m.outputs.includes(finalModuleOutput))
+  // inspect(modules)
+  if (finalModules.length !== 1) { throw new Error(`Expected exactly 1 final module that outputs to ${finalModuleOutput}, instead found ${finalModules.length}`) }
+  const finalModule = finalModules[0]
+  if (finalModule.type !== conjunction) { throw new Error(`Expected final module to be a conjunction (&) type. Instead found ${finalModule.type}`)}
+  const finalConjuctionInputs = [...modules.values()].filter(m => m.outputs.includes(finalModule.name))
+  console.log("final inputs")
+  inspect(finalConjuctionInputs)
+
+  return 0
+}
 
 await runner.testOutput('day20/example', '1', part1)
 await runner.testOutput('day20/example_b', '1', part1)
@@ -109,7 +120,7 @@ await runner.testOutput('day20/example_b', '1', part1)
 await runner.testOutput('day20/test', '1', part1)
 
 // await runner.testOutput('day20/example', '2', part2)
-// await runner.printOutput('day20/test', part2)
+await runner.printOutput('day20/test', part2)
 // await runner.copyOutput('day20/test', part2)
 // await runner.writeOutput('day20/test', '2', part2)
 // await runner.testOutput('day20/test', '2', part2)
