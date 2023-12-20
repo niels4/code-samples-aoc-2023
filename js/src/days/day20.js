@@ -1,3 +1,4 @@
+import { findGCD } from "../lib/math.js"
 import * as runner from "../lib/runner.js"
 
 console.log("Solving AoC 2023 day 20")
@@ -123,6 +124,7 @@ const part2 = (input) => {
   const finalModule = finalModules[0]
   if (finalModule.type !== conjunction) { throw new Error(`Expected final module to be a conjunction (&) type. Instead found ${finalModule.type}`)}
   const finalConjunctionInputs = new Set([...modules.values()].filter(m => m.outputs.includes(finalModule.name)).map(m => m.name))
+  console.log("final module", finalModule)
   console.log("final inputs")
   inspect(finalConjunctionInputs)
   const foundCycles = new Map()
@@ -137,8 +139,16 @@ const part2 = (input) => {
     }
   }
 
+  console.log("input cycles:")
   inspect(foundCycles)
-  return 0
+
+  const cycleLengths = [...foundCycles.values()]
+  const cycledGCD = findGCD(cycleLengths)
+  const gcdMultiple = cycleLengths.reduce((acc, cycleLength) => {
+    return acc * Math.ceil(cycleLength / cycledGCD)
+  }, 1)
+
+  return gcdMultiple * cycledGCD
 }
 
 await runner.testOutput('day20/example', '1', part1)
@@ -149,7 +159,7 @@ await runner.testOutput('day20/example_b', '1', part1)
 await runner.testOutput('day20/test', '1', part1)
 
 // await runner.testOutput('day20/example', '2', part2)
-await runner.printOutput('day20/test', part2)
+// await runner.printOutput('day20/test', part2)
 // await runner.copyOutput('day20/test', part2)
 // await runner.writeOutput('day20/test', '2', part2)
-// await runner.testOutput('day20/test', '2', part2)
+await runner.testOutput('day20/test', '2', part2)
