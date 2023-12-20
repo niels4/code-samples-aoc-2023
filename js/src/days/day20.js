@@ -10,9 +10,10 @@ const low = "low"
 const high = "high"
 
 const parseInput = (input) => {
-  const lines = input.split('\n')
   const modules = new Map()
   const inputCounts = {}
+
+  const lines = input.split('\n')
   lines.forEach((line) => {
     const [moduleIdentifier, outputsList] = line.split(" -> ")
     let type, name
@@ -23,36 +24,39 @@ const parseInput = (input) => {
       type = moduleIdentifier[0]
       name = moduleIdentifier.substring(1)
     }
-    const outputs = outputsList.split(',')
+    const outputs = outputsList.split(', ')
     outputs.forEach((output) => {
       const count = inputCounts[output] || 0
       inputCounts[output] = count + 1
     })
     modules.set(name, {name, type, outputs})
   })
+
   Object.entries(inputCounts).forEach(([to, count]) => {
     const toModule = modules.get(to)
     if (toModule) {
       toModule.inputCount = count
     }
   })
+
   return modules
 }
 
 const moduleHandlers = {
   [broadcaster]: ({name, outputs}, signal) => outputs.map(output => ({from: name, to: output, signal})),
+
   [flipflop]: (module, signal) => {
     if (signal === high) { return [] } // nothing happens for high pulse
     module.isOn = !module.isOn
     const newSignal = module.isOn ? high : low
     return module.outputs.map(to => ({from: module.name, to, signal: newSignal}))
   },
+
   [conjunction]: (module, signal, from) => {
     if (!module.inputHistory) { module.inputHistory = {} }
     module.inputHistory[from] = signal
     const highCount = Object.values(module.inputHistory).filter(i => i === high).length
     const newSignal = highCount === module.inputCount ? low : high
-    console.log("conjuctioning signal", highCount, module.inputCount, newSignal)
     return module.outputs.map(to => ({from: module.name, to, signal: newSignal}))
   }
 }
@@ -65,14 +69,12 @@ const handlePulse = (modules, {from, to, signal}) => {
 }
 
 const pressButton = (modules) => {
+  let pulseCount = {low: 0, high: 0}
 
-  let pulseCount = 0
   const queuedPulses = [{from: button, to: broadcaster, signal: low}]
-
   while (queuedPulses.length > 0) {
     const pulse = queuedPulses.shift() // use unshift to act as an less efficient fifo queue
-    console.log("firing pulse", pulse)
-    pulseCount++
+    pulseCount[pulse.signal]++
     const newPulses = handlePulse(modules, pulse)
     queuedPulses.push.apply(queuedPulses, newPulses)
   }
@@ -80,16 +82,19 @@ const pressButton = (modules) => {
   return pulseCount
 }
 
-const part1LoopCount = 1
+const part1LoopCount = 1000
 
 const part1 = (input) => {
   const modules = parseInput(input)
-  let totalPulseCount = 0
-  inspect(modules)
+  let totalPulseCount = {low: 0, high: 0}
+
   for (let i = 0; i < part1LoopCount; i++) {
-    totalPulseCount += pressButton(modules)
+    const pulseCount = pressButton(modules)
+    totalPulseCount.low += pulseCount.low
+    totalPulseCount.high += pulseCount.high
   }
-  return totalPulseCount
+
+  return totalPulseCount.low * totalPulseCount.high
 }
 
 // const part2 = (input) => {
@@ -97,11 +102,11 @@ const part1 = (input) => {
 // }
 
 await runner.testOutput('day20/example', '1', part1)
-// await runner.testOutput('day20/example_b', '1', part1)
+await runner.testOutput('day20/example_b', '1', part1)
 // await runner.printOutput('day20/test', part1)
 // await runner.copyOutput('day20/test', part1)
 // await runner.writeOutput('day20/test', '1', part1)
-// await runner.testOutput('day20/test', '1', part1)
+await runner.testOutput('day20/test', '1', part1)
 
 // await runner.testOutput('day20/example', '2', part2)
 // await runner.printOutput('day20/test', part2)
