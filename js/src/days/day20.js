@@ -2,9 +2,13 @@ import * as runner from "../lib/runner.js"
 
 console.log("Solving AoC 2023 day 20")
 
+const button = "button"
 const broadcaster = "broadcaster"
 const flipflop = "%"
 const conjunction = "&"
+const low = "low"
+const high = "high"
+const flipPulse = pulse => pulse === high ? low : high
 
 const parseInput = (input) => {
   const lines = input.split('\n')
@@ -20,15 +24,53 @@ const parseInput = (input) => {
       name = moduleIdentifier.substring(1)
     }
     const outputs = outputsList.split(',')
-    modules.set(name, {type, outputs})
+    modules.set(name, {name, type, outputs})
   })
   return modules
 }
 
+const moduleHandlers = {
+  [broadcaster]: ({name, outputs}, signal) => outputs.map(output => ({from: name, to: output, signal})),
+  [flipflop]: (module, signal) => {
+    if (signal === high) { return [] } // nothing happens for high pulse
+    module.isOn = !module.isOn
+    const newSignal = module.isOn ? high : low
+    return module.outputs.map(to => ({from: module.name, to, signal: newSignal}))
+  }
+}
+
+const handlePulse = (modules, {from, to, signal}) => {
+  const toModule = modules.get(to)
+  if (!toModule) { return [] } // we have an untyped module, so the signal pulses end here
+  const handler = moduleHandlers[toModule.type]
+  return handler ? handler(toModule, signal, from) : []
+}
+
+const pressButton = (modules) => {
+
+  let pulseCount = 0
+  const queuedPulses = [{from: button, to: broadcaster, signal: low}]
+
+  while (queuedPulses.length > 0) {
+    const pulse = queuedPulses.shift() // use unshift to act as an less efficient fifo queue
+    pulseCount++
+    const newPulses = handlePulse(modules, pulse)
+    queuedPulses.push.apply(queuedPulses, newPulses)
+  }
+
+  return pulseCount
+}
+
+const part1LoopCount = 1000
+
 const part1 = (input) => {
   const modules = parseInput(input)
+  let totalPulseCount = 0
   inspect(modules)
-  return 0
+  for (let i = 0; i < part1LoopCount; i++) {
+    totalPulseCount += pressButton(modules)
+  }
+  return totalPulseCount
 }
 
 // const part2 = (input) => {
