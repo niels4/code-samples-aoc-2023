@@ -89,6 +89,10 @@ await runner.testOutput('day21/test', '1', part1(64))
 
 await runner.testOutput('day21/example', '2', part1(10))
 await runner.testOutput('day21/example', '3', part1(50))
+await runner.testOutput('day21/example', '4', part1(100))
+// await runner.testOutput('day21/example', '5', part1(500))
+// await runner.testOutput('day21/example', '6', part1(1000))
+
 // await runner.printOutput('day21/test', part2)
 // await runner.copyOutput('day21/test', part2)
 // await runner.writeOutput('day21/test', '2', part2)
