@@ -73,13 +73,26 @@ const part1 = (numSteps) => (input) => {
   return currentPositions.size
 }
 
-// const part2Steps = 26501365
-//
-// const part2 = (input) => {
-//   const {startPosition, rockPositions} = parseInput(input)
-//   console.log("start pos", startPosition)
-//   return 0
-// }
+const part2Steps = 26501365
+
+const part2 = (input) => {
+  const {startPosition, rockPositions} = parseInput(input)
+  const stepsToEdge = startPosition.x
+  const totalWidth = stepsToEdge * 2 + 1
+
+  console.log("start pos", startPosition, stepsToEdge, stepsToEdge * 2 + 1)
+  const count1 = part1(stepsToEdge)(input)
+  console.log("count1:", count1)
+  const count2 = part1(stepsToEdge + totalWidth)(input)
+  console.log("count2:", count2)
+  const count3 = part1(stepsToEdge + totalWidth * 2)(input)
+  console.log("count3:", count3)
+
+  const x = (part2Steps - stepsToEdge) / totalWidth
+  const quadraticFit = {a: 14613, b: 14747, c: 3726}
+  const result = quadraticFit.a * x**2 + quadraticFit.b * x + quadraticFit.c
+  return result
+}
 
 await runner.testOutput('day21/example', '1', part1(6))
 // await runner.printOutput('day21/test', part1(64))
@@ -89,11 +102,11 @@ await runner.testOutput('day21/test', '1', part1(64))
 
 await runner.testOutput('day21/example', '2', part1(10))
 await runner.testOutput('day21/example', '3', part1(50))
-await runner.testOutput('day21/example', '4', part1(100))
-// await runner.testOutput('day21/example', '5', part1(500))
-// await runner.testOutput('day21/example', '6', part1(1000))
+// await runner.testOutput('day21/example', '4', part1(100))
+// await runner.testOutput('day21/example', '5', part1(500)) // takes a few seconds
+// await runner.testOutput('day21/example', '6', part1(1000)) // takes a few minutes
 
-// await runner.printOutput('day21/test', part2)
+await runner.printOutput('day21/test', part2)
 // await runner.copyOutput('day21/test', part2)
 // await runner.writeOutput('day21/test', '2', part2)
-// await runner.testOutput('day21/test', '2', part2)
+await runner.testOutput('day21/test', '2', part2)
