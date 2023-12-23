@@ -88,17 +88,30 @@ const letBrickFall = (zMap, criticalBricks, brick) => {
   }
 }
 
-const part1 = (input) => {
-  const bricks = parseInput(input)
-  bricks.sort(sortByZ)
+// let all bricks fall, return a mapping of critical bricks to the bricks they support
+const settleAllBricks = (bricks) => {
+  const sortedBricks = bricks.toSorted(sortByZ)
   const zMap = new Map()
   const criticalBricks = new Map()
-  bricks.forEach((brick) => {
+
+  sortedBricks.forEach((brick) => {
     letBrickFall(zMap, criticalBricks, brick)
   })
+
+  return criticalBricks
+}
+
+const part1 = (input) => {
+  const bricks = parseInput(input)
+  const criticalBricks = settleAllBricks(bricks)
   const result = bricks.length - criticalBricks.size
   return result
 }
+
+// const countChainReaction = (criticalBricks, brick) => {
+//   let count = 0
+//   return count
+// }
 
 // const part2 = (input) => {
 //   return 0
