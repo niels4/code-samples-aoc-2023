@@ -64,23 +64,17 @@ const letBrickFall = (zMap, criticalBricks, brick) => {
   while (brick.z1 !== bottomZ && brick.collisions.size === 0) {
     const nextZ = brick.z1 - 1
     const nextBricks = zMap.get(nextZ) || []
-    let nextBrick
-    for (nextBrick of nextBricks) {
+    for (const nextBrick of nextBricks) {
       if (willBricksCollide(brick, nextBrick)) {
         brick.collisions.add(nextBrick)
       }
     }
 
     if (brick.collisions.size === 1) {
-      criticalBricks.add(nextBrick)
+      criticalBricks.add(brick.collisions.values().next().value)
     } else if (brick.collisions.size === 0) {
       moveBrickDown(zMap, brick)
     }
-
-    // get all bricks in the z level below
-    // check for collisions with each brick
-    // add each collision to set
-    // if only 1 collision, add it to the critical bricks set
   }
 }
 
