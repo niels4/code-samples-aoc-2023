@@ -1,4 +1,6 @@
+import { sum } from "../lib/iterators.js"
 import * as runner from "../lib/runner.js"
+import { difference } from "../lib/set.js"
 
 console.log("Solving AoC 2023 day 22")
 
@@ -27,8 +29,9 @@ const parseInput = (input) => {
   return bricks
 }
 
-const sortByZ = (l, r) => l.z1 - r.z1
 const bottomZ = 1
+
+const sortByZ = (l, r) => l.z1 - r.z1
 
 const getZSet = (zMap, zIndex) => {
   let zSet = zMap.get(zIndex)
@@ -37,15 +40,6 @@ const getZSet = (zMap, zIndex) => {
     zMap.set(zIndex, zSet)
   }
   return zSet
-}
-
-const addCriticalBrick = (criticalBricks, brick, supportedBrick) => {
-  let supportedBricks = criticalBricks.get(brick)
-  if (!supportedBricks) {
-    supportedBricks = new Set()
-    criticalBricks.set(brick, supportedBricks)
-  }
-  supportedBricks.add(supportedBrick)
 }
 
 const willBricksCollide = (b1, b2) => {
@@ -81,7 +75,7 @@ const letBrickFall = (zMap, criticalBricks, brick) => {
     }
 
     if (brick.collisions.size === 1) {
-      addCriticalBrick(criticalBricks, brick.collisions.values().next().value, brick)
+      criticalBricks.add(brick.collisions.values().next().value)
     } else if (brick.collisions.size === 0) {
       moveBrickDown(zMap, brick)
     }
@@ -92,30 +86,71 @@ const letBrickFall = (zMap, criticalBricks, brick) => {
 const settleAllBricks = (bricks) => {
   const sortedBricks = bricks.toSorted(sortByZ)
   const zMap = new Map()
-  const criticalBricks = new Map()
+  const criticalBricks = new Set()
 
   sortedBricks.forEach((brick) => {
     letBrickFall(zMap, criticalBricks, brick)
   })
 
-  return criticalBricks
+  return {criticalBricks, zMap}
 }
 
 const part1 = (input) => {
   const bricks = parseInput(input)
-  const criticalBricks = settleAllBricks(bricks)
+  const {criticalBricks} = settleAllBricks(bricks)
   const result = bricks.length - criticalBricks.size
   return result
 }
 
-// const countChainReaction = (criticalBricks, brick) => {
-//   let count = 0
-//   return count
-// }
+const countChainReaction = (zMap, brick) => {
+  const fallenBricks = new Set()
+  fallenBricks.add(brick)
 
-// const part2 = (input) => {
-//   return 0
-// }
+  const seen = new Set()
+  let aboveZ = brick.z2 + 1
+  let nextBrickLevel = zMap.get(aboveZ)
+  while (nextBrickLevel && nextBrickLevel.size > 0) {
+    for (const nextBrick of nextBrickLevel) {
+      if (seen.has(nextBrick)) { continue }
+      seen.add(nextBrick)
+      const remainingSupports = difference(nextBrick.collisions, fallenBricks)
+      if (remainingSupports.size === 0) {
+        fallenBricks.add(nextBrick)
+      }
+    }
+    aboveZ++
+    nextBrickLevel = zMap.get(aboveZ)
+  }
+
+  return fallenBricks.size - 1 // don't count the original brick itself as a fallen brick
+}
+
+const countAllChainReactions = (zMap) => {
+  // start at the bottom and work our way up
+  let z = bottomZ
+  let count = 0
+  const seen = new Set()
+  let nextBrickLevel = zMap.get(z)
+  while (nextBrickLevel && nextBrickLevel.size > 0) {
+    for (const nextBrick of nextBrickLevel) {
+      if (seen.has(nextBrick)) { continue }
+      count += countChainReaction(zMap, nextBrick)
+      seen.add(nextBrick)
+    }
+    z++
+    nextBrickLevel = zMap.get(z)
+  }
+
+  return count
+}
+
+const part2 = (input) => {
+  const bricks = parseInput(input)
+  const {zMap} = settleAllBricks(bricks)
+  const result = countAllChainReactions(zMap)
+  console.log("p2 result:", result, bricks.length)
+  return result
+}
 
 await runner.testOutput('day22/example', '1', part1)
 // await runner.printOutput('day22/test', part1)
@@ -123,8 +158,8 @@ await runner.testOutput('day22/example', '1', part1)
 // await runner.writeOutput('day22/test', '1', part1)
 await runner.testOutput('day22/test', '1', part1)
 
-// await runner.testOutput('day22/example', '2', part2)
+await runner.testOutput('day22/example', '2', part2)
 // await runner.printOutput('day22/test', part2)
 // await runner.copyOutput('day22/test', part2)
 // await runner.writeOutput('day22/test', '2', part2)
-// await runner.testOutput('day22/test', '2', part2)
+await runner.testOutput('day22/test', '2', part2)
