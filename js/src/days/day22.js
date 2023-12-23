@@ -39,6 +39,15 @@ const getZSet = (zMap, zIndex) => {
   return zSet
 }
 
+const addCriticalBrick = (criticalBricks, brick, supportedBrick) => {
+  let supportedBricks = criticalBricks.get(brick)
+  if (!supportedBricks) {
+    supportedBricks = new Set()
+    criticalBricks.set(brick, supportedBricks)
+  }
+  supportedBricks.add(supportedBrick)
+}
+
 const willBricksCollide = (b1, b2) => {
   if (b1.x1 > b2.x2) { return false }
   if (b1.x2 < b2.x1) { return false }
@@ -61,6 +70,7 @@ const letBrickFall = (zMap, criticalBricks, brick) => {
     let zSet = getZSet(zMap, z)
     zSet.add(brick)
   }
+
   while (brick.z1 !== bottomZ && brick.collisions.size === 0) {
     const nextZ = brick.z1 - 1
     const nextBricks = zMap.get(nextZ) || []
@@ -71,7 +81,7 @@ const letBrickFall = (zMap, criticalBricks, brick) => {
     }
 
     if (brick.collisions.size === 1) {
-      criticalBricks.add(brick.collisions.values().next().value)
+      addCriticalBrick(criticalBricks, brick.collisions.values().next().value, brick)
     } else if (brick.collisions.size === 0) {
       moveBrickDown(zMap, brick)
     }
@@ -82,7 +92,7 @@ const part1 = (input) => {
   const bricks = parseInput(input)
   bricks.sort(sortByZ)
   const zMap = new Map()
-  const criticalBricks = new Set()
+  const criticalBricks = new Map()
   bricks.forEach((brick) => {
     letBrickFall(zMap, criticalBricks, brick)
   })
