@@ -1,4 +1,3 @@
-import { sum } from "../lib/iterators.js"
 import * as runner from "../lib/runner.js"
 import { difference } from "../lib/set.js"
 
@@ -114,7 +113,7 @@ const countChainReaction = (zMap, brick) => {
       if (seen.has(nextBrick)) { continue }
       seen.add(nextBrick)
       const remainingSupports = difference(nextBrick.collisions, fallenBricks)
-      if (remainingSupports.size === 0) {
+      if (nextBrick.z1 !== bottomZ && remainingSupports.size === 0) {
         fallenBricks.add(nextBrick)
       }
     }
@@ -148,7 +147,6 @@ const part2 = (input) => {
   const bricks = parseInput(input)
   const {zMap} = settleAllBricks(bricks)
   const result = countAllChainReactions(zMap)
-  console.log("p2 result:", result, bricks.length)
   return result
 }
 
@@ -162,4 +160,4 @@ await runner.testOutput('day22/example', '2', part2)
 // await runner.printOutput('day22/test', part2)
 // await runner.copyOutput('day22/test', part2)
 // await runner.writeOutput('day22/test', '2', part2)
-await runner.testOutput('day22/test', '2', part2)
+await runner.testOutput('day22/test', '2', part2) // 80968 is too high
