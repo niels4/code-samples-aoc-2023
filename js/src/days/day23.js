@@ -28,12 +28,12 @@ const isValidLocation = (rows, location) => {
   return true
 }
 
-const getNextOffsets = (currentSymbol) => {
+const getNextOffsetsPart1 = (currentSymbol) => {
   if (slopes[currentSymbol]) { return [slopes[currentSymbol]] }
   return Object.values(slopes)
 }
 
-const getNextLocations = (rows, location) => {
+const getNextLocations = (getNextOffsets, rows, location) => {
   const nextLocations = []
   const currentSymbol = rows[location.row][location.col]
 
@@ -53,7 +53,7 @@ const getNextLocations = (rows, location) => {
   return nextLocations
 }
 
-const part1 = (input) => {
+const findMaxPath = (getNextOffsets, input) => {
   const {rows, endRow, startLocation} = parseInput(input)
 
   const pathStepCounts = []
@@ -66,15 +66,23 @@ const part1 = (input) => {
       continue
     }
 
-    nextLocations.push.apply(nextLocations, getNextLocations(rows, currentLocation))
+    nextLocations.push.apply(nextLocations, getNextLocations(getNextOffsets, rows, currentLocation))
   }
 
   return Math.max.apply(null, pathStepCounts)
 }
 
-// const part2 = (input) => {
-//   return 0
-// }
+const part1 = (input) => {
+  return findMaxPath(getNextOffsetsPart1, input)
+}
+
+const getNextOffsetsPart2 = () => {
+  return Object.values(slopes)
+}
+
+const part2 = (input) => {
+  return findMaxPath(getNextOffsetsPart2, input)
+}
 
 await runner.testOutput('day23/example', '1', part1)
 // await runner.printOutput('day23/test', part1)
@@ -82,7 +90,7 @@ await runner.testOutput('day23/example', '1', part1)
 // await runner.writeOutput('day23/test', '1', part1)
 await runner.testOutput('day23/test', '1', part1)
 
-// await runner.testOutput('day23/example', '2', part2)
+await runner.testOutput('day23/example', '2', part2)
 // await runner.printOutput('day23/test', part2)
 // await runner.copyOutput('day23/test', part2)
 // await runner.writeOutput('day23/test', '2', part2)
