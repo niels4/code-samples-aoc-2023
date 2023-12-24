@@ -5,10 +5,10 @@ console.log("Solving AoC 2023 day 23")
 const path = "."
 const forest = "#"
 const slopes = {
-  "^": {col: -1, row: 0},
-  "v": {col: 1, row: 0},
-  "<": {col: 0, row: -1},
-  ">": {col: 0, row: 1},
+  "^": {col: 0, row: -1},
+  "v": {col: 0, row: 1},
+  "<": {col: -1, row: 0},
+  ">": {col: 1, row: 0},
 }
 
 const createLocationKey = ({col, row}) => `${col}:${row}`
@@ -28,23 +28,24 @@ const isValidLocation = (rows, location) => {
   return true
 }
 
+const getNextOffsets = (currentSymbol) => {
+  if (slopes[currentSymbol]) { return [slopes[currentSymbol]] }
+  return Object.values(slopes)
+}
+
 const getNextLocations = (rows, location) => {
   const nextLocations = []
   const currentSymbol = rows[location.row][location.col]
-  console.log("currentSymbol", currentSymbol)
 
-  const slopeOffset = slopes[currentSymbol]
-  if (slopeOffset) {
-    const nextLocation = {col: location.col + slopeOffset.col, row: location.row + slopeOffset.row, steps: location.steps + 1, seen: new Set(location.seen)}
-    nextLocation.seen.add(createLocationKey(nextLocation))
-    return [nextLocation]
-  }
-  for (const offset of Object.values(slopes)) {
+  const nextOffsets = getNextOffsets(currentSymbol)
+
+  for (const offset of nextOffsets) {
     const nextLocation = {col: location.col + offset.col, row: location.row + offset.row}
-    if (!location.seen.has(createLocationKey(nextLocation)) && isValidLocation(rows, nextLocation)) {
+    const nextLocationKey = createLocationKey(nextLocation)
+    if (!location.seen.has(nextLocationKey) && isValidLocation(rows, nextLocation)) {
       nextLocation.steps = location.steps + 1
       nextLocation.seen = new Set(location.seen) // clone the seen state for this new location
-      nextLocation.seen.add(createLocationKey(nextLocation))
+      nextLocation.seen.add(nextLocationKey)
       nextLocations.push(nextLocation)
     }
   }
@@ -60,7 +61,6 @@ const part1 = (input) => {
 
   while (nextLocations.length > 0) {
     const currentLocation = nextLocations.pop()
-    console.log("chekcing location", currentLocation)
     if (currentLocation.row === endRow) {
       pathStepCounts.push(currentLocation.steps)
       continue
@@ -80,7 +80,7 @@ await runner.testOutput('day23/example', '1', part1)
 // await runner.printOutput('day23/test', part1)
 // await runner.copyOutput('day23/test', part1)
 // await runner.writeOutput('day23/test', '1', part1)
-// await runner.testOutput('day23/test', '1', part1)
+await runner.testOutput('day23/test', '1', part1)
 
 // await runner.testOutput('day23/example', '2', part2)
 // await runner.printOutput('day23/test', part2)
