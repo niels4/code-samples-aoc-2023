@@ -86,30 +86,7 @@ const part2_simple = (input) => {
   return findMaxPath(getNextOffsetsPart2, input)
 }
 
-const findMaxPathPart2 = (graph, seen, endKey, currentKey) => {
-  if (currentKey === endKey) {
-    return 0
-  }
-
-  let steps = -Infinity
-
-  seen.add(currentKey)
-  for (const nextKey of Object.keys(graph)) {
-    if (seen.has(nextKey) || graph[currentKey][nextKey] == null) { continue }
-    const stepsToNextPoint = findMaxPathPart2(graph, seen, endKey, nextKey) + graph[currentKey][nextKey]
-    if (Number.isNaN(stepsToNextPoint)) {
-      process.exit(99)
-    }
-    steps = Math.max(steps, stepsToNextPoint)
-  }
-  seen.delete(currentKey)
-
-  return steps
-}
-
-const part2 = (input) => {
-  const {rows, endLocation, startLocation} = parseInput(input)
-
+const getDecisionPoints = (rows, endLocation, startLocation) => {
   const decisionPoints = [startLocation, endLocation]
 
   rows.forEach((rowChars, row) => {
@@ -128,6 +105,10 @@ const part2 = (input) => {
     })
   })
 
+  return decisionPoints
+}
+
+const createDecisionPointGraph = (rows, decisionPoints) => {
   const graph = {}
   decisionPoints.forEach((point) => {
     graph[createLocationKey(point)] = {}
@@ -155,6 +136,34 @@ const part2 = (input) => {
       })
     }
   })
+
+  return graph
+}
+
+const findMaxPathPart2 = (graph, seen, endKey, currentKey) => {
+  if (currentKey === endKey) {
+    return 0
+  }
+
+  let steps = -Infinity
+
+  seen.add(currentKey)
+  for (const nextKey of Object.keys(graph)) {
+    if (seen.has(nextKey) || graph[currentKey][nextKey] == null) { continue }
+    const stepsToNextPoint = findMaxPathPart2(graph, seen, endKey, nextKey) + graph[currentKey][nextKey]
+    steps = Math.max(steps, stepsToNextPoint)
+  }
+  seen.delete(currentKey)
+
+  return steps
+}
+
+const part2 = (input) => {
+  const {rows, endLocation, startLocation} = parseInput(input)
+
+  const decisionPoints = getDecisionPoints(rows, endLocation, startLocation)
+
+  const graph = createDecisionPointGraph(rows, decisionPoints)
 
   const seen = new Set()
   const result = findMaxPathPart2(graph, seen, createLocationKey(endLocation), createLocationKey(startLocation))
