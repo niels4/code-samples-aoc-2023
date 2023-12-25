@@ -86,6 +86,27 @@ const part2_simple = (input) => {
   return findMaxPath(getNextOffsetsPart2, input)
 }
 
+const findMaxPathPart2 = (graph, seen, endKey, currentKey) => {
+  if (currentKey === endKey) {
+    return 0
+  }
+
+  let steps = -Infinity
+
+  seen.add(currentKey)
+  for (const nextKey of Object.keys(graph)) {
+    if (seen.has(nextKey) || graph[currentKey][nextKey] == null) { continue }
+    const stepsToNextPoint = findMaxPathPart2(graph, seen, endKey, nextKey) + graph[currentKey][nextKey]
+    if (Number.isNaN(stepsToNextPoint)) {
+      process.exit(99)
+    }
+    steps = Math.max(steps, stepsToNextPoint)
+  }
+  seen.delete(currentKey)
+
+  return steps
+}
+
 const part2 = (input) => {
   const {rows, endLocation, startLocation} = parseInput(input)
 
@@ -135,23 +156,20 @@ const part2 = (input) => {
     }
   })
 
-  console.log("decision decisionPoints", decisionPoints, decisionPoints.length)
-
-  console.log("and the graph")
-  inspect(graph)
-
-  return 0
+  const seen = new Set()
+  const result = findMaxPathPart2(graph, seen, createLocationKey(endLocation), createLocationKey(startLocation))
+  return result
 }
 
 await runner.testOutput('day23/example', '1', part1)
 // await runner.printOutput('day23/test', part1)
 // await runner.copyOutput('day23/test', part1)
 // await runner.writeOutput('day23/test', '1', part1)
-// await runner.testOutput('day23/test', '1', part1)
+await runner.testOutput('day23/test', '1', part1)
 
 await runner.testOutput('day23/example', '2', part2_simple)
 await runner.testOutput('day23/example', '2', part2)
 // await runner.printOutput('day23/test', part2)
 // await runner.copyOutput('day23/test', part2)
 // await runner.writeOutput('day23/test', '2', part2)
-// await runner.testOutput('day23/test', '2', part2)
+await runner.testOutput('day23/test', '2', part2)
