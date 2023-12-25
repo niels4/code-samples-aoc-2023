@@ -102,12 +102,43 @@ const part2 = (input) => {
         }
       })
       if (pathCount > 2) {
-        decisionPoints.push({col, row: rowChars})
+        decisionPoints.push({col, row})
       }
     })
   })
 
+  const graph = {}
+  decisionPoints.forEach((point) => {
+    graph[createLocationKey(point)] = {}
+  })
+
+  decisionPoints.forEach((pointA) => {
+    const pointAKey = createLocationKey(pointA)
+    const seen = new Set([pointAKey])
+    const remainingPoints = [{...pointA, steps: 0}]
+    while (remainingPoints.length > 0) {
+      const currentPoint = remainingPoints.pop()
+      const currentPointKey = createLocationKey(currentPoint)
+      seen.add(currentPointKey)
+      if (currentPoint.steps !== 0 && graph[currentPointKey]) {
+        graph[pointAKey][currentPointKey] = currentPoint.steps
+        continue
+      }
+
+      getNextOffsetsPart2().forEach((offset) => {
+        const nextPoint = {col: currentPoint.col + offset.col, row: currentPoint.row + offset.row, steps: currentPoint.steps + 1}
+        const nextPointKey = createLocationKey(nextPoint)
+        if (!seen.has(nextPointKey) && isValidLocation(rows, nextPoint)) {
+          remainingPoints.push(nextPoint)
+        }
+      })
+    }
+  })
+
   console.log("decision decisionPoints", decisionPoints, decisionPoints.length)
+
+  console.log("and the graph")
+  inspect(graph)
 
   return 0
 }
@@ -119,7 +150,7 @@ await runner.testOutput('day23/example', '1', part1)
 // await runner.testOutput('day23/test', '1', part1)
 
 await runner.testOutput('day23/example', '2', part2_simple)
-// await runner.testOutput('day23/example', '2', part2)
+await runner.testOutput('day23/example', '2', part2)
 // await runner.printOutput('day23/test', part2)
 // await runner.copyOutput('day23/test', part2)
 // await runner.writeOutput('day23/test', '2', part2)
