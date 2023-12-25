@@ -18,7 +18,9 @@ const parseInput = (input) => {
   const startColumn = rows[0].indexOf(path)
   const startLocation = {col: startColumn, row: 0, steps: 0, seen: new Set()}
   startLocation.seen.add(createLocationKey(startLocation))
-  return {rows, startLocation, endRow: rows.length - 1}
+  const endColumn = rows.at(-1).indexOf(path)
+  const endLocation = {col: endColumn, row: rows.length - 1}
+  return {rows, startLocation, endLocation}
 }
 
 const isValidLocation = (rows, location) => {
@@ -54,14 +56,14 @@ const getNextLocations = (getNextOffsets, rows, location) => {
 }
 
 const findMaxPath = (getNextOffsets, input) => {
-  const {rows, endRow, startLocation} = parseInput(input)
+  const {rows, endLocation, startLocation} = parseInput(input)
 
   const pathStepCounts = []
   const nextLocations = [startLocation]
 
   while (nextLocations.length > 0) {
     const currentLocation = nextLocations.pop()
-    if (currentLocation.row === endRow) {
+    if (currentLocation.row === endLocation.row) {
       pathStepCounts.push(currentLocation.steps)
       continue
     }
@@ -80,17 +82,44 @@ const getNextOffsetsPart2 = () => {
   return Object.values(slopes)
 }
 
-const part2 = (input) => {
+const part2_simple = (input) => {
   return findMaxPath(getNextOffsetsPart2, input)
+}
+
+const part2 = (input) => {
+  const {rows, endLocation, startLocation} = parseInput(input)
+
+  const decisionPoints = [startLocation, endLocation]
+
+  rows.forEach((rowChars, row) => {
+    [...rowChars].forEach((symbol, col) => {
+      if (symbol === forest) { return }
+      let pathCount = 0
+      getNextOffsetsPart2().forEach((offset) => {
+        const newLocation = {col: col + offset.col, row: row + offset.row}
+        if (isValidLocation(rows, newLocation)) {
+          pathCount++
+        }
+      })
+      if (pathCount > 2) {
+        decisionPoints.push({col, row: rowChars})
+      }
+    })
+  })
+
+  console.log("decision decisionPoints", decisionPoints, decisionPoints.length)
+
+  return 0
 }
 
 await runner.testOutput('day23/example', '1', part1)
 // await runner.printOutput('day23/test', part1)
 // await runner.copyOutput('day23/test', part1)
 // await runner.writeOutput('day23/test', '1', part1)
-await runner.testOutput('day23/test', '1', part1)
+// await runner.testOutput('day23/test', '1', part1)
 
-await runner.testOutput('day23/example', '2', part2)
+await runner.testOutput('day23/example', '2', part2_simple)
+// await runner.testOutput('day23/example', '2', part2)
 // await runner.printOutput('day23/test', part2)
 // await runner.copyOutput('day23/test', part2)
 // await runner.writeOutput('day23/test', '2', part2)
