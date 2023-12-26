@@ -1,7 +1,7 @@
 private typealias CardCounts = [Character: Int]
 
 // init CardCounts from cardChars string
-private extension Dictionary where Key == Character, Value == Int {
+private extension [Character: Int] {
     init(cardChars: String) {
         self.init()
         for char in cardChars {
@@ -72,7 +72,7 @@ private typealias CardStrengths = [Character: Int]
 private typealias HandComparator = (Hand, Hand) -> Bool
 
 private func compareHandStrengths0(cardStrengths: CardStrengths) -> HandComparator {
-    return { hand1, hand2 in
+    { hand1, hand2 in
         if hand1.type != hand2.type {
             return hand1.type < hand2.type
         }

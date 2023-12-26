@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+
+# Function to format all .swift in Sources/ and its subdirectories
+format_all() {
+    find Sources/ -name "*.swift" | xargs swiftformat
+}
+
+# Function to format a specific file
+format_file() {
+    local file=$1
+    swiftformat "$file"
+}
+
+# Main script logic
+if [ "$#" -eq 0 ]; then
+    # No arguments, format all files
+    format_all
+else
+    # Argument provided, format that file
+    format_file "$1"
+fi

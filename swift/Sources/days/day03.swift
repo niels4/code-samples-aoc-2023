@@ -23,7 +23,7 @@ private struct Row {
 }
 
 private func isSymbol(char: Character) -> Bool {
-    return char != "." && !char.isNumber
+    char != "." && !char.isNumber
 }
 
 private func parseRow(rows: [Row], rowIndex: Int, line: String.SubSequence) -> Row {
