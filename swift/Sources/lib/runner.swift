@@ -1,5 +1,7 @@
 import Foundation
 
+private let dataDir = "data"
+
 private let red = "\u{001B}[31m"
 private let green = "\u{001B}[32m"
 private let bold = "\u{001B}[1m"
@@ -28,8 +30,8 @@ typealias AocDayRunner = (String) throws -> Void
 typealias AocPartSolver = (String) throws -> String
 
 func testAocOutput(dayKey: String, inputName: String, partKey: String, partSolver: AocPartSolver) throws {
-    let inputFilePath = "data/day\(dayKey)/\(inputName).input"
-    let outputFilePath = "data/day\(dayKey)/\(inputName)_\(partKey).output"
+    let inputFilePath = "\(dataDir)/day\(dayKey)/\(inputName).input"
+    let outputFilePath = "\(dataDir)/day\(dayKey)/\(inputName)_\(partKey).output"
 
     let input = try readFile(inputFilePath)
     let expectedOutput = try readFile(outputFilePath).trimmingCharacters(in: .whitespacesAndNewlines)
