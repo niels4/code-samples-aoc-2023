@@ -1,0 +1,44 @@
+[
+{
+  "directory": "/Users/niels/code/comp/aoc-2021/cpp/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I/Users/niels/code/comp/aoc-2021/cpp/src/days -I/Users/niels/code/comp/aoc-2021/cpp/src/lib -std=gnu++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -o CMakeFiles/aoc_cpp.dir/src/main.cpp.o -c /Users/niels/code/comp/aoc-2021/cpp/src/main.cpp",
+  "file": "/Users/niels/code/comp/aoc-2021/cpp/src/main.cpp",
+  "output": "CMakeFiles/aoc_cpp.dir/src/main.cpp.o"
+},
+{
+  "directory": "/Users/niels/code/comp/aoc-2021/cpp/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I/Users/niels/code/comp/aoc-2021/cpp/src/days -I/Users/niels/code/comp/aoc-2021/cpp/src/lib -std=gnu++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -o CMakeFiles/aoc_cpp.dir/src/days/day01.cpp.o -c /Users/niels/code/comp/aoc-2021/cpp/src/days/day01.cpp",
+  "file": "/Users/niels/code/comp/aoc-2021/cpp/src/days/day01.cpp",
+  "output": "CMakeFiles/aoc_cpp.dir/src/days/day01.cpp.o"
+},
+{
+  "directory": "/Users/niels/code/comp/aoc-2021/cpp/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I/Users/niels/code/comp/aoc-2021/cpp/src/days -I/Users/niels/code/comp/aoc-2021/cpp/src/lib -std=gnu++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -o CMakeFiles/aoc_cpp.dir/src/days/day02.cpp.o -c /Users/niels/code/comp/aoc-2021/cpp/src/days/day02.cpp",
+  "file": "/Users/niels/code/comp/aoc-2021/cpp/src/days/day02.cpp",
+  "output": "CMakeFiles/aoc_cpp.dir/src/days/day02.cpp.o"
+},
+{
+  "directory": "/Users/niels/code/comp/aoc-2021/cpp/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I/Users/niels/code/comp/aoc-2021/cpp/src/days -I/Users/niels/code/comp/aoc-2021/cpp/src/lib -std=gnu++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -o CMakeFiles/aoc_cpp.dir/src/days/day03.cpp.o -c /Users/niels/code/comp/aoc-2021/cpp/src/days/day03.cpp",
+  "file": "/Users/niels/code/comp/aoc-2021/cpp/src/days/day03.cpp",
+  "output": "CMakeFiles/aoc_cpp.dir/src/days/day03.cpp.o"
+},
+{
+  "directory": "/Users/niels/code/comp/aoc-2021/cpp/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I/Users/niels/code/comp/aoc-2021/cpp/src/days -I/Users/niels/code/comp/aoc-2021/cpp/src/lib -std=gnu++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -o CMakeFiles/aoc_cpp.dir/src/days/day04.cpp.o -c /Users/niels/code/comp/aoc-2021/cpp/src/days/day04.cpp",
+  "file": "/Users/niels/code/comp/aoc-2021/cpp/src/days/day04.cpp",
+  "output": "CMakeFiles/aoc_cpp.dir/src/days/day04.cpp.o"
+},
+{
+  "directory": "/Users/niels/code/comp/aoc-2021/cpp/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I/Users/niels/code/comp/aoc-2021/cpp/src/days -I/Users/niels/code/comp/aoc-2021/cpp/src/lib -std=gnu++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -o CMakeFiles/aoc_cpp.dir/src/days/day05.cpp.o -c /Users/niels/code/comp/aoc-2021/cpp/src/days/day05.cpp",
+  "file": "/Users/niels/code/comp/aoc-2021/cpp/src/days/day05.cpp",
+  "output": "CMakeFiles/aoc_cpp.dir/src/days/day05.cpp.o"
+},
+{
+  "directory": "/Users/niels/code/comp/aoc-2021/cpp/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I/Users/niels/code/comp/aoc-2021/cpp/src/days -I/Users/niels/code/comp/aoc-2021/cpp/src/lib -std=gnu++20 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -o CMakeFiles/aoc_cpp.dir/src/lib/runner.cpp.o -c /Users/niels/code/comp/aoc-2021/cpp/src/lib/runner.cpp",
+  "file": "/Users/niels/code/comp/aoc-2021/cpp/src/lib/runner.cpp",
+  "output": "CMakeFiles/aoc_cpp.dir/src/lib/runner.cpp.o"
+}
+]

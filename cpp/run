@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Function to pad day with leading zero if less than 10
+pad_day() {
+    printf "%02d" $1
+}
+
+# Check if an argument is provided
+if [ "$#" -ne 1 ]; then
+    echo "Usage: ./run <day>"
+    exit 1
+fi
+
+# Pad the day with leading zero if necessary
+DAY=$(pad_day $1)
+
+
+# Check if build directory exists, if not, create it and initialize CMake
+if [ ! -d "build" ]; then
+    mkdir build
+    cmake -B build
+fi
+
+# Compile the program using CMake
+cmake --build build
+
+# Check if the compilation was successful
+if [ $? -eq 0 ]; then
+    # Run the program
+    ./build/aoc_cpp $DAY
+else
+    echo "Compilation failed."
+fi

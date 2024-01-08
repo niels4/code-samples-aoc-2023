@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+
+# Function to lint all .cpp and .h files in src/ and its subdirectories
+lint_all() {
+    find src/ -name "*.cpp" -o -name "*.h" | xargs clang-tidy
+}
+
+# Function to lint a specific file
+lint_file() {
+    local file=$1
+    clang-tidy "$file"
+}
+
+# Main script logic
+if [ "$#" -eq 0 ]; then
+    # No arguments, lint all files
+    lint_all
+else
+    # Argument provided, lint that file
+    lint_file "$1"
+fi

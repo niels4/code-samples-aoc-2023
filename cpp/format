@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+
+# Function to format all .cpp and .h files in src/ and its subdirectories
+format_all() {
+    find src/ -name "*.cpp" -o -name "*.h" | xargs clang-format -i
+}
+
+# Function to format a specific file
+format_file() {
+    local file=$1
+    clang-format -i "$file"
+}
+
+# Main script logic
+if [ "$#" -eq 0 ]; then
+    # No arguments, format all files
+    format_all
+else
+    # Argument provided, format that file
+    format_file "$1"
+fi
