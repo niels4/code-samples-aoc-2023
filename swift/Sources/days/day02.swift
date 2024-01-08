@@ -5,7 +5,6 @@ private let maxBlue = 14
 private let redRegex = /(\d+) red/
 private let greenRegex = /(\d+) green/
 private let blueRegex = /(\d+) blue/
-
 private struct Grab {
     var red = 0
     var green = 0

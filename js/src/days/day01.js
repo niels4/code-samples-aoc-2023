@@ -24,15 +24,15 @@ const part1 = (input) => {
 }
 
 const wordMap = {
-  "one": 1,
-  "two": 2,
-  "three": 3,
-  "four": 4,
-  "five": 5,
-  "six": 6,
-  "seven": 7,
-  "eight": 8,
-  "nine": 9,
+  "one": "1",
+  "two": "2",
+  "three": "3",
+  "four": "4",
+  "five": "5",
+  "six": "6",
+  "seven": "7",
+  "eight": "8",
+  "nine": "9",
 }
 
 const digitCapture = `(\\d|${Object.keys(wordMap).join("|")})`
@@ -45,13 +45,11 @@ const part2 = (input) => {
     const match1 = firstDigitMatch2.exec(line)
     if (!match1) { return 0 }
     let match2 = lastDigitMatch2.exec(line)
-    if (!match2) { match2 = {} }
     let d1 = match1[1]
     d1 = wordMap[d1] || d1
     let d2 = match2[1]
     d2 = wordMap[d2] || d2
-    if (d2 == null) { d2 = d1 }
-    return Number(String(d1) + String(d2))
+    return Number(d1 + d2)
   })
   return sum(numbers)
 }
