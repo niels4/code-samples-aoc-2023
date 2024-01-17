@@ -5,13 +5,14 @@
 #include <map>
 #include <string>
 
-static const auto daysMap = std::map<std::string, void (*)()>{
-    {"01", &day01},
-    {"02", &day02},
-    {"03", &day03},
-};
-
 int main(int argc, char *argv[]) { // NOLINT
+
+    static const auto daysMap = std::map<std::string, void (*)()>{
+        {"01", &day01},
+        {"02", &day02},
+        {"03", &day03},
+    };
+
     std::vector<std::string> args(argv + 1, argv + argc);
 
     if (args.size() != 1) {
