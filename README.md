@@ -8,7 +8,7 @@ All of the languages sub-projects are symlinked to the same data directory. For 
 contains inputs along with their verified correct outputs. Each sub-project contains a `run` script that will run each day's
 problem with the inputs and verify that the result matches the expected output.
 
-## javascript
+## Javascript
 
 I use nodejs and javascript as a swiss army knife for quickly solving programming challenges of small to medium scope.
 Python would be a good alternative here, but I am more producitve using javascript from years of being a front end developer.
@@ -25,7 +25,7 @@ cd js
 ```
 
 
-## typescript
+## Typescript
 
 While I like the simplicity of javascript with dynamic typing, it can become cumbersome to reason about
 when working on larger projects with more than 1 developer. For these types of projects I like to use typescript
