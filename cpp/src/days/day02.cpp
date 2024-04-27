@@ -5,13 +5,15 @@
 #include <sstream>
 #include <vector>
 
-static const int maxRed = 12;
-static const int maxGreen = 13;
-static const int maxBlue = 14;
+namespace {
 
-static const std::regex redRegex("(\\d+) red");
-static const std::regex greenRegex("(\\d+) green");
-static const std::regex blueRegex("(\\d+) blue");
+const int maxRed = 12;
+const int maxGreen = 13;
+const int maxBlue = 14;
+
+const std::regex redRegex("(\\d+) red");
+const std::regex greenRegex("(\\d+) green");
+const std::regex blueRegex("(\\d+) blue");
 
 struct Grab {
     int red = 0;
@@ -21,7 +23,7 @@ struct Grab {
 
 using Game = std::vector<Grab>;
 
-static int parseColorCount(const std::string &string, const std::regex &regex) {
+int parseColorCount(const std::string &string, const std::regex &regex) {
     std::smatch match;
     if (std::regex_search(string, match, regex)) {
         return std::stoi(match[1].str());
@@ -29,7 +31,7 @@ static int parseColorCount(const std::string &string, const std::regex &regex) {
     return 0;
 }
 
-static std::vector<Game> parseInput(const std::string &input) {
+std::vector<Game> parseInput(const std::string &input) {
     std::vector<Game> games;
     std::istringstream iss(input);
     std::string line;
@@ -53,7 +55,7 @@ static std::vector<Game> parseInput(const std::string &input) {
     return games;
 }
 
-static std::string part1(const std::string &input) {
+std::string part1(const std::string &input) {
     auto games = parseInput(input);
     size_t sum = 0;
 
@@ -76,7 +78,7 @@ static std::string part1(const std::string &input) {
     return std::to_string(sum);
 }
 
-static std::string part2(const std::string &input) {
+std::string part2(const std::string &input) {
     auto games = parseInput(input);
     int sum = 0;
 
@@ -94,6 +96,8 @@ static std::string part2(const std::string &input) {
 
     return std::to_string(sum);
 }
+
+} // namespace
 
 void day02() {
     testAocOutput("02", "example", "1", &part1);

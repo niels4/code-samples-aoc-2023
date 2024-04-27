@@ -3,6 +3,8 @@
 #import "string"
 #include <sstream>
 
+namespace {
+
 class PartNumber {
   public:
     int value;
@@ -24,9 +26,9 @@ struct Row {
     std::vector<Symbol> symbols;
 };
 
-static bool isSymbol(char ch) { return ch != '.' && !std::isdigit(ch); }
+bool isSymbol(char ch) { return ch != '.' && !std::isdigit(ch); }
 
-static Row parseRow(std::vector<Row> &rows, int rowIndex, const std::string &line) {
+Row parseRow(std::vector<Row> &rows, int rowIndex, const std::string &line) {
     std::vector<PartNumber> numbers;
     std::vector<Symbol> symbols;
     int numberStart = -1;
@@ -104,7 +106,7 @@ static Row parseRow(std::vector<Row> &rows, int rowIndex, const std::string &lin
     return Row{numbers, symbols};
 }
 
-static std::vector<Row> parseInput(const std::string &input) {
+std::vector<Row> parseInput(const std::string &input) {
     std::vector<Row> rows;
     std::istringstream iss(input);
     std::string line;
@@ -118,7 +120,7 @@ static std::vector<Row> parseInput(const std::string &input) {
     return rows;
 }
 
-static std::string part1(const std::string &input) {
+std::string part1(const std::string &input) {
     auto rows = parseInput(input);
     int result = 0;
 
@@ -133,7 +135,7 @@ static std::string part1(const std::string &input) {
     return std::to_string(result);
 }
 
-static std::vector<int> getAdjacentNumberValues(const std::vector<Row> &rows, int rowIndex, int colIndex) {
+std::vector<int> getAdjacentNumberValues(const std::vector<Row> &rows, int rowIndex, int colIndex) {
     std::vector<int> adjacent;
     // Check the current row and optionally one row above and below
     int startRow = std::max(0, rowIndex - 1);
@@ -150,7 +152,7 @@ static std::vector<int> getAdjacentNumberValues(const std::vector<Row> &rows, in
     return adjacent;
 }
 
-static std::string part2(const std::string &input) {
+std::string part2(const std::string &input) {
     auto rows = parseInput(input);
     int result = 0;
 
@@ -167,6 +169,8 @@ static std::string part2(const std::string &input) {
 
     return std::to_string(result);
 }
+
+} // namespace
 
 void day03() {
     testAocOutput("03", "example", "1", &part1);

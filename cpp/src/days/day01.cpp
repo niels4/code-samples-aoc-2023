@@ -5,10 +5,12 @@
 #include <sstream>
 #include <string>
 
-static const std::regex firstDigitRegex1("(\\d)");
-static const std::regex lastDigitRegex1("(\\d)\\D*$");
+namespace {
 
-static int findFirstAndLastDigit(const std::string &input) {
+const std::regex firstDigitRegex1("(\\d)");
+const std::regex lastDigitRegex1("(\\d)\\D*$");
+
+int findFirstAndLastDigit(const std::string &input) {
     std::smatch firstMatch, lastMatch;
     if (!std::regex_search(input, firstMatch, firstDigitRegex1) ||
         !std::regex_search(input, lastMatch, lastDigitRegex1)) {
@@ -21,7 +23,7 @@ static int findFirstAndLastDigit(const std::string &input) {
     return std::stoi(concatenatedDigits);
 }
 
-static std::string part1(const std::string &input) {
+std::string part1(const std::string &input) {
     std::istringstream iss(input);
     std::string line;
     int sum = 0;
@@ -33,13 +35,13 @@ static std::string part1(const std::string &input) {
     return std::to_string(sum);
 }
 
-static const std::map<std::string, std::string> wordMap = {{"one", "1"},   {"two", "2"},   {"three", "3"},
-                                                           {"four", "4"},  {"five", "5"},  {"six", "6"},
-                                                           {"seven", "7"}, {"eight", "8"}, {"nine", "9"}};
+const std::map<std::string, std::string> wordMap = {{"one", "1"},   {"two", "2"},   {"three", "3"},
+                                                    {"four", "4"},  {"five", "5"},  {"six", "6"},
+                                                    {"seven", "7"}, {"eight", "8"}, {"nine", "9"}};
 
 enum class MatchMode { CaptureFirst, CaptureLast };
 
-static std::regex buildDigitCaptureRegex(MatchMode mode) {
+std::regex buildDigitCaptureRegex(MatchMode mode) {
     std::ostringstream regexStream;
     if (mode == MatchMode::CaptureLast) {
         regexStream << ".*";
@@ -60,12 +62,12 @@ static std::regex buildDigitCaptureRegex(MatchMode mode) {
     return std::regex(regexStream.str());
 }
 
-static std::string resolveDigit(const std::string &digit) {
+std::string resolveDigit(const std::string &digit) {
     auto it = wordMap.find(digit);
     return it != wordMap.end() ? it->second : digit;
 }
 
-static std::string part2(const std::string &input) {
+std::string part2(const std::string &input) {
     std::istringstream iss(input);
     std::string line;
     int sum = 0;
@@ -88,6 +90,8 @@ static std::string part2(const std::string &input) {
 
     return std::to_string(sum);
 }
+
+} // namespace
 
 void day01() {
     testAocOutput("01", "example", "1", &part1);
