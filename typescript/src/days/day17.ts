@@ -1,17 +1,15 @@
-type User = {
-  name: string
-  age: number
+import * as runner from "../lib/runner.js"
+
+const part1 = (input: string): string => {
+  return "0"
 }
 
-function isAdult(user: User): boolean {
-  return user.age >= 18
+const part2 = (input: string): string => {
+  return "0"
 }
 
-const justine: User = {
-  name: "Justine",
-  age: 23,
-}
+await runner.testOutput("day17/example", "1", part1)
+await runner.testOutput("day17/test", "1", part1)
 
-const isJustineAnAdult: boolean = isAdult(justine)
-
-console.log("testing", isJustineAnAdult)
+await runner.testOutput("day17/example", "2", part2)
+await runner.testOutput("day17/test", "2", part2)

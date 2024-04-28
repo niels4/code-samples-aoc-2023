@@ -14,6 +14,6 @@ fi
 # Pad the day with leading zero if necessary
 DAY=$(pad_day $1)
 
-# run the program
-npx --yes tsc src/days/day$DAY.ts --outfile dist/day$DAY.js
-node dist/day$DAY.js
+# compile and run the program
+tsc
+node dist/days/day$DAY.js
