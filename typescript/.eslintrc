@@ -1,13 +1,13 @@
-module.exports = {
-  root: true,
-  env: { es2020: true },
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
+{
+  "root": true,
+  "env": { "es2020": true },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
   ],
-  ignorePatterns: ['generated-for-ui', '.eslintrc.cjs'],
-  parser: '@typescript-eslint/parser',
-  rules: {
+  "ignorePatterns": ["generated-for-ui", ".eslintrc.cjs"],
+  "parser": "@typescript-eslint/parser",
+  "rules": {
     "semi": ["error", "never"],
     "no-multiple-empty-lines": ["error", { "max": 1 }],
     "no-unused-vars": "off",
