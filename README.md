@@ -24,6 +24,13 @@ cd js
 ./run 25
 ```
 
+To run the unit tests for the Heap and UniqueHeap data structures, you must first install the dev dependencies
+
+```
+npm install
+npm test
+```
+
 
 ## Typescript
 
@@ -37,6 +44,13 @@ and can create collection data structures that use generics to remain type safe.
 ```
 cd typescript
 ./run 17
+```
+
+This example also contains unit tests for the type safe Heap and UniqueHeap data structures. To run, first install the dev dependencies.
+
+```
+npm install
+npm test
 ```
 
 ## C++ and Unreal Engine
