@@ -34,13 +34,9 @@ to statically verify everybody is on the same page when it comes to data types a
 I've included just a single day that uses a custom defined data structure to demonstrate that I'm familiar with typescript
 and can create collection data structures that use generics to remain type safe.
 
-
-While the javascript examples don't use any external dependencies, the typescript example requires that we run `npm install` first
-
 ```
 cd typescript
-npm install
-./run 7
+./run 17
 ```
 
 ## C++ and Unreal Engine

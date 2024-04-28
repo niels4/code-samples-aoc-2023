@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Function to pad day with leading zero if less than 10
+pad_day() {
+    printf "%02d" $1
+}
+
+# Check if an argument is provided
+if [ "$#" -ne 1 ]; then
+    echo "Usage: ./run <day>"
+    exit 1
+fi
+
+# Pad the day with leading zero if necessary
+DAY=$(pad_day $1)
+
+# run the program
+npx --yes tsc src/days/day$DAY.ts --outfile dist/day$DAY.js
+node dist/day$DAY.js

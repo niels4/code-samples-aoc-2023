@@ -1,0 +1,20 @@
+{
+	"name": "aoc-2023-typescript",
+	"version": "1.0.0",
+	"description": "Solving advent of code problems with typescript",
+	"main": "index.js",
+	"scripts": {
+		"lint": "eslint 'src/**/*.ts'",
+		"format": "prettier 'src/**/*.ts' --write",
+		"test": "echo \"Error: no test specified\" && exit 0"
+	},
+	"author": "Niels Nielsen",
+	"license": "MIT",
+	"devDependencies": {
+		"@typescript-eslint/eslint-plugin": "^6.5.0",
+		"@typescript-eslint/parser": "^6.5.0",
+		"eslint": "^8.48.0",
+		"prettier": "^3.0.2",
+		"typescript": "^5.4.5"
+	}
+}
