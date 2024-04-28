@@ -77,10 +77,10 @@ private func parseRow(rows: [Row], rowIndex: Int, line: String.SubSequence) -> R
         }
     }
 
-    line.enumerated().forEach { column, char in
+    for (column, char) in line.enumerated() {
         if char.isNumber {
             handleDigit(char: char, column: column)
-            return
+            continue
         } else {
             handleNonDigit(column: column)
         }
@@ -97,7 +97,7 @@ private func parseRow(rows: [Row], rowIndex: Int, line: String.SubSequence) -> R
 private func parseInput(_ input: String) -> [Row] {
     let lines = input.split(separator: "\n")
     var rows: [Row] = []
-    lines.enumerated().forEach { rowIndex, line in
+    for (rowIndex, line) in lines.enumerated() {
         rows.append(parseRow(rows: rows, rowIndex: rowIndex, line: line))
     }
     return rows
@@ -106,11 +106,9 @@ private func parseInput(_ input: String) -> [Row] {
 private func part1(input: String) throws -> String {
     let rows = parseInput(input)
     var markedValues: [Int] = []
-    rows.forEach { row in
-        row.numbers.forEach { number in
-            if number.nearSymbol {
-                markedValues.append(number.value)
-            }
+    for row in rows {
+        for number in row.numbers where number.nearSymbol {
+            markedValues.append(number.value)
         }
     }
     let result = markedValues.reduce(0, +)
@@ -122,7 +120,7 @@ private func getAdjacentNumberValues(rows: [Row], rowIndex: Int, colIndex: Int) 
     let startRow = max(0, rowIndex - 1)
     let endRow = min(rows.count - 1, rowIndex + 1)
     for i in startRow ... endRow {
-        rows[i].numbers.forEach { number in
+        for number in rows[i].numbers {
             if colIndex >= number.start - 1, colIndex <= number.end + 1 {
                 adjacent.append(number.value)
             }
@@ -134,13 +132,11 @@ private func getAdjacentNumberValues(rows: [Row], rowIndex: Int, colIndex: Int) 
 private func part2(input: String) throws -> String {
     let rows = parseInput(input)
     var gearRatios: [Int] = []
-    rows.enumerated().forEach { rowIndex, row in
-        row.symbols.forEach { symbol in
-            if symbol.value == "*" {
-                let adjacentValues = getAdjacentNumberValues(rows: rows, rowIndex: rowIndex, colIndex: symbol.column)
-                if adjacentValues.count == 2 {
-                    gearRatios.append(adjacentValues[0] * adjacentValues[1])
-                }
+    for (rowIndex, row) in rows.enumerated() {
+        for symbol in row.symbols where symbol.value == "*" {
+            let adjacentValues = getAdjacentNumberValues(rows: rows, rowIndex: rowIndex, colIndex: symbol.column)
+            if adjacentValues.count == 2 {
+                gearRatios.append(adjacentValues[0] * adjacentValues[1])
             }
         }
     }
