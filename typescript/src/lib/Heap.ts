@@ -76,7 +76,7 @@ export class Heap<T> {
       return
     }
 
-    const shouldSwap = this.compare(topChild, current) > 0
+    const shouldSwap = this.compare(topChild, current)
     if (shouldSwap) {
       this.array[topChildIndex] = current
       this.array[currentIndex] = topChild
