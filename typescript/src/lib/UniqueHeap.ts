@@ -1,10 +1,10 @@
-const minCompareFunc: CompareFunc<number> = (l, r) => r - l
-const maxCompareFunc: CompareFunc<number> = (l, r) => l - r
+const minCompareFunc: CompareFunc<number> = (l, r) => l < r
+const maxCompareFunc: CompareFunc<number> = (l, r) => l > r
 
 export const initMinNumberHeap = (): UniqueHeap<number> => new UniqueHeap(minCompareFunc)
 export const initMaxNumberHeap = (): UniqueHeap<number> => new UniqueHeap(maxCompareFunc)
 
-type CompareFunc<T> = (l: T, r: T) => number
+type CompareFunc<T> = (l: T, r: T) => boolean
 
 const getLeftChildIndex = (i: number): number => 2 * i + 1
 const getParentIndex = (i: number): number => Math.floor((i - 1) / 2)
@@ -67,10 +67,9 @@ export class UniqueHeap<T> {
     this.indexMap.delete(oldItem)
     this.indexMap.set(newItem, itemIndex)
 
-    const comparison = this.compare(newItem, oldItem)
-    if (comparison > 0) {
+    if (this.compare(newItem, oldItem)) {
       this._bubbleUp(itemIndex)
-    } else if (comparison < 0) {
+    } else {
       this._pushDown(itemIndex)
     }
   }
@@ -95,7 +94,7 @@ export class UniqueHeap<T> {
     const current = this.array[currentIndex]
     const parent = this.array[parentIndex]
     const shouldSwap = this.compare(current, parent)
-    if (shouldSwap > 0) {
+    if (shouldSwap) {
       this.array[parentIndex] = current
       this.indexMap.set(current, parentIndex)
       this.array[currentIndex] = parent
@@ -113,7 +112,7 @@ export class UniqueHeap<T> {
     let topChildIndex: number | undefined
     for (let childIndex = firstChildIndex; childIndex < this.array.length; childIndex++) {
       const child = this.array[childIndex]
-      if (topChild === undefined || this.compare(child, topChild) > 0) {
+      if (topChild === undefined || this.compare(child, topChild)) {
         topChildIndex = childIndex
         topChild = child
       }
@@ -124,7 +123,7 @@ export class UniqueHeap<T> {
       return
     }
 
-    const shouldSwap = this.compare(topChild, current) > 0
+    const shouldSwap = this.compare(topChild, current)
     if (shouldSwap) {
       this.array[topChildIndex] = current
       this.indexMap.set(current, topChildIndex)

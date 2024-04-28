@@ -4,8 +4,8 @@ import { initMinNumberHeap, initMaxNumberHeap, UniqueHeap } from "./UniqueHeap.j
 interface TestObj {
   val: number
 }
-const minTestObjCompare = (l: TestObj, r: TestObj) => r.val - l.val
-const maxTestObjCompare = (l: TestObj, r: TestObj) => l.val - r.val
+const minTestObjCompare = (l: TestObj, r: TestObj) => l.val < r.val
+const maxTestObjCompare = (l: TestObj, r: TestObj) => l.val > r.val
 
 describe("UniqueHeap", () => {
   describe("should pass all of the same tests that the normal Heap does", () => {
@@ -368,7 +368,7 @@ describe("UniqueHeap", () => {
       distance: number
     }
 
-    const minDistanceCompare = (l: Node, r: Node) => r.distance - l.distance
+    const minDistanceCompare = (l: Node, r: Node) => r.distance < l.distance
 
     function networkDelayTime(times: number[][], n: number, k: number): number {
       const graph: Graph = new Map()
