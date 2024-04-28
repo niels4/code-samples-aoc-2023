@@ -1,7 +1,7 @@
-type CompareFunc<T> = (l: T, r: T) => number
+type CompareFunc<T> = (l: T, r: T) => boolean
 
-const minCompareFunc: CompareFunc<number> = (l, r) => r - l
-const maxCompareFunc: CompareFunc<number> = (l, r) => l - r
+const minCompareFunc: CompareFunc<number> = (l, r) => l < r
+const maxCompareFunc: CompareFunc<number> = (l, r) => l > r
 
 export const initMinNumberHeap = (): Heap<number> => new Heap(minCompareFunc)
 export const initMaxNumberHeap = (): Heap<number> => new Heap(maxCompareFunc)
@@ -49,7 +49,7 @@ export class Heap<T> {
     const current = this.array[currentIndex]
     const parent = this.array[parentIndex]
     const shouldSwap = this.compare(current, parent)
-    if (shouldSwap > 0) {
+    if (shouldSwap) {
       this.array[parentIndex] = current
       this.array[currentIndex] = parent
       this._bubbleUp(parentIndex)
@@ -65,7 +65,7 @@ export class Heap<T> {
     let topChildIndex: number | undefined
     for (let childIndex = firstChildIndex; childIndex < this.array.length; childIndex++) {
       const child = this.array[childIndex]
-      if (topChild === undefined || this.compare(child, topChild) > 0) {
+      if (topChild === undefined || this.compare(child, topChild)) {
         topChildIndex = childIndex
         topChild = child
       }
