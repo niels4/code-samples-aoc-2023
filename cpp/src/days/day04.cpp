@@ -27,8 +27,8 @@ std::vector<CardInfo> parseInput(const std::string &input) {
     std::vector<CardInfo> cards;
 
     while (std::getline(iss, line)) {
-        auto colonPos = line.find(":");
-        auto pipePos = line.find("|");
+        auto colonPos = line.find(':');
+        auto pipePos = line.find('|');
 
         std::string winningNumbersStr = line.substr(colonPos + 2, pipePos - colonPos - 2);
         std::string myNumbersStr = line.substr(pipePos + 2);
@@ -38,7 +38,7 @@ std::vector<CardInfo> parseInput(const std::string &input) {
 
         std::set<int> winningNumbers;
         std::set<int> myNumbers;
-        int num;
+        int num = 0;
 
         while (winNumStream >> num) {
             winningNumbers.insert(num);
@@ -56,7 +56,7 @@ std::vector<CardInfo> parseInput(const std::string &input) {
 }
 
 int getCardScore(const std::set<int> &matchedNumbers) {
-    return matchedNumbers.empty() ? 0 : std::pow(2, matchedNumbers.size() - 1);
+    return matchedNumbers.empty() ? 0 : static_cast<int>(std::pow(2, matchedNumbers.size() - 1));
 }
 
 std::string part1(const std::string &input) {
