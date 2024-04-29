@@ -1,6 +1,7 @@
-#include "day01.h"
-#include "day02.h"
+#include "days/day01.h"
+#include "days/day02.h"
 #include "days/day03.h"
+#include "days/day04.h"
 #include <iostream>
 #include <map>
 #include <string>
@@ -11,6 +12,7 @@ int main(int argc, char *argv[]) { // NOLINT
         {"01", &day01},
         {"02", &day02},
         {"03", &day03},
+        {"04", &day04},
     };
 
     std::vector<std::string> args(argv + 1, argv + argc);
