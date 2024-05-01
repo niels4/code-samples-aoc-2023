@@ -1,3 +1,5 @@
+import Algorithms
+
 typealias SeedValue = Int
 typealias Category = String
 
@@ -85,7 +87,7 @@ private struct CategoryMappingIterator: IteratorProtocol {
     }
 }
 
-private func part1(input: String) throws -> String {
+private func part1(input: String) -> String {
     let parsed = parseInput(input: input)
 
     var currentValues = parsed.initialSeeds
@@ -107,10 +109,86 @@ private func part1(input: String) throws -> String {
     return String(result)
 }
 
+private struct SeedRange: CustomStringConvertible {
+    let start: Int
+    let end: Int
+    let size: Int
+
+    init(start: Int, size: Int) {
+        self.start = start
+        self.size = size
+        end = start + size - 1
+    }
+
+    var description: String {
+        "SeedRange(start: \(start), end: \(end), size: \(size))"
+    }
+}
+
+private struct MappedRangeResult {
+    let matched: Bool
+    let mappedRange: SeedRange?
+    let remainingRanges: [SeedRange]
+
+    init(matched: Bool) {
+        self.matched = matched
+        mappedRange = nil
+        remainingRanges = []
+    }
+
+    init(matched: Bool, mappedRange: SeedRange?, remainingRanges: [SeedRange]) {
+        self.matched = matched
+        self.mappedRange = mappedRange
+        self.remainingRanges = remainingRanges
+    }
+}
+
+private func mapRangeToRange(range: SeedRange, rangeMapping: RangeMapping) -> MappedRangeResult {
+    // final case: no matches
+    MappedRangeResult(matched: false)
+}
+
+private func seedValuesToRanges(seedValues: [SeedValue]) -> [SeedRange] {
+    seedValues.chunks(ofCount: 2).map { SeedRange(start: $0.first!, size: $0.last!) }
+}
+
+private func part2(input: String) -> String {
+    let parsed = parseInput(input: input)
+    var currentRanges = seedValuesToRanges(seedValues: parsed.initialSeeds)
+    print("Initial ranges", currentRanges)
+
+    var mappingIterator = CategoryMappingIterator(mappings: parsed.mappings)
+
+    while let nextMapping = mappingIterator.next() {
+        var nextRanges = [SeedRange]()
+        while let range = currentRanges.popLast() {
+            var foundMatchingRange = false
+
+            for rangeMapping in nextMapping.ranges {
+                let mapResult = mapRangeToRange(range: range, rangeMapping: rangeMapping)
+                if mapResult.matched {
+                    foundMatchingRange = true
+                    nextRanges.append(mapResult.mappedRange!)
+                    currentRanges.append(contentsOf: mapResult.remainingRanges)
+                    break
+                }
+            }
+
+            if !foundMatchingRange {
+                nextRanges.append(range)
+            }
+        }
+        currentRanges = nextRanges
+    }
+
+    print("Final ranges", currentRanges)
+    return "0"
+}
+
 func day05(dayKey: String) throws {
     try testAocOutput(dayKey: dayKey, inputName: "example", partKey: "1", partSolver: part1)
     try testAocOutput(dayKey: dayKey, inputName: "test", partKey: "1", partSolver: part1)
 
-    // try testAocOutput(dayKey: dayKey, inputName: "example", partKey: "2", partSolver: part2)
+    try testAocOutput(dayKey: dayKey, inputName: "example", partKey: "2", partSolver: part2)
     // try testAocOutput(dayKey: dayKey, inputName: "test", partKey: "2", partSolver: part2)
 }
