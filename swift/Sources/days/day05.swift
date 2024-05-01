@@ -143,48 +143,64 @@ private struct MappedRangeResult {
     }
 }
 
+private func handleCompleteContainment(range: SeedRange, rangeMapping: RangeMapping) -> MappedRangeResult {
+    let offset = range.start - rangeMapping.srcStart
+    let newStart = rangeMapping.dstStart + offset
+    let mappedRange = SeedRange(start: newStart, size: range.size)
+    return MappedRangeResult(matched: true, mappedRange: mappedRange, remainingRanges: [])
+}
+
+private func handleTotalOverlap(range: SeedRange, rangeMapping: RangeMapping) -> MappedRangeResult {
+    let beforeSize = rangeMapping.srcStart - range.start
+    let beforeRange = SeedRange(start: range.start, size: beforeSize)
+    let withinStart = rangeMapping.dstStart
+    let withinSize = rangeMapping.mappedSize
+    let withinRange = SeedRange(start: withinStart, size: withinSize)
+    let afterStart = rangeMapping.srcStart + rangeMapping.mappedSize
+    let afterSize = range.end - afterStart + 1
+    let afterRange = SeedRange(start: afterStart, size: afterSize)
+    return MappedRangeResult(matched: true, mappedRange: withinRange, remainingRanges: [beforeRange, afterRange])
+}
+
+private func handleStartOverlap(range: SeedRange, rangeMapping: RangeMapping) -> MappedRangeResult {
+    let beforeSize = rangeMapping.srcStart - range.start
+    let beforeRange = SeedRange(start: range.start, size: beforeSize)
+    let mappedSize = range.end - rangeMapping.srcStart + 1
+    let mappedRange = SeedRange(start: rangeMapping.dstStart, size: mappedSize)
+    return MappedRangeResult(matched: true, mappedRange: mappedRange, remainingRanges: [beforeRange])
+}
+
+private func handleEndOverlap(range: SeedRange, rangeMapping: RangeMapping) -> MappedRangeResult {
+    let mappedSize = rangeMapping.srcStart + rangeMapping.mappedSize - range.start
+    let mappedRange = SeedRange(start: rangeMapping.dstStart + (range.start - rangeMapping.srcStart), size: mappedSize)
+    let afterStart = rangeMapping.srcStart + rangeMapping.mappedSize
+    let afterSize = range.end - afterStart + 1
+    let afterRange = SeedRange(start: afterStart, size: afterSize)
+    return MappedRangeResult(matched: true, mappedRange: mappedRange, remainingRanges: [afterRange])
+}
+
 private func mapRangeToRange(range: SeedRange, rangeMapping: RangeMapping) -> MappedRangeResult {
     // Case 1: Entire range is within the mapped source range
     if range.start >= rangeMapping.srcStart, range.end <= rangeMapping.srcStart + rangeMapping.mappedSize - 1 {
-        let offset = range.start - rangeMapping.srcStart
-        let newStart = rangeMapping.dstStart + offset
-        let mappedRange = SeedRange(start: newStart, size: range.size)
-        return MappedRangeResult(matched: true, mappedRange: mappedRange, remainingRanges: [])
+        return handleCompleteContainment(range: range, rangeMapping: rangeMapping)
     }
 
     // Case 2: Range entirely overlaps mapped source range
     if range.start < rangeMapping.srcStart, range.end > rangeMapping.srcStart + rangeMapping.mappedSize - 1 {
-        let beforeSize = rangeMapping.srcStart - range.start
-        let beforeRange = SeedRange(start: range.start, size: beforeSize)
-        let withinStart = rangeMapping.dstStart
-        let withinSize = rangeMapping.mappedSize
-        let withinRange = SeedRange(start: withinStart, size: withinSize)
-        let afterStart = rangeMapping.srcStart + rangeMapping.mappedSize
-        let afterSize = range.end - afterStart + 1
-        let afterRange = SeedRange(start: afterStart, size: afterSize)
-        return MappedRangeResult(matched: true, mappedRange: withinRange, remainingRanges: [beforeRange, afterRange])
+        return handleTotalOverlap(range: range, rangeMapping: rangeMapping)
     }
 
     // Case 3: Range overlaps start of mapped source range
     if range.start < rangeMapping.srcStart, range.end >= rangeMapping.srcStart, range.end <= rangeMapping.srcStart + rangeMapping.mappedSize - 1 {
-        let beforeSize = rangeMapping.srcStart - range.start
-        let beforeRange = SeedRange(start: range.start, size: beforeSize)
-        let mappedSize = range.end - rangeMapping.srcStart + 1
-        let mappedRange = SeedRange(start: rangeMapping.dstStart, size: mappedSize)
-        return MappedRangeResult(matched: true, mappedRange: mappedRange, remainingRanges: [beforeRange])
+        return handleStartOverlap(range: range, rangeMapping: rangeMapping)
     }
 
     // Case 4: Range overlaps end of mapped source range
     if range.start >= rangeMapping.srcStart, range.start <= rangeMapping.srcStart + rangeMapping.mappedSize - 1, range.end > rangeMapping.srcStart + rangeMapping.mappedSize - 1 {
-        let mappedSize = rangeMapping.srcStart + rangeMapping.mappedSize - range.start
-        let mappedRange = SeedRange(start: rangeMapping.dstStart + (range.start - rangeMapping.srcStart), size: mappedSize)
-        let afterStart = rangeMapping.srcStart + rangeMapping.mappedSize
-        let afterSize = range.end - afterStart + 1
-        let afterRange = SeedRange(start: afterStart, size: afterSize)
-        return MappedRangeResult(matched: true, mappedRange: mappedRange, remainingRanges: [afterRange])
+        return handleEndOverlap(range: range, rangeMapping: rangeMapping)
     }
 
-    // Final case: no matches
+    // Final case: No matches
     return MappedRangeResult(matched: false)
 }
 
