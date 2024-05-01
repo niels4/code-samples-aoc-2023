@@ -34,13 +34,10 @@ private func readSeedValues(from line: some StringProtocol) -> [SeedValue] {
 }
 
 private func readNextMapping(lineIterator: inout IndexingIterator<[Substring]>) -> CategoryMapping? {
-    guard let headerLine = lineIterator.next() else {
-        return nil
-    }
+    guard let headerLine = lineIterator.next() else { return nil }
 
     let headerCategories = headerLine.split(separator: " ").first!
     let categoriesSplit = headerCategories.split(separator: "-to-")
-    guard categoriesSplit.count == 2 else { return nil }
     let from = String(categoriesSplit[0])
     let to = String(categoriesSplit[1])
     var ranges = [RangeMapping]()
@@ -68,15 +65,51 @@ private func parseInput(input: String) -> ParsedInput {
     return ParsedInput(initialSeeds: seedValues, mappings: mappings)
 }
 
+private struct CategoryMappingIterator: IteratorProtocol {
+    typealias Element = CategoryMapping
+
+    private var currentMapping: CategoryMapping?
+    private var mappings: [String: CategoryMapping]
+
+    init(mappings: [String: CategoryMapping]) {
+        self.mappings = mappings
+        currentMapping = mappings["seed"]
+    }
+
+    mutating func next() -> CategoryMapping? {
+        guard let mapping = currentMapping else {
+            return nil
+        }
+        currentMapping = mappings[mapping.to]
+        return mapping
+    }
+}
+
 private func part1(input: String) throws -> String {
     let parsed = parseInput(input: input)
-    print("parsed: \(parsed.initialSeeds), \(parsed.mappings)")
-    return "0"
+
+    var currentValues = parsed.initialSeeds
+    var mappingIterator = CategoryMappingIterator(mappings: parsed.mappings)
+
+    while let nextMapping = mappingIterator.next() {
+        currentValues = currentValues.map { value in
+            for rangeMapping in nextMapping.ranges {
+                let offset = rangeMapping.dstStart - rangeMapping.srcStart
+                let srcEnd = rangeMapping.srcStart + rangeMapping.mappedSize - 1
+                if value >= rangeMapping.srcStart, value <= srcEnd {
+                    return value + offset
+                }
+            }
+            return value
+        }
+    }
+    let result = currentValues.min()!
+    return String(result)
 }
 
 func day05(dayKey: String) throws {
     try testAocOutput(dayKey: dayKey, inputName: "example", partKey: "1", partSolver: part1)
-    // try testAocOutput(dayKey: dayKey, inputName: "test", partKey: "1", partSolver: part1)
+    try testAocOutput(dayKey: dayKey, inputName: "test", partKey: "1", partSolver: part1)
 
     // try testAocOutput(dayKey: dayKey, inputName: "example", partKey: "2", partSolver: part2)
     // try testAocOutput(dayKey: dayKey, inputName: "test", partKey: "2", partSolver: part2)
