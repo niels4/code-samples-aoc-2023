@@ -15,16 +15,16 @@ template <typename SetType> SetType intersectSets(const SetType &set1, const Set
     return result;
 }
 
-struct CardInfo {
+struct Card {
     std::set<int> winningNumbers;
     std::set<int> myNumbers;
     std::set<int> matchedNumbers;
 };
 
-std::vector<CardInfo> parseInput(const std::string &input) {
+std::vector<Card> parseInput(const std::string &input) {
     std::istringstream iss(input);
     std::string line;
-    std::vector<CardInfo> cards;
+    std::vector<Card> cards;
 
     while (std::getline(iss, line)) {
         auto colonPos = line.find(':');
@@ -50,7 +50,7 @@ std::vector<CardInfo> parseInput(const std::string &input) {
 
         std::set<int> matchedNumbers = intersectSets(winningNumbers, myNumbers);
 
-        cards.emplace_back(CardInfo{winningNumbers, myNumbers, matchedNumbers});
+        cards.emplace_back(Card{winningNumbers, myNumbers, matchedNumbers});
     }
     return cards;
 }

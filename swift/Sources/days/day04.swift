@@ -1,12 +1,12 @@
 import Foundation
 
-struct CardInfo {
+private struct Card {
     var winningNumbers: Set<Int>
     var myNumbers: Set<Int>
     var matchedNumbers: Set<Int>
 }
 
-private func parseInput(input: String) -> [CardInfo] {
+private func parseInput(input: String) -> [Card] {
     let lines = input.split(separator: "\n")
     return lines.map { line in
         let lineStr = String(line)
@@ -30,7 +30,7 @@ private func parseInput(input: String) -> [CardInfo] {
         let winningNumbers = Set(winningNumbersList)
         let myNumbers = Set(myNumbersList)
         let matchedNumbers = winningNumbers.intersection(myNumbers)
-        return CardInfo(winningNumbers: winningNumbers, myNumbers: myNumbers, matchedNumbers: matchedNumbers)
+        return Card(winningNumbers: winningNumbers, myNumbers: myNumbers, matchedNumbers: matchedNumbers)
     }
 }
 

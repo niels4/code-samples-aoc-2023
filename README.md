@@ -53,7 +53,7 @@ npm install
 npm test
 ```
 
-## C++ and Unreal Engine
+## C++
 
 Even though the browser is my preferred platform for quickly prototyping and shipping a user interface to customers, it does have its limitations
 in terms of performance and tooling for creating 3D interfaces and data visualizations. Unreal Engine 5 is a really 
@@ -76,7 +76,7 @@ cd cpp
 ```
 
 
-## Swift and Swift-UI
+## Swift
 
 Swift has been one of my favorite languages to learn. It has been a nice balance of being fairly straightforward to use
 and memory safe without having a full on mark and sweep garbage collector. I also wanted to be able to build native apps 

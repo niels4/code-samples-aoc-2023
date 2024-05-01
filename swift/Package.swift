@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "swift-aoc",
     platforms: [
-        .macOS(.v14)
+        .macOS(.v14),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -16,7 +16,7 @@ let package = Package(
             swiftSettings: [
                 .unsafeFlags([
                     "-enable-bare-slash-regex",
-                ])
+                ]),
             ]
         ),
     ]
