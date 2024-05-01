@@ -7,7 +7,7 @@ private struct RangeMapping {
     var mappedSize: Int
 }
 
-private struct Mapping {
+private struct CategoryMapping {
     var from: Category
     var to: Category
     var ranges: [RangeMapping]
@@ -15,7 +15,7 @@ private struct Mapping {
 
 private struct ParsedInput {
     var initialSeeds: [SeedValue]
-    var mappings: [Category: Mapping]
+    var mappings: [Category: CategoryMapping]
 }
 
 private func readNumberList(from text: some StringProtocol, separator: Character = " ") -> [Int] {
@@ -33,7 +33,7 @@ private func readSeedValues(from line: some StringProtocol) -> [SeedValue] {
     return seedValues
 }
 
-private func readNextMapping(lineIterator: inout IndexingIterator<[Substring]>) -> Mapping? {
+private func readNextMapping(lineIterator: inout IndexingIterator<[Substring]>) -> CategoryMapping? {
     guard let headerLine = lineIterator.next() else {
         return nil
     }
@@ -43,10 +43,14 @@ private func readNextMapping(lineIterator: inout IndexingIterator<[Substring]>) 
     guard categoriesSplit.count == 2 else { return nil }
     let from = String(categoriesSplit[0])
     let to = String(categoriesSplit[1])
+    var ranges = [RangeMapping]()
 
-    while let nextLine = lineIterator.next(), !nextLine.isEmpty {}
+    while let rangeLine = lineIterator.next(), !rangeLine.isEmpty {
+        let rangeLineSplit = readNumberList(from: rangeLine)
+        ranges.append(RangeMapping(dstStart: rangeLineSplit[0], srcStart: rangeLineSplit[1], mappedSize: rangeLineSplit[2]))
+    }
 
-    return Mapping(from: from, to: to, ranges: [])
+    return CategoryMapping(from: from, to: to, ranges: ranges)
 }
 
 private func parseInput(input: String) -> ParsedInput {
@@ -56,7 +60,7 @@ private func parseInput(input: String) -> ParsedInput {
     let seedValues = readSeedValues(from: lineIterator.next()!)
     _ = lineIterator.next() // skip blank line
 
-    var mappings: [Category: Mapping] = [:]
+    var mappings: [Category: CategoryMapping] = [:]
     while let nextMapping = readNextMapping(lineIterator: &lineIterator) {
         mappings[nextMapping.from] = nextMapping
     }
