@@ -144,8 +144,48 @@ private struct MappedRangeResult {
 }
 
 private func mapRangeToRange(range: SeedRange, rangeMapping: RangeMapping) -> MappedRangeResult {
-    // final case: no matches
-    MappedRangeResult(matched: false)
+    // Case 1: Entire range is within the mapped source range
+    if range.start >= rangeMapping.srcStart, range.end <= rangeMapping.srcStart + rangeMapping.mappedSize - 1 {
+        let offset = range.start - rangeMapping.srcStart
+        let newStart = rangeMapping.dstStart + offset
+        let mappedRange = SeedRange(start: newStart, size: range.size)
+        return MappedRangeResult(matched: true, mappedRange: mappedRange, remainingRanges: [])
+    }
+
+    // Case 2: Range entirely overlaps mapped source range
+    if range.start < rangeMapping.srcStart, range.end > rangeMapping.srcStart + rangeMapping.mappedSize - 1 {
+        let beforeSize = rangeMapping.srcStart - range.start
+        let beforeRange = SeedRange(start: range.start, size: beforeSize)
+        let withinStart = rangeMapping.dstStart
+        let withinSize = rangeMapping.mappedSize
+        let withinRange = SeedRange(start: withinStart, size: withinSize)
+        let afterStart = rangeMapping.srcStart + rangeMapping.mappedSize
+        let afterSize = range.end - afterStart + 1
+        let afterRange = SeedRange(start: afterStart, size: afterSize)
+        return MappedRangeResult(matched: true, mappedRange: withinRange, remainingRanges: [beforeRange, afterRange])
+    }
+
+    // Case 3: Range overlaps start of mapped source range
+    if range.start < rangeMapping.srcStart, range.end >= rangeMapping.srcStart, range.end <= rangeMapping.srcStart + rangeMapping.mappedSize - 1 {
+        let beforeSize = rangeMapping.srcStart - range.start
+        let beforeRange = SeedRange(start: range.start, size: beforeSize)
+        let mappedSize = range.end - rangeMapping.srcStart + 1
+        let mappedRange = SeedRange(start: rangeMapping.dstStart, size: mappedSize)
+        return MappedRangeResult(matched: true, mappedRange: mappedRange, remainingRanges: [beforeRange])
+    }
+
+    // Case 4: Range overlaps end of mapped source range
+    if range.start >= rangeMapping.srcStart, range.start <= rangeMapping.srcStart + rangeMapping.mappedSize - 1, range.end > rangeMapping.srcStart + rangeMapping.mappedSize - 1 {
+        let mappedSize = rangeMapping.srcStart + rangeMapping.mappedSize - range.start
+        let mappedRange = SeedRange(start: rangeMapping.dstStart + (range.start - rangeMapping.srcStart), size: mappedSize)
+        let afterStart = rangeMapping.srcStart + rangeMapping.mappedSize
+        let afterSize = range.end - afterStart + 1
+        let afterRange = SeedRange(start: afterStart, size: afterSize)
+        return MappedRangeResult(matched: true, mappedRange: mappedRange, remainingRanges: [afterRange])
+    }
+
+    // Final case: no matches
+    return MappedRangeResult(matched: false)
 }
 
 private func seedValuesToRanges(seedValues: [SeedValue]) -> [SeedRange] {
@@ -155,7 +195,6 @@ private func seedValuesToRanges(seedValues: [SeedValue]) -> [SeedRange] {
 private func part2(input: String) -> String {
     let parsed = parseInput(input: input)
     var currentRanges = seedValuesToRanges(seedValues: parsed.initialSeeds)
-    print("Initial ranges", currentRanges)
 
     var mappingIterator = CategoryMappingIterator(mappings: parsed.mappings)
 
@@ -181,8 +220,9 @@ private func part2(input: String) -> String {
         currentRanges = nextRanges
     }
 
-    print("Final ranges", currentRanges)
-    return "0"
+    let result = currentRanges.map(\.start).min()!
+
+    return String(result)
 }
 
 func day05(dayKey: String) throws {
@@ -190,5 +230,5 @@ func day05(dayKey: String) throws {
     try testAocOutput(dayKey: dayKey, inputName: "test", partKey: "1", partSolver: part1)
 
     try testAocOutput(dayKey: dayKey, inputName: "example", partKey: "2", partSolver: part2)
-    // try testAocOutput(dayKey: dayKey, inputName: "test", partKey: "2", partSolver: part2)
+    try testAocOutput(dayKey: dayKey, inputName: "test", partKey: "2", partSolver: part2)
 }
