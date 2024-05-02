@@ -4,6 +4,7 @@ private let daysMap: [String: AocDayRunner] = [
     "03": day03,
     "04": day04,
     "05": day05,
+    "06": day06,
     "07": day07,
 ]
 
