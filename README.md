@@ -1,6 +1,7 @@
-# Learning new languages with Advent of Code 2021
+# Learning new languages with Advent of Code 2023
 
-To practice algorithms and problem solving I'll solve each day's problems in different programming languages.
+To practice algorithms and problem solving I'll solve each day's problems in javascript and then use these excercises to
+become familiar with other programming languages and tooling.
 
 ## Project Layout
 
