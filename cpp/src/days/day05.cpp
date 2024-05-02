@@ -26,7 +26,7 @@ struct CategoryMapping {
 
 struct ParsedInput {
     std::vector<SeedValue> initialSeeds;
-    std::map<Category, CategoryMapping> mappings;
+    std::shared_ptr<std::map<Category, CategoryMapping>> mappings; // Use shared_ptr here
 };
 
 std::vector<int64_t> readNumberList(const std::string &text, char separator = ' ') {
@@ -84,19 +84,17 @@ CategoryMapping readNextMapping(std::istream &stream) {
 
 ParsedInput parseInput(const std::string &input) {
     std::istringstream stream(input);
-
     std::string seedLine;
     std::getline(stream, seedLine);
     auto seedValues = readSeedValues(seedLine);
-
     std::string blankLine;
     std::getline(stream, blankLine); // Skip the blank line
 
-    std::map<Category, CategoryMapping> mappings;
+    auto mappings = std::make_shared<std::map<Category, CategoryMapping>>(); // Create shared_ptr
     while (stream) {
         try {
             auto mapping = readNextMapping(stream);
-            mappings[mapping.from] = mapping;
+            (*mappings)[mapping.from] = mapping;
         } catch (const std::runtime_error &e) {
             break;
         }
@@ -106,14 +104,15 @@ ParsedInput parseInput(const std::string &input) {
 }
 
 class CategoryMappingIterator {
-    const std::map<std::string, CategoryMapping> &mappings;
+    std::shared_ptr<const std::map<std::string, CategoryMapping>> mappings;
     std::optional<CategoryMapping> currentMapping;
     bool firstCall = true;
 
   public:
-    CategoryMappingIterator(const std::map<std::string, CategoryMapping> &mappings) : mappings(mappings) {
-        auto it = mappings.find("seed");
-        if (it != mappings.end()) {
+    CategoryMappingIterator(std::shared_ptr<const std::map<std::string, CategoryMapping>> mappings)
+        : mappings(mappings) {
+        auto it = mappings->find("seed");
+        if (it != mappings->end()) {
             currentMapping = it->second;
         }
     }
@@ -126,8 +125,8 @@ class CategoryMappingIterator {
             firstCall = false;
             return currentMapping;
         }
-        auto it = mappings.find(currentMapping->to);
-        if (it != mappings.end()) {
+        auto it = mappings->find(currentMapping->to);
+        if (it != mappings->end()) {
             currentMapping = it->second;
             return currentMapping;
         }
@@ -154,7 +153,7 @@ std::vector<SeedValue> transformValues(const std::vector<SeedValue> &values, con
 std::string part1(const std::string &input) {
     ParsedInput parsed = parseInput(input);
     std::vector<SeedValue> currentValues = parsed.initialSeeds;
-    CategoryMappingIterator mappingIterator(parsed.mappings);
+    CategoryMappingIterator mappingIterator(parsed.mappings); // Pass shared_ptr to the iterator
 
     while (auto nextMapping = mappingIterator.next()) {
         currentValues = transformValues(currentValues, *nextMapping);
