@@ -105,15 +105,63 @@ ParsedInput parseInput(const std::string &input) {
     return {seedValues, mappings};
 }
 
-std::string part1(const std::string &input) {
-    ParsedInput parsed = parseInput(input);
-    int result = 0;
-    return std::to_string(result);
+class CategoryMappingIterator {
+    const std::map<std::string, CategoryMapping> &mappings;
+    std::optional<CategoryMapping> currentMapping;
+    bool firstCall = true;
+
+  public:
+    CategoryMappingIterator(const std::map<std::string, CategoryMapping> &mappings) : mappings(mappings) {
+        auto it = mappings.find("seed");
+        if (it != mappings.end()) {
+            currentMapping = it->second;
+        }
+    }
+
+    std::optional<CategoryMapping> next() {
+        if (!currentMapping.has_value()) {
+            return std::nullopt;
+        }
+        if (firstCall) {
+            firstCall = false;
+            return currentMapping;
+        }
+        auto it = mappings.find(currentMapping->to);
+        if (it != mappings.end()) {
+            currentMapping = it->second;
+            return currentMapping;
+        }
+        currentMapping.reset();
+        return std::nullopt;
+    }
+};
+
+std::vector<SeedValue> transformValues(const std::vector<SeedValue> &values, const CategoryMapping &mapping) {
+    std::vector<SeedValue> transformedValues = values;
+    for (auto &value : transformedValues) {
+        for (const auto &rangeMapping : mapping.ranges) {
+            SeedValue srcEnd = rangeMapping.srcStart + rangeMapping.mappedSize - 1;
+            if (value >= rangeMapping.srcStart && value <= srcEnd) {
+                SeedValue offset = rangeMapping.dstStart - rangeMapping.srcStart;
+                value += offset;
+                break; // Assuming each value only matches one range
+            }
+        }
+    }
+    return transformedValues;
 }
 
-std::string part2(const std::string &input) {
-    int result = 0;
-    return std::to_string(result);
+std::string part1(const std::string &input) {
+    ParsedInput parsed = parseInput(input);
+    std::vector<SeedValue> currentValues = parsed.initialSeeds;
+    CategoryMappingIterator mappingIterator(parsed.mappings);
+
+    while (auto nextMapping = mappingIterator.next()) {
+        currentValues = transformValues(currentValues, *nextMapping);
+    }
+
+    auto minIt = std::min_element(currentValues.begin(), currentValues.end());
+    return std::to_string(minIt != currentValues.end() ? *minIt : 0);
 }
 
 } // namespace
@@ -121,6 +169,4 @@ std::string part2(const std::string &input) {
 void day05() {
     testAocOutput("05", "example", "1", &part1);
     testAocOutput("05", "test", "1", &part1);
-    testAocOutput("05", "example", "2", &part2);
-    testAocOutput("05", "test", "2", &part2);
 }
