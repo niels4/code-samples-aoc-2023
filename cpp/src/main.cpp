@@ -2,6 +2,7 @@
 #include "days/day02.h"
 #include "days/day03.h"
 #include "days/day04.h"
+#include "days/day05.h"
 #include <iostream>
 #include <map>
 #include <string>
@@ -9,10 +10,7 @@
 int main(int argc, char *argv[]) { // NOLINT
 
     static const auto daysMap = std::map<std::string, void (*)()>{
-        {"01", &day01},
-        {"02", &day02},
-        {"03", &day03},
-        {"04", &day04},
+        {"01", &day01}, {"02", &day02}, {"03", &day03}, {"04", &day04}, {"05", &day05},
     };
 
     std::vector<std::string> args(argv + 1, argv + argc);
