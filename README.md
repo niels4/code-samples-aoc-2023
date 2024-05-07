@@ -40,17 +40,18 @@ when working on larger projects with more than 1 developer. For these types of p
 to statically verify everybody is on the same page when it comes to data types and function signatures.
 
 I've included just a single day that uses a custom defined data structure to demonstrate that I'm familiar with typescript
-and can create collection data structures that use generics to remain type safe.
+and can create collection data structures that use generics to remain type safe. To run this example you must first
+`npm install` to locally install the typescript compiler dependency.
 
 ```
 cd typescript
+npm install
 ./run 17
 ```
 
-This example also contains unit tests for the type safe Heap and UniqueHeap data structures. To run, first install the dev dependencies.
+This example also contains unit tests for the type safe Heap and UniqueHeap data structures.
 
 ```
-npm install
 npm test
 ```
 

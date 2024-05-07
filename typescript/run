@@ -15,5 +15,5 @@ fi
 DAY=$(pad_day $1)
 
 # compile and run the program
-tsc
+npm run build
 node dist/days/day$DAY.js
